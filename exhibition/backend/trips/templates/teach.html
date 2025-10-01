@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR遊戲集點</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-image: url('https://github.com/tdance555/tdance2024/blob/beforeFinish/media/vendor_icons/%E8%B3%87%E7%94%A2%207@150x.png?raw=true');
+            background-size: 100% 100%;
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items:center;
+            min-height: 100vh;
+        }
+
+        .back-button {
+            padding-top: -10px;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 100px;
+            height:100px;
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/%E5%B0%8D%E9%8C%AF%E8%BF%94%E5%9B%9E_%E5%B7%A5%E4%BD%9C%E5%8D%80%E5%9F%9F%201%20%E8%A4%87%E6%9C%AC%204.png?raw=true');
+            background-size: cover;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .content {
+            border-radius: 5px;
+            text-align: center;
+            padding-top: -50px;
+        }
+
+        h1 {
+            font-size: 30px;
+            color: #ffffff;
+            font-weight: bold;
+            margin-top: 100px;
+            border: 2px solid #ffffff; /* 加上邊框 */
+            padding: 10px;
+            text-align: center; /* 文字水平置中 */
+            display: inline-block; /* 讓邊框根據內容寬度自動調整 */
+            border-radius: 15px;
+            background-color: cadetblue;
+        }
+
+        h2 {
+            font-size: 18px;
+            margin-bottom: 100px;
+        }
+
+        img {
+            width: 336px;
+            height: 729px;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 320px) and (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+
+            .content {
+                font-size: 14px;
+            }
+        }
+
+        @media (min-width: 481px) and (max-width: 767px) {
+            .container {
+                padding: 15px;
+            }
+
+            .content {
+                font-size: 16px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .content {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.history.back()"></button>
+    <div class="container">
+        <div class="content">
+            <h1>如何遊玩</h1>
+            <h2 class="h2Row2"></h2>
+            <img src="https://github.com/tdance555/tdance2024/blob/beforeFinish/media/vendor_icons/T1.png?raw=true" alt="第一步">
+            <img src="https://github.com/tdance555/tdance2024/blob/beforeFinish/media/vendor_icons/T2.png?raw=true" alt="第二步">
+            <img src="https://github.com/tdance555/tdance2024/blob/beforeFinish/media/vendor_icons/T3.png?raw=true" alt="第三步">
+            <img src="https://github.com/tdance555/tdance2024/blob/beforeFinish/media/vendor_icons/T4.png?raw=true" alt="第四步">
+            <img src="https://github.com/tdance555/tdance2024/blob/beforeFinish/media/vendor_icons/T5.png?raw=true" alt="第五步">
+        </div>
+    </div>
+</body>
+
+</html>

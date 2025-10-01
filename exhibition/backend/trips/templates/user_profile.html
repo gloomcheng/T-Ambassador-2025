@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>使用者資訊</title>
+    <style>
+        /* 僅在手機上顯示 */
+        @media (min-width: 481px) {
+            body {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                text-align: center; /* 所有文字置中 */
+                background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/%E4%BF%AE%E7%90%86%E7%B6%A0.png?raw=true');  /* 背景圖像路徑 */
+                background-size: 100% 100%; /* 使背景圖像覆蓋整個背景 */
+                background-position: center center; /* 將背景圖像置中 */
+                background-repeat: no-repeat; /* 防止背景圖像重複 */
+            }
+
+            .container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100vh; /* 占滿視窗高度 */
+                padding: 20px;
+                box-sizing: border-box;
+            }
+
+            h1 {
+                margin-bottom: 20px;
+            }
+
+            .gender-buttons {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 15px;
+            }
+
+            .gender-button {
+                padding: 10px;
+                margin: 5px;
+                cursor: pointer;
+                border: 1px solid #ccc; /* 按鈕邊框顏色 */
+                border-radius: 5px;
+                background-color: #f0f0f0; /* 按鈕默認背景顏色 */
+                color: #333; /* 按鈕默認文字顏色 */
+                font-size: 16px;
+                outline: none;
+                flex: 1; /* 按鈕平分容器寬度 */
+                box-sizing: border-box;
+            }
+
+            .gender-button.selected {
+                background-color: cadetblue; /* 選中狀態的背景顏色 */
+                color: white; /* 選中狀態的文字顏色 */
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+                text-align: center; /* 文字置中 */
+            }
+
+            input[type="tel"] {
+                width: 100%;
+                padding: 10px;
+                box-sizing: border-box;
+                border: 1px solid #ccc; /* 輸入框邊框顏色 */
+                border-radius: 5px;
+            }
+
+            button {
+                width: 100%;
+                padding: 10px;
+                background-color: cadetblue; /* 送出按鈕背景顏色 */
+                color: white; /* 送出按鈕文字顏色 */
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+                outline: none;
+            }
+
+            .text1 {
+                font-size: 15pt;
+            }
+
+            .text2 {
+                font-size: 10pt;
+            }
+        }
+    </style>
+    <!-- 引入intl-tel-input的CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
+</head>
+<body>
+    <div class="container">
+        <h1 class="text1">在開始旅遊之前，我們想知道......</h1>
+        <h2 class="text2">請提供簡單資訊方便我們紀錄您的集點資訊</h2>
+
+        <form id="user-form" method="post" action="{% url 'user_profile' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <h3>手機號碼</h3>
+                <input type="tel" id="phone" name="phone" placeholder="輸入手機號碼">
+            </div>
+            <div class="form-group">
+                <h3>性別</h3>
+                <div class="gender-buttons">
+                    <div class="gender-button" data-value="M">生理<br>男性</div>
+                    <div class="gender-button" data-value="F">生理<br>女性</div>
+                    <div class="gender-button" data-value="O">多元<br>性別</div>
+                </div>
+                <input type="hidden" id="id_gender" name="gender" value="">
+            </div>
+            <button type="submit">送出</button>
+        </form>
+    </div>
+
+    <!-- 引入intl-tel-input的JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化 intl-tel-input
+            var input = document.querySelector("#phone");
+            var iti = window.intlTelInput(input, {
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+                initialCountry: "TW" // 設定默認國家為台灣
+            });
+
+            // 處理性別按鈕點擊事件
+            let buttons = document.querySelectorAll('.gender-button');
+            buttons.forEach(function(button) {
+                button.addEventListener('click', function() {
+                    buttons.forEach(function(btn) {
+                        btn.classList.remove('selected');
+                    });
+                    button.classList.add('selected');
+                    document.getElementById('id_gender').value = button.dataset.value;
+                });
+            });
+
+            // 處理表單提交事件
+            $('#user-form').submit(function(event) {
+                event.preventDefault();
+
+                // 檢查手機號碼是否有效
+                if (!iti.isValidNumber()) {
+                    alert("請輸入有效的手機號碼");
+                    return;
+                }
+
+                // 獲取格式化的手機號碼
+                var formattedPhoneNumber = iti.getNumber();
+                var localPhoneNumber = formattedPhoneNumber.replace("+886", "0");
+
+                // 創建一個 FormData 對象來存儲表單數據
+                var formData = new FormData(this);
+                formData.append("phone", localPhoneNumber); // 使用本地格式的手機號碼
+
+                // 檢查手機號碼是否重複
+                $.ajax({
+                    url: "{% url 'user_profile' %}",
+                    method: 'POST',
+                    data: {
+                        phone: localPhoneNumber,  // 將本地格式的手機號碼發送給後端
+                        gender: $('#id_gender').val(),
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (!response.exists) {
+                            // 成功後的操作
+                            if (response.redirect_url) {
+                                window.location.href = response.redirect_url;
+                            } else {
+                                $('#user-form').unbind('submit').submit();
+                            }
+                        }
+                    },
+                    error: function(response) {
+                        if (response.status === 400 && response.responseJSON.exists) {
+                            alert(response.responseJSON.message); // 顯示重複的提示信息
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Game</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <style>
+        .back-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 100px;
+            height: 100px;
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/%E5%B0%8D%E9%8C%AF%E8%BF%94%E5%9B%9E_%E5%B7%A5%E4%BD%9C%E5%8D%80%E5%9F%9F%201%20%E8%A4%87%E6%9C%AC%204.png?raw=true');
+            background-size: cover;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .center-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 400px;
+            background-color: white;
+            border-radius: 15px;
+            box-sizing: border-box;
+            display: none;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .question {
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .option {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4F74AB;
+            border-radius: 5px;
+            color: white;
+            align-self:center;
+        }
+
+        .result {
+            display: none;
+            font-size: 18px;
+        }
+
+        .result img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .continue-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #4F74AB;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.history.back()"></button>
+    <h1></h1>
+    <!-- 換mind檔案 -->
+    <a-scene mindar-image="imageTargetSrc: ../mind/targets_03.mind; uiError: no; uiLoading: no; uiScanning: no;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+        <a-assets>
+            <!-- 換圖片 -->
+            <img id="card" src="https://github.com/tdance555/tdance2024/blob/beforefinish/trips/img/img_03.png?raw=true" />
+            <a-asset-item id="avatarModel" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/softmind/scene.gltf"></a-asset-item>
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+        <a-entity mindar-image-target="targetIndex: 0"></a-entity>
+    </a-scene>
+
+    <div class="center-box">
+        <div class="status-message"></div>
+        <button class="continue-btn" onclick="window.history.back()">繼續前行</button>
+    </div>
+
+    <script>
+        // 函數：獲取指定名稱的 cookie 值
+        function getCookie(name) {
+            let nameEQ = name + "=";
+            let ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        $(document).ready(function () {
+            let targetFoundOnce = false;
+            // let level = getCookie('level');
+            // 換關卡編號
+            let level ="3";
+            let phone = getCookie('phone');
+            let mainurl = "https://tdance.fansee.studio/trips/api/post-detail/";
+
+            // 事件：檢測到目標
+            var mindarEntity = document.querySelector('a-entity[mindar-image-target]');
+            mindarEntity.addEventListener('targetFound', function (event) {
+                if (!targetFoundOnce) {
+                    targetFoundOnce = true;
+
+                    // 獲取關卡狀態
+                    $.ajax({
+                        url: mainurl + phone,
+                        type: "GET",
+                        dataType: "json",
+                        success: function (data) {
+                            let status = data.content[String(level)].status;
+                            $('.center-box').fadeIn();
+
+                            if (status === 'pass' || status === 'fail') {
+                                $('.status-message').html('<h3>你已做出選擇，請繼續前行吧</h3>');
+                                $('.center-box').fadeIn();
+                            } else {
+                                // 如果是null，則顯示問題和選項
+                                $.ajax({
+                                    url: "https://tdance.fansee.studio/trips/api/question/" + level,
+                                    type: "GET",
+                                    dataType: "json",
+                                    success: function (Question) {
+                                        var correctAnswer = Question.answer;
+                                        var content = `
+                                            <div class="question">${Question.question}</div>
+                                            <button class="option" data-choice="A">${Question.choiceA}</button>
+                                            <button class="option" data-choice="B">${Question.choiceB}</button>
+                                            <button class="option" data-choice="C">${Question.choiceC}</button>
+                                            <button class="option" data-choice="D">${Question.choiceD}</button>
+                                            <div class="result"></div>
+                                        `;
+                                        $('.center-box').html(content);
+
+                                        $('.option').click(function () {
+                                            var userChoice = $(this).data('choice');
+                                            var resultStatus = userChoice === correctAnswer ? 'pass' : 'fail';
+
+                                            // 移除問題和選項按鈕
+                                            $('.question, .option').remove();
+
+                                            if (resultStatus === 'pass') {
+                                                $('.result').html('<p>恭喜通關</p><img src="https://github.com/tdance555/tdance2024/blob/beforeFinish/media/vendor_icons/correct.png?raw=true" alt="Success Image"><button onclick="window.history.back()">繼續前行</button>');
+                                            } else {
+                                                $('.result').html('<p>挑戰失敗</p><img src="https://github.com/tdance555/tdance2024/blob/beforeFinish/media/vendor_icons/wrong.png?raw=true" alt="Failure Image"><button onclick="window.history.back()">繼續前行</button>');
+                                            }
+
+                                            $('.result').fadeIn();
+
+                                            // 發送 PATCH 請求更新數據
+                                            $.ajax({
+                                                url: `https://tdance.fansee.studio/trips/api/post/${phone}/`,
+                                                type: "PATCH",
+                                                contentType: "application/json",
+                                                data: JSON.stringify({
+                                                    level: level,
+                                                    status: resultStatus,
+                                                    user_answer: userChoice,
+                                                    correct_answer: correctAnswer
+                                                }),
+                                                success: function (response) {
+                                                    console.log("數據更新成功:", response);
+                                                },
+                                                error: function (xhr, status, error) {
+                                                    console.error("更新失敗:", xhr.responseText);
+                                                }
+                                            });
+                                        });
+                                    },
+                                    error: function (xhr, status, error) {
+                                        console.error('AJAX request failed:', error);
+                                    }
+                                });
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('AJAX request failed:', error);
+                        }
+                    });
+
+                    mindarEntity.removeEventListener('targetFound', arguments.callee);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

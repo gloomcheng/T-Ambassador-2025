@@ -1,0 +1,163 @@
+<!-- @Author: YI-SYUAN -->
+<!-- 網頁遊戲主頁 -->
+<!-- 已完成:1.跳轉、2.返回 -->
+<!-- 待完成:1.畫面設計 -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR遊戲集點</title>
+    <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR遊戲集點</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/%E8%88%9E%E7%B4%85.png?raw=true');
+            background-size: 100% 100%;
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            /* padding: 20px; */
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items:center;
+            min-height: 100vh;
+        }
+
+        .back-button {
+            padding-top: -10px;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 100px;
+            height:100px;
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/%E5%B0%8D%E9%8C%AF%E8%BF%94%E5%9B%9E_%E5%B7%A5%E4%BD%9C%E5%8D%80%E5%9F%9F%201%20%E8%A4%87%E6%9C%AC%204.png?raw=true');
+            background-size: cover;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .content {
+            /* background-color:blueviolet; */
+            /* border: black solid 10px; */
+            border-radius: 5px;
+            text-align: center;
+            /* height: 700px; */
+            /* max-width: 375px; */
+            /* padding-bottom: 100px; */
+            padding-top: -50px;
+        }
+
+        .button1, .button2, .button3 {
+            width: 125px;
+            height: 125px;
+            background-color: #ffffff;
+            border: none;
+            color: white;
+            padding: 20px 42px;
+            text-align: center;
+            display: block;
+            font-size: 35px;
+            border-radius: 15px;
+            border: 5px solid #EAD73B;
+            background-size: contain;
+            background-repeat: no-repeat;
+            margin: 10px auto;
+        }
+
+        .button1 {
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/button_1.png?raw=true');
+        }
+
+        .button2 {
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/button_2.png?raw=true');
+        }
+
+        .button3 {
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/button_3.png?raw=true');
+        }
+
+        h1 {
+            margin-top: -25px;
+            font-size: 20px;
+        }
+
+        h2 {
+            font-size: 18px;
+            margin-bottom: 100px;
+        }
+
+        @media (min-width: 320px) and (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+
+            .content {
+                font-size: 14px;
+            }
+        }
+
+        @media (min-width: 481px) and (max-width: 767px) {
+            .container {
+                padding: 15px;
+            }
+
+            .content {
+                font-size: 16px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .content {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.history.back()"></button>
+    <div class="container">
+        <div class="content">
+            <h1>您來到了門外小屋，這裡有三條道路</h1>
+            <h2 class="h2Row2">請選擇你想行走的道路</h2>
+            <button onclick="Toroute1Page()" class="button1"></button>
+            <button onclick="Toroute2Page()" class="button2"></button>
+            <button onclick="Toroute3Page()" class="button3"></button>
+        </div>
+    </div>
+
+    <script>
+        function Toroute1Page() {
+            window.location.href = "route4";
+        }
+        function Toroute2Page() {
+            window.location.href = "route5";
+        }
+        function Toroute3Page() {
+            window.location.href = "route6";
+        }
+    </script>
+</body>
+
+</html>

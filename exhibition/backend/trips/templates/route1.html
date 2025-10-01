@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR遊戲集點</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/%E9%BB%83%E9%BA%B5%E5%8C%85.png?raw=true'); 
+            background-size: 100% 100%;
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 100px;
+            height: 100px;
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/%E5%B0%8D%E9%8C%AF%E8%BF%94%E5%9B%9E_%E5%B7%A5%E4%BD%9C%E5%8D%80%E5%9F%9F%201%20%E8%A4%87%E6%9C%AC%204.png?raw=true');
+            background-size: cover;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            flex-wrap: wrap;
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .button-container {
+            position: relative;
+            margin: 10px;
+            width: 146px;
+            height: 159px;
+        }
+
+        .button-container button {
+            width: 100%;
+            height: 100%;
+            background-color: #4F74AB;
+            border: none;
+            border-radius: 15px;
+            border: 5px solid #EAD73B;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .button-container button[disabled] {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .button-container .iconbt1 {
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/1.png?raw=true');
+        }
+        .button-container .iconbt2 {
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/2.png?raw=true');
+        }
+        .button-container .iconbt3 {
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/3.png?raw=true');
+        }
+        .button-container .iconbt4 {
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/4.png?raw=true');
+        }
+        .button-container .iconbt5 {
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/5.png?raw=true');
+        }
+        .button-container .iconbt18 {
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/18.png?raw=true');
+        }
+
+        .status-pass,
+        .status-fail {
+            position: absolute;
+            top: 50%; /* 中心位置 */
+            left: 50%;
+            transform: translate(-50%, -50%); /* 居中 */
+            width: 100px;
+            height: 100px;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            display: none;
+        }
+
+        .status-pass {
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/correct.png?raw=true');
+        }
+
+        .status-fail {
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/wrong.png?raw=true');
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+        
+        .h1-1 {
+            font-size: 23px;
+        }
+        .h2-1 {
+            font-size: 20px;
+        }
+
+        @media (min-width: 320px) and (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+        }
+
+        @media (min-width: 481px) and (max-width: 767px) {
+            .container {
+                padding: 15px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.history.back()"></button>
+    <div class="container">
+        <div class="content">
+            <h1 class="h1-1">這是條自然氣息濃厚的道路</h1>
+            <h2 class="h2-1">請任意選擇「兩個」事件並進行通關</h2>
+            <div class="button-container">
+                <button class="iconbt1" data-level="1"></button>
+                <div class="status-pass" id="status1"></div>
+                <div class="status-fail" id="fail1"></div>
+            </div>
+            <div class="button-container">
+                <button class="iconbt2" data-level="2"></button>
+                <div class="status-pass" id="status2"></div>
+                <div class="status-fail" id="fail2"></div>
+            </div>
+            <div class="button-container">
+                <button class="iconbt3" data-level="3"></button>
+                <div class="status-pass" id="status3"></div>
+                <div class="status-fail" id="fail3"></div>
+            </div>
+            <div class="button-container">
+                <button class="iconbt4" data-level="4"></button>
+                <div class="status-pass" id="status4"></div>
+                <div class="status-fail" id="fail4"></div>
+            </div>
+            <div class="button-container">
+                <button class="iconbt5" data-level="5"></button>
+                <div class="status-pass" id="status5"></div>
+                <div class="status-fail" id="fail5"></div>
+            </div>
+            <div class="button-container">
+                <button class="iconbt18" data-level="18"></button>
+                <div class="status-pass" id="status18"></div>
+                <div class="status-fail" id="fail18"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const phone = getCookie('phone');
+            
+            if (phone) {
+                fetch(`https://tdance.fansee.studio/trips/api/post-detail/${phone}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const levels = [1, 2, 3, 4, 5, 18];
+
+                        levels.forEach(level => {
+                            const statusPassElement = document.getElementById(`status${level}`);
+                            const statusFailElement = document.getElementById(`fail${level}`);
+                            const button = document.querySelector(`button[data-level="${level}"]`);
+                            
+                            const status = data.content[level.toString()]?.status;
+                            if (status === 'pass') {
+                                button.disabled = true;
+                                statusPassElement.style.display = 'block';
+                            } else if (status === 'fail') {
+                                button.disabled = true;
+                                statusFailElement.style.display = 'block';
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching post details', error);
+                    });
+            }
+        });
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function handleButtonClick(level) {
+            document.cookie = `level=${level}; path=/; max-age=${60 * 60 * 24 * 30}`; // 30 days
+            window.location.href = `arScan${level}`;
+        }
+
+        document.querySelectorAll('.button-container button').forEach(button => {
+            button.addEventListener('click', function() {
+                const level = this.dataset.level;
+                handleButtonClick(level);
+            });
+        });
+    </script>
+</body>
+</html>

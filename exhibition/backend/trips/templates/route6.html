@@ -1,0 +1,223 @@
+<!-- @Author: YI-SYUAN -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR遊戲集點</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/WebAR_Background.png?raw=true');  /* 替換為你的背景圖片 URL */
+            background-size: 100% 100%; /* 確保圖片覆蓋整個背景 */
+            background-position: center center; /* 確保圖片居中 */
+            background-repeat: no-repeat; /* 防止圖片重覆 */
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* 確保容器至少占滿整個視口高度 */
+            /*background: rgba(255, 255, 255, 0.8); *//* 半透明白色背景 */
+            flex-wrap:wrap;
+        }
+
+        .content {
+            /* background-color: #ffffff; */
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            padding-top: 50px;
+            /*box-shadow: 0 4px 8px rgba(0,0,0,0.1);  輕微陰影效果 */
+        }
+
+        button{
+            margin: 5px;
+        }
+        .iconbt23{
+            width: 146px;
+            height: 159px;
+            background-color: rgb(41, 64, 42);
+            border: none;
+            color: white;
+            padding: 20px 42px;
+            text-align: center;
+            text-decoration: auto;
+            display: inline-block;
+            font-size: 35px;
+            border-radius: 15px;
+            border: 5px solid white;
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/23.png?raw=true');
+            text-align: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .iconbt24{
+            width: 146px;
+            height: 159px;
+            background-color: rgb(41, 64, 42);
+            border: none;
+            color: white;
+            padding: 20px 42px;
+            text-align: center;
+            text-decoration: auto;
+            display: inline-block;
+            font-size: 35px;
+            border-radius: 15px;
+            border: 5px solid white;
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/24.png?raw=true');
+            text-align: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .iconbt25{
+            width: 146px;
+            height: 159px;
+            background-color: rgb(41, 64, 42);
+            border: none;
+            color: white;
+            padding: 20px 42px;
+            text-align: center;
+            text-decoration: auto;
+            display: inline-block;
+            font-size: 35px;
+            border-radius: 15px;
+            border: 5px solid white;
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/25.png?raw=true');
+            text-align: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .iconbt26{
+            width: 146px;
+            height: 159px;
+            background-color: rgb(41, 64, 42);
+            border: none;
+            color: white;
+            padding: 20px 42px;
+            text-align: center;
+            text-decoration: auto;
+            display: inline-block;
+            font-size: 35px;
+            border-radius: 15px;
+            border: 5px solid white;
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/26.png?raw=true');
+            text-align: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .iconbt27{
+            width: 146px;
+            height: 159px;
+            background-color: rgb(41, 64, 42);
+            border: none;
+            color: white;
+            padding: 20px 42px;
+            text-align: center;
+            text-decoration: auto;
+            display: inline-block;
+            font-size: 35px;
+            border-radius: 15px;
+            border: 5px solid white;
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/27.png?raw=true');
+            text-align: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .iconbt28{
+            width: 146px;
+            height: 159px;
+            background-color: rgb(41, 64, 42);
+            border: none;
+            color: white;
+            padding: 20px 42px;
+            text-align: center;
+            text-decoration: auto;
+            display: inline-block;
+            font-size: 35px;
+            border-radius: 15px;
+            border: 5px solid white;
+            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/28.png?raw=true');
+            text-align: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+
+        @media (min-width: 320px) and (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+
+            .content {
+                font-size: 14px;
+            }
+        }
+
+        @media (min-width: 481px) and (max-width: 767px) {
+            .container {
+                padding: 15px;
+            }
+
+            .content {
+                font-size: 16px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .content {
+                font-size: 18px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <button class="iconbt23" onclick="num23()"></button>
+            <button class="iconbt24" onclick="num24()"></button>
+            <button class="iconbt25" onclick="num25()"></button>
+            <button class="iconbt26" onclick="num26()"></button>
+            <button class="iconbt27" onclick="num27()"></button>
+            <button class="iconbt28" onclick="num28()"></button>
+        </div>
+    </div>
+
+    <script>
+        function num23() {
+            document.cookie = "level=" + "23" + "; path=/; max-age=" + (60 * 60 * 24 * 30); // 30天的過期時間
+        }
+        function num24() {
+            document.cookie = "level=" + "24" + "; path=/; max-age=" + (60 * 60 * 24 * 30); // 30天的過期時間
+        }
+        function num25() {
+            document.cookie = "level=" + "25" + "; path=/; max-age=" + (60 * 60 * 24 * 30); // 30天的過期時間
+        }
+        function num26() {
+            document.cookie = "level=" + "26" + "; path=/; max-age=" + (60 * 60 * 24 * 30); // 30天的過期時間
+        }
+        function num27() {
+            document.cookie = "level=" + "27" + "; path=/; max-age=" + (60 * 60 * 24 * 30); // 30天的過期時間
+        }
+        function num28() {
+            document.cookie = "level=" + "28" + "; path=/; max-age=" + (60 * 60 * 24 * 30); // 30天的過期時間
+        }
+    </script>
+</body>
+</html>
+

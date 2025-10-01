@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR遊戲集點</title>
+    <style>
+        /* 僅在手機上顯示 */
+        @media (min-width: 481px) {
+            body {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                text-align: center; /* 所有文字置中 */
+                background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/%E9%BB%83%E9%BA%B5%E5%8C%85.png?raw=true');  /* 背景圖像路徑 */
+                background-size: 100% 100%; /* 使背景圖像覆蓋整個背景 */
+                background-position: center center; /* 將背景圖像置中 */
+                background-repeat: no-repeat; /* 防止背景圖像重複 */
+            }
+
+            .container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                /* justify-content: center; */
+                height: 100vh; /* 占滿視窗高度 */
+                padding: 20px;
+                box-sizing: border-box;
+                /* border: 2px solid red; */
+            }
+
+            .textContainer {
+                background-color: rgba(255, 255, 255, 0.8);
+                /* padding: 20px; */
+                border-radius: 10px;
+                /* box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); */
+                margin-bottom: 100px;
+                max-width: 100%;
+                text-align: center;
+                margin-top: 150px;
+                /* border: 2px solid red; */
+            }
+
+            .text1 {
+                font-size: 30pt;
+                margin: 30px; /* 去掉預設的邊距 */
+                font-family: 'Microsoft YaHei';
+                letter-spacing: 6px;
+            }
+            .text2 {
+                font-size: 15pt;
+                margin: 10px; /* 去掉預設的邊距 */
+                font-family: 'Microsoft YaHei';
+                letter-spacing: 5px;
+            }
+            button {
+                display: flex;
+                justify-content: right;
+                align-items: center;
+                width: 100%;
+                padding: 11px;
+                background-color: #4F74AB;
+                color: aliceblue;
+                border: aliceblue;
+                border-radius: 40px;
+                cursor: pointer;
+                font-size: 24px;
+                outline: auto;
+                font-family: 'Microsoft YaHei';
+                max-width: 200px;
+                letter-spacing: 10px;
+            }
+        }
+    </style>
+    <!-- 引入intl-tel-input的CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="textContainer">
+            <h1 class="text1">遊戲說明</h1>
+            <h2 class="text2">闖關路線有三條</h2>
+            <h2 class="text2">每條路線請選擇兩關進行闖關</h2>
+            <h2 class="text2">集滿6關即可通關</h2>
+        </div>
+        <button type="button" onclick="redirectToPage()">我了解了!</button>
+    </div>
+    <script>
+        function redirectToPage() {
+            window.location.href = "{% url 'function' %}";
+        }
+    </script>
+</body>
+</html>
