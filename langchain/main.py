@@ -55,8 +55,11 @@ def financial_analysis(company: str) -> str:
     }
 
     supported_companies = "蘋果公司、台積電、特斯拉、微軟、谷歌、亞馬遜"
-    return analysis_data.get(company, f"抱歉，我沒有 {company} 的財務分析資料。"
-                                     f"支援的公司：{supported_companies}")
+    return analysis_data.get(
+        company,
+        f"抱歉，我沒有 {company} 的財務分析資料。"
+        f"支援的公司：{supported_companies}"
+    )
 
 
 def detect_intent(question: str) -> tuple[str, str]:
@@ -82,8 +85,10 @@ def detect_intent(question: str) -> tuple[str, str]:
     # 財務分析
     analysis_keywords = ['分析', '投資價值', '建議', '評估']
     for company in stock_companies:
-        if (company in question and
-            any(keyword in question_lower for keyword in analysis_keywords)):
+        if (
+            company in question and
+            any(keyword in question_lower for keyword in analysis_keywords)
+        ):
             return "analysis", company
 
     # 預設為知識庫查詢
@@ -98,11 +103,15 @@ def create_financial_advisor():
     # 初始化財務知識庫
     try:
         loader = PyPDFLoader("202502_6625_AI1_20250924_142829.pdf")
-        splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000, chunk_overlap=100
+        )
         doc_split = loader.load_and_split(text_splitter=splitter)
 
         embeddings = OllamaEmbeddings(model="nomic-embed-text")
-        vectorstore = Chroma.from_documents(documents=doc_split, embedding=embeddings)
+        vectorstore = Chroma.from_documents(
+            documents=doc_split, embedding=embeddings
+        )
         retriever = vectorstore.as_retriever()
         print("✅ 知識庫載入成功")
     except Exception as e:
@@ -123,6 +132,7 @@ def create_financial_advisor():
     llm = ChatOllama(model="gemma3:1b", temperature=0.1)
 
     return llm, retriever
+
 
 def answer_financial_question(question: str, llm, retriever):
     """智慧回答財務問題"""
@@ -204,7 +214,11 @@ def answer_financial_question(question: str, llm, retriever):
         # 知識庫查詢
         print("📚 查詢知識庫資訊")
         relevant_docs = retriever.get_relevant_documents(question)
-        context = relevant_docs[0].page_content if relevant_docs else "沒有找到相關資訊"
+        context = (
+            relevant_docs[0].page_content
+            if relevant_docs
+            else "沒有找到相關資訊"
+        )
 
         context_text = context[:2000] if context else ""
         prompt = (

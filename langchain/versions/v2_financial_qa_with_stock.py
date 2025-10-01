@@ -6,11 +6,10 @@
 現在系統不僅能回答知識庫問題，還能查詢即時股票價格。
 """
 
-import random
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
-from langchain_community.chat_models import ChatOllama
+from langchain_ollama import ChatOllama
 from langchain_community.embeddings.ollama import OllamaEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 
@@ -33,9 +32,12 @@ def get_stock_price(symbol: str) -> str:
         data = stock_data[symbol_upper]
         return f"{symbol} 股價：${data['price']} ({data['change']}) 成交量：{data['volume']}"
     else:
-        return f"抱歉，我沒有 {symbol} 的股價資訊。支援的股票：AAPL, GOOGL, MSFT, TSLA, 台積電, 鴻海, 聯發科"
+        return (
+            f"抱歉，我沒有 {symbol} 的股價資訊。"
+            "支援的股票：AAPL, GOOGL, MSFT, TSLA, 台積電, 鴻海, 聯發科"
+        )
 
-def detect_stock_query(question: str) -> tuple[bool, str]:
+def detect_stock_query(question: str) -> tuple[bool, str | None]:
     """偵測是否為股票查詢，並提取股票代號"""
     question_lower = question.lower()
 
@@ -62,14 +64,27 @@ def main():
     print("📈 新功能：現在可以查詢股票價格了！")
     print("💡 這個版本結合了知識庫查詢和即時股價查詢")
 
-    # 初始化財務知識庫（與版本 1 相同）
-    loader = PyPDFLoader("202502_6625_AI1_20250924_142829.pdf")
-    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-    doc_split = loader.load_and_split(text_splitter=splitter)
+    # 初始化財務知識庫（與版本 1 相同，帶錯誤處理）
+    try:
+        loader = PyPDFLoader("202502_6625_AI1_20250924_142829.pdf")
+        splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+        doc_split = loader.load_and_split(text_splitter=splitter)
 
-    embeddings = OllamaEmbeddings(model="nomic-embed-text")
-    vectorstore = Chroma.from_documents(documents=doc_split, embedding=embeddings)
-    retriever = vectorstore.as_retriever()
+        embeddings = OllamaEmbeddings(model="nomic-embed-text")
+        vectorstore = Chroma.from_documents(documents=doc_split, embedding=embeddings)
+        retriever = vectorstore.as_retriever()
+        print("✅ 知識庫載入成功")
+    except Exception as e:
+        print(f"⚠️ 知識庫載入失敗，使用預設知識：{str(e)}")
+        # 創建一個空的檢索器，如果沒有 PDF 檔案
+        from langchain_core.retrievers import BaseRetriever
+        from langchain_core.documents import Document
+
+        class EmptyRetriever(BaseRetriever):
+            def get_relevant_documents(self, query):
+                return [Document(page_content="這是一個財務知識庫的預設回應。由於沒有載入 PDF 文件，這裡提供基本的財務知識。")]
+
+        retriever = EmptyRetriever()
 
     llm = ChatOllama(model="gemma3:1b", temperature=0.1)
 

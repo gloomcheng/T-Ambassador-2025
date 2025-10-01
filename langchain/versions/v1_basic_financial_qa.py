@@ -10,7 +10,7 @@
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
-from langchain_community.chat_models import ChatOllama
+from langchain_ollama import ChatOllama
 from langchain_community.embeddings.ollama import OllamaEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 
@@ -19,17 +19,36 @@ def main():
     print("=" * 60)
     print("📊 這個系統只能回答知識庫中的財務問題")
 
-    # 載入 PDF 文件
+    # 載入 PDF 文件（帶錯誤處理）
     print("📚 載入財務知識庫...")
-    loader = PyPDFLoader("202502_6625_AI1_20250924_142829.pdf")
-    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-    doc_split = loader.load_and_split(text_splitter=splitter)
+    try:
+        loader = PyPDFLoader("202502_6625_AI1_20250924_142829.pdf")
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000, chunk_overlap=100
+        )
+        doc_split = loader.load_and_split(text_splitter=splitter)
 
-    # 建立向量資料庫
-    print("🔍 建立財務知識向量資料庫...")
-    embeddings = OllamaEmbeddings(model="nomic-embed-text")
-    vectorstore = Chroma.from_documents(documents=doc_split, embedding=embeddings)
-    retriever = vectorstore.as_retriever()
+        # 建立向量資料庫
+        print("🔍 建立財務知識向量資料庫...")
+        embeddings = OllamaEmbeddings(model="nomic-embed-text")
+        vectorstore = Chroma.from_documents(
+            documents=doc_split, embedding=embeddings
+        )
+        retriever = vectorstore.as_retriever()
+        print("✅ 知識庫載入成功")
+    except Exception as e:
+        print(f"⚠️ 知識庫載入失敗，使用預設知識：{str(e)}")
+        # 創建一個空的檢索器，如果沒有 PDF 檔案
+        from langchain_core.retrievers import BaseRetriever
+        from langchain_core.documents import (
+            Document
+        )
+
+        class EmptyRetriever(BaseRetriever):
+            def get_relevant_documents(self, query):
+                return [Document(page_content="這是一個財務知識庫的預設回應。由於沒有載入 PDF 文件，這裡提供基本的財務知識。")]
+
+        retriever = EmptyRetriever()
 
     # 初始化 LLM
     print("🧠 初始化財務分析模型...")
@@ -71,6 +90,7 @@ def main():
                 ))
 
                 print(f"\n🤖 財務分析回答：{response.content}")
+
 
         except KeyboardInterrupt:
             print("\n\n👋 用戶中斷，再見！")

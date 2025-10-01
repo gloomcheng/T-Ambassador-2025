@@ -11,11 +11,11 @@ from datetime import datetime, timedelta
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
-from langchain_community.chat_models import ChatOllama
+from langchain_ollama import ChatOllama
 from langchain_community.embeddings.ollama import OllamaEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 
-def get_financial_news(topic: str = None) -> str:
+def get_financial_news(topic: str | None = None) -> str:
     """查詢財經新聞（模擬）"""
     # 模擬的財經新聞數據庫
     news_data = {
@@ -53,7 +53,7 @@ def get_financial_news(topic: str = None) -> str:
 
         return "📰 最新財經新聞：\n" + "\n".join(all_news)
 
-def detect_news_query(question: str) -> tuple[bool, str]:
+def detect_news_query(question: str) -> tuple[bool, str | None]:
     """偵測是否為新聞查詢，並提取主題"""
     question_lower = question.lower()
 
@@ -79,14 +79,27 @@ def main():
     print("📰 新功能：現在可以查詢財經新聞了！")
     print("💡 這個版本整合了知識庫、股票價格和新聞查詢")
 
-    # 初始化財務知識庫
-    loader = PyPDFLoader("202502_6625_AI1_20250924_142829.pdf")
-    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-    doc_split = loader.load_and_split(text_splitter=splitter)
+    # 初始化財務知識庫（帶錯誤處理）
+    try:
+        loader = PyPDFLoader("202502_6625_AI1_20250924_142829.pdf")
+        splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+        doc_split = loader.load_and_split(text_splitter=splitter)
 
-    embeddings = OllamaEmbeddings(model="nomic-embed-text")
-    vectorstore = Chroma.from_documents(documents=doc_split, embedding=embeddings)
-    retriever = vectorstore.as_retriever()
+        embeddings = OllamaEmbeddings(model="nomic-embed-text")
+        vectorstore = Chroma.from_documents(documents=doc_split, embedding=embeddings)
+        retriever = vectorstore.as_retriever()
+        print("✅ 知識庫載入成功")
+    except Exception as e:
+        print(f"⚠️ 知識庫載入失敗，使用預設知識：{str(e)}")
+        # 創建一個空的檢索器，如果沒有 PDF 檔案
+        from langchain_core.retrievers import BaseRetriever
+        from langchain_core.documents import Document
+
+        class EmptyRetriever(BaseRetriever):
+            def get_relevant_documents(self, query):
+                return [Document(page_content="這是一個財務知識庫的預設回應。由於沒有載入 PDF 文件，這裡提供基本的財務知識。")]
+
+        retriever = EmptyRetriever()
 
     llm = ChatOllama(model="gemma3:1b", temperature=0.1)
 
