@@ -1,13 +1,13 @@
-# T大使 2024 AR 集點遊戲系統
+# T大使 2025 AR 集點遊戲系統 - 後端服務
 
-這是一個基於 Django 開發的 AR（擴增實境）集點遊戲系統，為「T大使 2024」活動設計。玩家透過掃描不同廠商的 AR 標記來回答問題、收集點數，並完成旅程挑戰。
+這是一個基於 Django 開發的 AR（擴增實境）集點遊戲系統後端服務，為「T大使 2025」活動設計。提供 RESTful API 支援前端應用，管理用戶資料、遊戲進度、題目內容和 AR 掃描功能。
 
 ## 系統特色
 
 - **AR 掃描遊戲**：支援 29 個關卡，涵蓋多個參與廠商
 - **用戶進度追蹤**：記錄每位玩家的遊戲歷程和答題結果
 - **多路線設計**：支援 A、B、C 三條不同探索路線
-- **WebAR 整合**：與 Vuforia WebAR 技術整合，提供沉浸式體驗
+- **WebAR 整合**：與 MindAR WebAR 技術整合，提供沉浸式體驗
 - **響應式設計**：支援各種螢幕尺寸，手機、平板皆可遊玩
 
 ## 安裝與設定
@@ -70,40 +70,101 @@
 
 ## 程式架構
 
+以下是後端服務的目錄結構說明。所有路徑均相對於專案根目錄 `/exhibition/backend/`。
+
 ```text
 backend/
-├── mysite/                 # Django 專案設定
-│   ├── settings.py         # 專案設定
-│   ├── urls.py            # 主要路由
-│   └── wsgi.py            # WSGI 設定
-├── trips/                  # 主要應用程式
-│   ├── models.py          # 資料模型（問題、用戶、進度）
-│   ├── views.py           # API 視圖
-│   ├── serializers.py     # API 序列化器
-│   ├── urls.py            # 應用路由
-│   ├── templates/         # HTML 模板
-│   │   ├── arScan1.html   # AR 掃描頁面（1-29關）
-│   │   ├── index.html      # 首頁
-│   │   ├── route1.html     # 路線選擇
-│   │   └── user_profile.html # 用戶資料
-│   ├── mind/              # Vuforia AR 識別檔案
-│   └── migrations/        # 資料庫遷移檔案
-├── media/                 # 媒體檔案
-│   ├── vendor_icons/      # 廠商圖標
-│   ├── questions/         # 題目圖片
-│   └── AR掃描/           # AR 目標檔案
-├── pyproject.toml         # uv 專案設定和依賴管理
-├── uv.lock               # uv 依賴鎖定檔案（自動產生）
-├── .gitignore            # Git 忽略檔案設定
-├── db.sqlite3             # SQLite 資料庫
-└── manage.py             # Django 管理指令
+├── benjamin/              # Python 虛擬環境目錄（開發環境）
+│   ├── pyvenv.cfg        # 虛擬環境設定檔案
+│   └── Scripts/          # Windows 執行腳本（若適用）
+├── mysite/                # Django 專案設定目錄
+│   ├── __init__.py       # Python 套件初始化檔案
+│   ├── __pycache__/      # Python 快取檔案目錄
+│   ├── settings.py       # 專案設定檔案（資料庫、應用、靜態檔案等）
+│   ├── urls.py          # 主要路由設定檔案
+│   ├── asgi.py          # ASGI 設定檔案（支援異步應用）
+│   └── wsgi.py          # WSGI 設定檔案（Web 伺服器閘道介面）
+├── trips/                 # 主要 Django 應用程式
+│   ├── __init__.py       # Python 套件初始化檔案
+│   ├── __pycache__/      # Python 快取檔案目錄
+│   ├── admin.py         # Django 管理後台設定
+│   ├── apps.py          # Django 應用設定
+│   ├── forms.py         # Django 表單定義
+│   ├── models.py        # 資料庫模型定義（Question、UserProfile、Post）
+│   ├── serializers.py   # DRF API 序列化器
+│   ├── views.py         # API 視圖和業務邏輯
+│   ├── urls.py          # 應用程式路由設定
+│   ├── tests.py         # 測試檔案
+│   ├── templates/       # HTML 模板檔案目錄
+│   │   └── [42 files]   # 各種頁面模板（首頁、AR掃描、路線選擇等）
+│   ├── mind/            # MindAR AR 識別檔案目錄
+│   │   └── [29 files]   # 各關卡的 .mind AR 標記檔案
+│   ├── img/             # 圖片資源目錄
+│   │   └── [32 files]   # 遊戲圖標和介面圖片
+│   └── migrations/      # 資料庫遷移檔案目錄
+│       └── [19 files]   # Django 自動產生的遷移檔案
+├── media/                 # 用戶上傳和媒體檔案目錄
+│   ├── AR掃描/          # AR 掃描相關檔案
+│   │   ├── targets.mind # AR 目標識別檔案
+│   │   └── uploads_files_2426738_tex.gltf # 3D 模型檔案
+│   ├── questions/        # 題目相關圖片目錄
+│   │   └── [32 files]   # 各廠商題目圖片檔案
+│   └── vendor_icons/     # 廠商圖標目錄
+│       └── [53 files]   # 各廠商代表圖標和遊戲介面圖片
+├── scripts/               # 工具腳本目錄
+│   └── diagnostics.py    # 系統診斷和測試腳本
+├── QUESTION_MANAGEMENT_GUIDE.md # 題目管理指南文件
+├── README.md             # 本說明文件
+├── pyproject.toml        # uv 專案設定和依賴管理檔案
+├── uv.lock              # uv 依賴鎖定檔案（自動產生）
+├── db.sqlite3            # SQLite 資料庫檔案
+└── manage.py            # Django 管理指令檔案（啟動伺服器、遷移等）
 ```
 
-### 主要功能模組
+### 主要目錄說明
 
-- **Question（問題模型）**：儲存各關卡的題目、選項和答案
-- **UserProfile（用戶資料）**：記錄玩家手機號碼和性別
-- **Post（遊戲進度）**：追蹤用戶在各關卡的答題狀況
+#### **benjamin/** - Python 虛擬環境
+
+開發環境專用的虛擬環境目錄，包含 Python 執行環境和相關腳本。
+
+#### **mysite/** - Django 專案設定
+
+Django 專案的核心設定目錄：
+
+- **settings.py**：專案設定，包括資料庫連線、安裝應用、中介軟體等
+- **urls.py**：全域路由設定，將 URL 路徑對應到視圖函數
+- **wsgi.py / asgi.py**：Web 伺服器閘道介面設定檔案
+
+#### **trips/** - 主要應用程式
+
+遊戲的核心業務邏輯應用：
+
+- **models.py**：資料庫模型定義，包含 Question（題目）、UserProfile（用戶）、Post（進度）等
+- **views.py**：API 視圖，處理 HTTP 請求和業務邏輯
+- **serializers.py**：Django REST Framework 序列化器，將模型轉換為 JSON 格式
+- **templates/**：HTML 模板檔案，提供前端頁面展示
+- **mind/**：存放 29 個關卡的 MindAR AR 識別檔案（.mind 格式）
+- **migrations/**：Django 自動產生的資料庫遷移檔案
+
+#### **media/** - 媒體檔案
+
+用戶上傳和靜態資源檔案：
+
+- **AR掃描/**：AR 掃描相關的目標檔案和 3D 模型
+- **questions/**：各廠商題目的圖片檔案（32個檔案）
+- **vendor_icons/**：廠商代表圖標和遊戲介面圖片（53個檔案）
+
+#### **scripts/** - 工具腳本
+
+系統維護和診斷工具：
+
+- **diagnostics.py**：系統診斷腳本，用於檢查系統狀態和問題排查
+
+### 資料庫模型說明
+
+- **Question**：題目資料模型，儲存各關卡的題目內容、選項、正確答案和所屬廠商
+- **UserProfile**：用戶資料模型，記錄玩家的手機號碼、性別和註冊時間
+- **Post**：遊戲進度模型，追蹤用戶在各關卡的答題狀況和完成狀態
 
 ## 開發與部署
 
@@ -272,7 +333,7 @@ curl http://127.0.0.1:8000/api/question/1/
 
 ## AR 掃描功能
 
-系統整合 Vuforia WebAR 技術，提供 AR 掃描體驗。每個關卡都對應一個獨特的 AR 標記檔案（`.mind` 格式）。
+系統整合 MindAR WebAR 技術，提供 AR 掃描體驗。每個關卡都對應一個獨特的 AR 標記檔案（`.mind` 格式）。
 
 ### AR 標記檔案結構
 
@@ -366,7 +427,7 @@ uv lock --refresh
 - **API 框架**: Django REST Framework
 - **資料庫**: SQLite (開發環境)
 - **前端技術**: HTML5, CSS3, JavaScript
-- **AR 技術**: Vuforia WebAR
+- **AR 技術**: MindAR WebAR
 - **支援平台**: 現代瀏覽器（Chrome, Safari, Edge）
 
 ## 授權與貢獻
