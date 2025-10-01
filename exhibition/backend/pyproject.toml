@@ -1,0 +1,18 @@
+[project]
+name = "t-ambassador-2024"
+version = "1.0.0"
+description = "T大使 2024 AR 集點遊戲系統 - Django 開發的 AR 擴增實境集點遊戲系統"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "django>=5.0",
+    "djangorestframework",
+    "markdown",
+    "django-filter",
+    "django-cors-headers",
+]
+
+[tool.uv]
+dev-dependencies = []
+
+# Django 專案不需要 build-system，因為這不是一個可安裝的套件

@@ -16,7 +16,7 @@
 
 - Python 3.11+
 - Django 5.0+
-- pipenv（推薦）或虛擬環境工具
+- uv（推薦）、pipenv 或虛擬環境工具
 
 ### 安裝步驟
 
@@ -30,22 +30,24 @@
 2. **設定虛擬環境**
 
    ```bash
-   # 使用 pipenv（推薦）
-   pipenv install
+   # 使用 uv（推薦）- 現代化且快速的 Python 包管理器
+   # 安裝 uv（如果尚未安裝）
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   # 或使用 pip 安裝
+   pip install uv
 
-   # 或使用 venv
-   python -m venv venv
-   source venv/bin/activate  # Linux/Mac
-   # venv\Scripts\activate   # Windows
-   pip install -r requirements.txt
+   # 使用 uv 建立虛擬環境並安裝依賴（會自動產生 uv.lock）
+   uv venv
+   source .venv/bin/activate  # Linux/Mac
+   # .venv\Scripts\activate    # Windows
+   uv pip install django djangorestframework markdown django-filter django-cors-headers
    ```
 
 3. **安裝依賴套件**
 
    ```bash
-   pipenv install
-   # 或
-   pip install django djangorestframework markdown django-filter django-cors-headers
+   # 使用 uv（推薦）- 會自動產生 uv.lock 檔案並管理所有依賴
+   uv pip install django djangorestframework markdown django-filter django-cors-headers
    ```
 
 4. **資料庫設定**
@@ -69,7 +71,7 @@
 ## 程式架構
 
 ```text
-tdance2024/
+backend/
 ├── mysite/                 # Django 專案設定
 │   ├── settings.py         # 專案設定
 │   ├── urls.py            # 主要路由
@@ -90,6 +92,9 @@ tdance2024/
 │   ├── vendor_icons/      # 廠商圖標
 │   ├── questions/         # 題目圖片
 │   └── AR掃描/           # AR 目標檔案
+├── pyproject.toml         # uv 專案設定和依賴管理
+├── uv.lock               # uv 依賴鎖定檔案（自動產生）
+├── .gitignore            # Git 忽略檔案設定
 ├── db.sqlite3             # SQLite 資料庫
 └── manage.py             # Django 管理指令
 ```
@@ -107,9 +112,9 @@ tdance2024/
 1. **啟用虛擬環境**
 
    ```bash
-   pipenv shell
-   # 或
-   source venv/bin/activate
+   # 使用 uv
+   source .venv/bin/activate  # Linux/Mac
+   # .venv\Scripts\activate    # Windows
    ```
 
 2. **啟動開發伺服器**
@@ -342,12 +347,17 @@ python manage.py createsuperuser
 如果遇到套件衝突或版本問題：
 
 ```bash
-# 清除並重新安裝依賴
-pipenv --rm
-pipenv install --dev
+   # 使用 uv 清除並重新安裝依賴（推薦）
+   rm -rf .venv uv.lock
+   uv venv
+   source .venv/bin/activate
+   uv pip install django djangorestframework markdown django-filter django-cors-headers
 
 # 或更新特定套件
-pipenv update [package-name]
+uv pip install --upgrade [package-name]
+
+# 或重新同步所有依賴
+uv lock --refresh
 ```
 
 ## 技術規格
