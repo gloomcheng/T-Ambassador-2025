@@ -11,7 +11,8 @@ dependencies = [
     "langchain-ollama>=0.1.0",
     "pypdf>=3.0.0",
     "gdown>=4.0.0",
-    "ddgs>=3.8.0"
+    "ddgs>=3.8.0",
+    "mcp>=1.16.0",
 ]
 
 [build-system]
