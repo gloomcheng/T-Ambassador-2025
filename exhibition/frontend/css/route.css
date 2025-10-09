@@ -1,0 +1,68 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    flex-wrap: wrap;
+}
+
+.content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.button-container {
+    position: relative;
+    margin: 10px;
+    width: 146px;
+    height: 159px;
+}
+
+.button-container button {
+    width: 100%;
+    height: 100%;
+    background-color: #4F74AB;
+    border: none;
+    border-radius: 15px;
+    border: 5px solid #EAD73B;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: relative;
+    cursor: pointer;
+}
+
+.button-container button[disabled] {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.status-pass,
+.status-fail {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: none;
+}
+
+h1,
+h2 {
+    text-align: center;
+    color: #333;
+}
+
+.h1-1 {
+    font-size: 23px;
+}
+
+.h2-1 {
+    font-size: 20px;
+}
