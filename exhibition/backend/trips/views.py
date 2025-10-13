@@ -1,140 +1,81 @@
-from rest_framework.views import APIView
+from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
-from rest_framework import generics, status
-from .models import Post, Question, UserProfile
-from .serializers import QuestionSerializer, UserProfileSerializer, PostSerializer
+from rest_framework.decorators import action
+from django.shortcuts import get_object_or_404
+
+from .models import Booth, Question
+from .serializers import BoothSerializer, QuestionSerializer
 
 
-class QuestionDetailAPIView(APIView):
+# 🔹 攤位 ViewSet：讓使用者能看到/管理自己的攤位
+class BoothViewSet(viewsets.ModelViewSet):
+    """
+    攤位管理 ViewSet
+    攤位使用者登入後只能看到自己的攤位資料
+    """
+    serializer_class = BoothSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-    def get_object(self, question_id):
-        try:
-            return Question.objects.get(number=question_id)
-        except Question.DoesNotExist:
-            return None
+    def get_queryset(self):
+        # 攤位使用者只能看到自己擁有的攤位
+        return Booth.objects.filter(owner=self.request.user)
 
-    def get(self, request, question_id, *args, **kwargs):
-        question_instance = self.get_object(question_id)
-        if not question_instance:
+    def perform_create(self, serializer):
+        # 自動把攤位歸屬到目前登入的使用者
+        serializer.save(owner=self.request.user)
+
+    @action(detail=True, methods=['get'])
+    def questions(self, request, pk=None):
+        """
+        自訂 API：
+        /booths/{id}/questions/ → 取得該攤位底下的所有題目
+        """
+        booth = self.get_object()
+        questions = booth.questions.all()
+        serializer = QuestionSerializer(questions, many=True)
+        return Response(serializer.data)
+
+
+# 🔹 題目 ViewSet：讓攤位使用者可以 CRUD 自己攤位底下的題目
+class QuestionViewSet(viewsets.ModelViewSet):
+    """
+    題目管理 ViewSet
+    攤位使用者只能看到/編輯自己攤位底下的題目
+    """
+    serializer_class = QuestionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # 攤位使用者只能看到自己的攤位底下的題目
+        queryset = Question.objects.filter(booth__owner=self.request.user)
+
+        # 可選擇用 ?booth_id= 篩選特定攤位
+        booth_id = self.request.query_params.get('booth_id')
+        if booth_id:
+            queryset = queryset.filter(booth_id=booth_id)
+        return queryset
+
+    def perform_create(self, serializer):
+        # 攤位 ID 來自 request.data
+        booth_id = self.request.data.get('booth_id')
+        if not booth_id:
             return Response(
-                {"res": "Object with question id does not exist"},
+                {'error': '需要提供 booth_id'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        serializer = QuestionSerializer(question_instance)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
+        booth = get_object_or_404(Booth, id=booth_id, owner=self.request.user)
+        serializer.save(booth=booth)
 
-class UserProfileAPIView(APIView):
-    def get(self, request):
-        phone = request.query_params.get('phone')
-        level = request.query_params.get('level')
+    def perform_update(self, serializer):
+        # 只能編輯自己攤位的題目
+        instance = self.get_object()
+        if instance.booth.owner != self.request.user:
+            raise PermissionError("你沒有權限修改這個題目。")
+        serializer.save()
 
-        if not phone:
-            return Response({"error": "缺少手機號碼"}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            user_profile = UserProfile.objects.get(phone=phone)
-        except UserProfile.DoesNotExist:
-            return Response({"error": "使用者不存在"}, status=status.HTTP_404_NOT_FOUND)
-
-        try:
-            post = Post.objects.get(user=user_profile)
-        except Post.DoesNotExist:
-            return Response({"error": "使用者遊戲歷程不存在"}, status=status.HTTP_404_NOT_FOUND)
-
-        user_data = UserProfileSerializer(user_profile).data
-
-        if level:
-            if not level.isdigit() or int(level) < 1 or int(level) > 29:
-                return Response({"error": "無效的關卡參數"}, status=status.HTTP_400_BAD_REQUEST)
-
-            level = str(int(level))
-            content = user_data['post']['content']
-
-            if level not in content:
-                return Response({"error": "該關卡不存在"}, status=status.HTTP_404_NOT_FOUND)
-
-            return Response({level: content[level]}, status=status.HTTP_200_OK)
-        else:
-            return Response(user_data, status=status.HTTP_200_OK)
-
-    def post(self, request, *args, **kwargs):
-        serializer = UserProfileSerializer(data=request.data)
-        if serializer.is_valid():
-            user_profile = serializer.save()
-            return Response(UserProfileSerializer(user_profile).data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class PostUpdateAPIView(APIView):
-    def patch(self, request, phone, *args, **kwargs):
-        try:
-            # 獲取或創建與該手機號碼相關的 user_profile 和 post
-            user_profile, _ = UserProfile.objects.get_or_create(phone=phone)
-            post, created = Post.objects.get_or_create(user=user_profile)
-        except UserProfile.DoesNotExist:
-            return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
-        except Post.DoesNotExist:
-            return Response({"error": "User post not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        level = request.data.get("level")
-        level_status = request.data.get('status')
-        user_answer = request.data.get('user_answer')
-        correct_answer = request.data.get('correct_answer')
-
-        if level is None:
-            return Response({"error": "缺少 level 或 data 参数"}, status=status.HTTP_400_BAD_REQUEST)
-
-        # 初始化 content 作為一個空字典（若之前沒有設置 content）
-        if post.content is None:
-            post.content = {}
-
-        content = post.content
-
-        # 檢查關卡是否存在並更新或創建對應的內容
-        if level in content:
-            if level_status is not None:
-                content[level]['status'] = level_status
-            if user_answer is not None:
-                content[level]['user_answer'] = user_answer
-            if correct_answer is not None:
-                content[level]['correct_answer'] = correct_answer
-        else:
-            content[level] = {
-                'status': level_status or '',
-                'user_answer': user_answer or '',
-                'correct_answer': correct_answer or ''
-            }
-
-        # 保存更新
-        post.content = content
-        post.save()
-
-        return Response(content[level], status=status.HTTP_200_OK)
-
-
-class PostListCreate(generics.ListCreateAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-
-
-class PostDetailAPIView(APIView):
-    def get_object(self, phone):
-        try:
-            user_profile = UserProfile.objects.get(phone=phone)
-            return user_profile.post
-        except UserProfile.DoesNotExist:
-            return None
-        except Post.DoesNotExist:
-            return None
-
-    def get(self, request, phone, *args, **kwargs):
-        post_instance = self.get_object(phone)
-        if not post_instance:
-            return Response(
-                {"error": "用户不存在"},
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-        serializer = PostSerializer(post_instance)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def perform_destroy(self, instance):
+        # 只能刪除自己攤位的題目
+        if instance.booth.owner != self.request.user:
+            raise PermissionError("你沒有權限刪除此題目。")
+        instance.delete()
