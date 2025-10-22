@@ -1,0 +1,28 @@
+﻿# T-Ambassador-2025 專案功能修改紀錄（2025-10-23）
+
+## 本地/遠端運行狀態
+- 已確認本地與遠端 API、資料庫、前端互動均可正常運行。
+- API baseUrl 可自動切換本地、Cloudflare Tunnel、遠端，所有頁面均正確連接本地 SQLite。
+
+## 前端互動優化
+- arScan00.html 辨識圖片流程優化：
+  - 未辨識到正確圖片時顯示「請找到正確的圖」提示。
+  - 辨識到正確圖片時顯示「恭喜你找到了 題目將於2秒後開啟」提示，2秒後自動顯示題目。
+  - 2秒提示期間「繼續前行」按鈕自動隱藏，題目或結果顯示後才顯示按鈕。
+  - 提示背板（center-box）高度自動適配內容，文字樣式美化。
+- 掃描提示（scanning-hint）優化，支援自動顯示/隱藏。
+
+## API/資料結構檢查
+- 新增 scripts/check_questions.py，可自動檢查所有題目資料完整性（題目、選項、答案），缺失會列出編號與欄位。
+- 新增 check_questions_readme.txt 說明用法。
+
+## Django Logging
+- 設定本地 Django logging，log 檔案輸出至 exhibition/backend/logs/django.log，方便 API 錯誤與系統事件追蹤。
+
+## 其他修正
+- route1.js API baseUrl 改為引用 link.js 變數，確保所有頁面自動切換 API。
+- Post model __str__ 方法安全性修正，避免 Django Admin 報錯。
+
+---
+
+> 本檔案自動記錄所有新增、修改、修正功能細節，方便日後查詢與維護。

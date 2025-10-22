@@ -10,8 +10,20 @@ var teach="teach.html";//詳細使用教學頁面
 //api引用位址
 // 動態 API baseUrl 設定：本地測試用 localhost，Cloudflare Tunnel 用 window.location.origin
 
-// 統一 API baseUrl 為新版 GitHub Repo API 端點
-const apiBaseUrl = 'https://tdance.fansee.studio/trips/api/';
+// 動態 API baseUrl 設定：本地優先、github.io 走 tdance.fansee.studio、其他走 window.location.origin
+let apiBaseUrl;
+if (location.hostname.endsWith('github.io')) {
+	apiBaseUrl = 'https://tdance.fansee.studio/trips/api/';
+} else if (
+	location.hostname === 'localhost' ||
+	location.hostname === '127.0.0.1' ||
+	location.hostname.endsWith('trycloudflare.com')
+	) {
+	// 本地或 Cloudflare Tunnel 皆走本地 API
+	apiBaseUrl = window.location.origin + '/api/';
+} else {
+	apiBaseUrl = 'https://tdance.fansee.studio/trips/api/';
+}
 console.log('API baseUrl:', apiBaseUrl);
 var postDetailUrl = apiBaseUrl + 'post-detail/'; // 通關狀況讀取(arScan.js)
 var questionUrl   = apiBaseUrl + 'question/';    // 問題資料讀取(arScan.js)

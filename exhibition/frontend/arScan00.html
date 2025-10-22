@@ -24,18 +24,21 @@
         }
 
         .center-box {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 350px;
-            height: 600px;
-            background-color: white;
-            border-radius: 15px;
-            box-sizing: border-box;
-            display: none;
-            padding: 20px;
-            text-align: center;
+              position: fixed;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              min-width: 280px;
+              max-width: 90vw;
+              min-height: 120px;
+              max-height: 80vh;
+              background-color: white;
+              border-radius: 15px;
+              box-sizing: border-box;
+              display: none;
+              padding: 24px 18px;
+              text-align: center;
+              overflow-y: auto;
         }
 
         .question {
@@ -78,10 +81,38 @@
             cursor: pointer;
             font-size: 22px;
         }
+
+        /* 掃描提示樣式 */
+        .scanning-hint {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 18px;
+            z-index: 999;
+            max-width: 80%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            display: none; /* 預設隱藏 */
+        }
+
+        .scanning-hint h3 {
+            margin: 0 0 10px 0;
+            color: #FFD700;
+        }
+
+        .scanning-hint p {
+            margin: 5px 0;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
-    <button class="back-button" onclick="window.history.back()">返回</button>
+        <button class="back-button" onclick="goBack()"></button>
     <h1></h1>
     
     <a-scene mindar-image="imageTargetSrc: mind/targets_00.mind; uiError: no; uiLoading: no; uiScanning: no;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
@@ -158,12 +189,32 @@
 
     </a-scene>
 
+    <!-- 掃描提示訊息 -->
+    <div class="scanning-hint" id="scanning-hint" onclick="hideScanningHint()">
+        <h3>🔍 請掃描正確的圖片</h3>
+        <p>請將攝影機對準指定的圖片</p>
+        <p>確保圖片清晰且完整顯示在畫面中</p>
+        <p>如果持續無法辨識，請檢查光線是否充足</p>
+        <p style="font-size: 14px; color: #FFD700; margin-top: 10px;">💡 點擊此處可隱藏提示</p>
+    </div>
+
     <div class="center-box">
         <div class="status-message"></div>
         <button class="continue-btn" onclick="window.history.back()">繼續前行</button>
     </div>
 
     <script>
+        // 全域變數
+        let scanningHintTimeout;
+        
+        // 隱藏掃描提示（全域函數）
+        function hideScanningHint() {
+            if (scanningHintTimeout) {
+                clearTimeout(scanningHintTimeout);
+            }
+            $('#scanning-hint').fadeOut(300);
+        }
+        
         // 函數：獲取指定名稱的 cookie 值
         function getCookie(name) {
             let nameEQ = name + "=";
@@ -179,7 +230,30 @@
         $(document).ready(function () {
             let targetFoundOnce = false;
             let phone = getCookie('phone');
-            // let mainurl = "https://tdance.fansee.studio/trips/api/post-detail/";
+            
+            // 顯示掃描提示（延遲3秒後顯示）
+            function showScanningHint() {
+                console.log('Starting scanning hint timer...');
+                scanningHintTimeout = setTimeout(function() {
+                    console.log('Showing scanning hint, targetFoundOnce:', targetFoundOnce);
+                    if (!targetFoundOnce) {
+                        console.log('Displaying scanning hint');
+                        $('#scanning-hint').fadeIn(500);
+                    }
+                }, 3000); // 3秒後顯示提示
+            }
+            
+            // 立即開始計時器（頁面載入後）
+            console.log('Document ready, starting hint timer immediately');
+            showScanningHint();
+            
+            // 同時監聽 A-Frame scene 事件（備用）
+            $(document).on('DOMContentLoaded', function() {
+                console.log('DOMContentLoaded triggered');
+                if (!scanningHintTimeout) {
+                    showScanningHint();
+                }
+            });
 
             // 監聽每個 targetIndex 的事件
             for (let i = 0; i <= 28; i++) {
@@ -188,90 +262,95 @@
                 mindarEntity.addEventListener('targetFound', function (event) {
                     if (!targetFoundOnce) {
                         targetFoundOnce = true;
-
-                        let level = String(i + 1);  // 將 targetIndex 轉換為對應的 level（1 到 29）
-
-                        // 獲取關卡狀態
-                        $.ajax({
-                            url: postDetailUrl + phone,
-                            type: "GET",
-                            dataType: "json",
-                            success: function (data) {
-                                let status = data.content[level].status;
-                                $('.center-box').fadeIn();
-
-                                if (status === 'pass' || status === 'fail') {
-                                    $('.status-message').html('<h3>你已做出選擇，請繼續前行吧</h3>');
+                        hideScanningHint();
+                        console.log('Target found! Level:', i + 1);
+                        let level = String(i + 1);
+                        // 顯示提示
+                        $('.center-box').fadeIn();
+                            $('.center-box').css({minHeight:'120px',height:'auto'}).fadeIn();
+                            $('.status-message').html('<h3 style="font-size:1.5em;font-weight:600;margin-bottom:10px;">恭喜你找到了</h3><div style="font-size:1.1em;">題目將於2秒後開啟</div>');
+                            $('.continue-btn').hide();
+                        setTimeout(function () {
+                            // 獲取關卡狀態
+                            $.ajax({
+                                url: postDetailUrl + phone,
+                                type: "GET",
+                                dataType: "json",
+                                success: function (data) {
+                                    let status = data.content[level].status;
                                     $('.center-box').fadeIn();
-                                } else {
-                                    // 如果是null，則顯示問題和選項
-                                    $.ajax({
-                                        // url: "https://tdance.fansee.studio/trips/api/question/" + level,
-                                        url: questionUrl + level,
-                                        type: "GET",
-                                        dataType: "json",
-                                        success: function (Question) {
-                                            var correctAnswer = Question.answer;
-                                            var content = `
-                                                <div class="question">${Question.question}</div>
-                                                <button class="option" data-choice="A">${Question.choiceA}</button>
-                                                <button class="option" data-choice="B">${Question.choiceB}</button>
-                                                <button class="option" data-choice="C">${Question.choiceC}</button>
-                                                <button class="option" data-choice="D">${Question.choiceD}</button>
-                                                <div class="result"></div>
-                                            `;
-                                            $('.center-box').html(content);
-
-                                            $('.option').click(function () {
-                                                var userChoice = $(this).data('choice');
-                                                var resultStatus = userChoice === correctAnswer ? 'pass' : 'fail';
-
-                                                // 移除問題和選項按鈕
-                                                $('.question, .option').remove();
-
-                                                if (resultStatus === 'pass') {
-                                                    $('.result').html('<p>恭喜通關</p><img src="https://github.com/tdance555/tdance2024/blob/beforeFinish/media/vendor_icons/correct.png?raw=true" alt="Success Image"><button class="continue-btn" onclick="window.history.back()">繼續前行</button>');
-                                                } else {
-                                                    $('.result').html('<p>挑戰失敗</p><img src="https://github.com/tdance555/tdance2024/blob/beforeFinish/media/vendor_icons/wrong.png?raw=true" alt="Failure Image"><button class="continue-btn" onclick="window.history.back()">繼續前行</button>');
-                                                }
-
-                                                $('.result').fadeIn();
-
-                                                // 發送 PATCH 請求更新數據
-                                                $.ajax({
-                                                    // url: `https://tdance.fansee.studio/trips/api/post/${phone}/`,
-                                                    url: `${postUrl}${phone}/`,
-                                                    type: "PATCH",
-                                                    contentType: "application/json",
-                                                    data: JSON.stringify({
-                                                        level: level,
-                                                        status: resultStatus,
-                                                        user_answer: userChoice,
-                                                        correct_answer: correctAnswer
-                                                    }),
-                                                    success: function (response) {
-                                                        console.log("數據更新成功:", response);
-                                                    },
-                                                    error: function (xhr, status, error) {
-                                                        console.error("更新失敗:", xhr.responseText);
+                                    if (status === 'pass' || status === 'fail') {
+                                        $('.status-message').html('<h3>你已做出選擇，請繼續前行吧</h3>');
+                                        $('.continue-btn').show();
+                                        $('.center-box').fadeIn();
+                                    } else {
+                                        // 顯示題目
+                                        $.ajax({
+                                            url: questionUrl + level,
+                                            type: "GET",
+                                            dataType: "json",
+                                            success: function (Question) {
+                                                var correctAnswer = Question.answer;
+                                                var content = `
+                                                    <div class="question">${Question.question}</div>
+                                                    <button class="option" data-choice="A">${Question.choiceA}</button>
+                                                    <button class="option" data-choice="B">${Question.choiceB}</button>
+                                                    <button class="option" data-choice="C">${Question.choiceC}</button>
+                                                    <button class="option" data-choice="D">${Question.choiceD}</button>
+                                                    <div class="result"></div>
+                                                `;
+                                                $('.center-box').html(content);
+                                                $('.continue-btn').show();
+                                                $('.option').click(function () {
+                                                    var userChoice = $(this).data('choice');
+                                                    var resultStatus = userChoice === correctAnswer ? 'pass' : 'fail';
+                                                    $('.question, .option').remove();
+                                                    if (resultStatus === 'pass') {
+                                                        $('.result').html('<p>恭喜通關</p><img src="https://github.com/tdance555/tdance2024/blob/beforeFinish/media/vendor_icons/correct.png?raw=true" alt="Success Image"><button class="continue-btn" onclick="window.history.back()">繼續前行</button>');
+                                                    } else {
+                                                        $('.result').html('<p>挑戰失敗</p><img src="https://github.com/tdance555/tdance2024/blob/beforeFinish/media/vendor_icons/wrong.png?raw=true" alt="Failure Image"><button class="continue-btn" onclick="window.history.back()">繼續前行</button>');
                                                     }
+                                                    $('.result').fadeIn();
+                                                    $.ajax({
+                                                        url: `${postUrl}${phone}/`,
+                                                        type: "PATCH",
+                                                        contentType: "application/json",
+                                                        data: JSON.stringify({
+                                                            level: level,
+                                                            status: resultStatus,
+                                                            user_answer: userChoice,
+                                                            correct_answer: correctAnswer
+                                                        }),
+                                                        success: function (response) {
+                                                            console.log("數據更新成功:", response);
+                                                        },
+                                                        error: function (xhr, status, error) {
+                                                            console.error("更新失敗:", xhr.responseText);
+                                                        }
+                                                    });
                                                 });
-                                            });
-                                        },
-                                        error: function (xhr, status, error) {
-                                            console.error("獲取問題失敗:", xhr.responseText);
-                                        }
-                                    });
+                                            },
+                                            error: function (xhr, status, error) {
+                                                console.error("獲取問題失敗:", xhr.responseText);
+                                            }
+                                        });
+                                    }
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error("獲取數據失敗:", xhr.responseText);
                                 }
-                            },
-                            error: function (xhr, status, error) {
-                                console.error("獲取數據失敗:", xhr.responseText);
-                            }
-                        });
+                            });
+                        }, 2000);
                     }
                 });
             }
         });
+
+        // 返回函數
+        function goBack() {
+            console.log('返回按鈕被點擊');
+            window.history.back();
+        }
     </script>
 </body>
 </html>

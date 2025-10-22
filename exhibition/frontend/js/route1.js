@@ -15,7 +15,11 @@ document.addEventListener('DOMContentLoaded', function () {
         11: './media/vendor_icons/11.png',
     };
 
-    var postDetailUrl = "https://tdance.fansee.studio/trips/api/post-detail/";
+    // 改為引用 link.js 的 postDetailUrl，確保自動切換本地/遠端 API
+    // link.js 必須已在 html 先載入
+    // var postDetailUrl = "https://tdance.fansee.studio/trips/api/post-detail/";
+    // 若未載入 link.js，請在 html <head> 加入 <script src="js/link.js"></script>
+    // 這裡直接使用 link.js 注入的 postDetailUrl
 // 修改區結束------------------------------------------------------------------------------------
 
 
