@@ -82,7 +82,7 @@
             font-size: 22px;
         }
 
-        /* 掃描提示樣式 */
+        /* 掃描提示樣式（已註解）
         .scanning-hint {
             position: fixed;
             top: 50%;
@@ -97,8 +97,8 @@
             z-index: 999;
             max-width: 80%;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            display: none; /* 預設隱藏 */
-        }
+            display: none; 預設隱藏 
+        }*/
 
         .scanning-hint h3 {
             margin: 0 0 10px 0;
@@ -109,13 +109,14 @@
             margin: 5px 0;
             line-height: 1.4;
         }
+        */
     </style>
 </head>
 <body>
         <button class="back-button" onclick="goBack()"></button>
     <h1></h1>
     
-    <a-scene mindar-image="imageTargetSrc: mind/targets_00.mind; uiError: no; uiLoading: no; uiScanning: no;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <a-scene mindar-image="imageTargetSrc: mind/targets_00.mind; uiScanning: no; uiLoading: no; uiError: no;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
 
         <a-assets>
             <!-- 換圖片 -->
@@ -189,19 +190,60 @@
 
     </a-scene>
 
-    <!-- 掃描提示訊息 -->
-    <div class="scanning-hint" id="scanning-hint" onclick="hideScanningHint()">
-        <h3>🔍 請掃描正確的圖片</h3>
-        <p>請將攝影機對準指定的圖片</p>
-        <p>確保圖片清晰且完整顯示在畫面中</p>
-        <p>如果持續無法辨識，請檢查光線是否充足</p>
-        <p style="font-size: 14px; color: #FFD700; margin-top: 10px;">💡 點擊此處可隱藏提示</p>
-    </div>
+        <!-- 自訂掃描框動畫區塊 -->
+        <div id="custom-scan-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 999;">
+            <div id="scan-box-area" style="position: relative; background: rgba(0,0,0,0.2); border-radius: 32px; width: calc(100vw - 20px); height: calc(100vw - 20px); max-width: calc(100vh - 20px); max-height: calc(100vh - 20px); margin: 0 auto;">
+                <!-- 四角角標 -->
+                <div class="corner tl"></div>
+                <div class="corner tr"></div>
+                <div class="corner bl"></div>
+                <div class="corner br"></div>
+                <!-- 掃描線 -->
+                <div class="scanline"></div>
+            </div>
+            <div style="margin-top: 18px; color: #FFD700; font-size: 1.2em; font-weight: bold; text-align: center; width: 100vw;">請將相機對準指定圖片</div>
+        </div>
+            <style>
+                    .corner {
+                        position: absolute; width: 48px; height: 48px; border: 6px solid #FFD700; border-radius: 12px;
+                    }
+                .corner.tl { top: 0; left: 0; border-right: none; border-bottom: none; }
+                .corner.tr { top: 0; right: 0; border-left: none; border-bottom: none; }
+                .corner.bl { bottom: 0; left: 0; border-right: none; border-top: none; }
+                .corner.br { bottom: 0; right: 0; border-left: none; border-top: none; }
+                    .scanline {
+                        position: absolute; left: 24px; right: 24px; height: 5px; background: linear-gradient(90deg,#FFD700 60%,rgba(255,255,255,0.2) 100%);
+                        border-radius: 3px; animation: scanMove 1.2s infinite linear alternate;
+                    }
+                    @keyframes scanMove {
+                        0% { top: 48px; }
+                        100% { top: calc(100% - 72px); }
+                    }
+                    @media (max-width: 600px) {
+                        #scan-box-area {
+                            width: calc(100vw - 20px) !important;
+                            height: calc(100vw - 20px) !important;
+                            max-width: calc(100vh - 20px) !important;
+                            max-height: calc(100vh - 20px) !important;
+                        }
+                    }
+            </style>
 
     <div class="center-box">
         <div class="status-message"></div>
         <button class="continue-btn" onclick="window.history.back()">繼續前行</button>
     </div>
+    <!-- loading 狀態 -->
+    <div id="loading-box" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;border-radius:15px;padding:32px 24px;box-shadow:0 4px 16px rgba(0,0,0,0.12);z-index:2000;text-align:center;min-width:180px;">
+        <div style="font-size:1.3em;font-weight:600;margin-bottom:12px;">題目載入中...</div>
+        <div class="loader" style="margin:0 auto;width:40px;height:40px;border:5px solid #eee;border-top:5px solid #4F74AB;border-radius:50%;animation:spin 1s linear infinite;"></div>
+    </div>
+    <style>
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    </style>
 
     <script>
         // 全域變數
@@ -228,6 +270,8 @@
         }
 
         $(document).ready(function () {
+            // 頁面載入時顯示自訂掃描框動畫
+            document.getElementById('custom-scan-box').style.display = 'flex';
             let targetFoundOnce = false;
             let phone = getCookie('phone');
             
@@ -256,33 +300,46 @@
             });
 
             // 監聽每個 targetIndex 的事件
+            // 只允許掃描到 route1_selected_level 對應的 targetIndex 時才顯示題目
+            let selectedLevel = localStorage.getItem('route1_selected_level');
             for (let i = 0; i <= 28; i++) {
                 let mindarEntity = document.querySelector(`a-entity[mindar-image-target="targetIndex: ${i}"]`);
-
                 mindarEntity.addEventListener('targetFound', function (event) {
+                    // 僅當掃描到正確題號才顯示題目
+                    if (String(i + 1) !== selectedLevel) {
+                        // 可選：顯示提示
+                            $('.status-message').html('<h3 style="font-size:1.2em;font-weight:600;margin-bottom:10px;">請掃描正確的圖卡！</h3>');
+                            $('.continue-btn').hide();
+                            $('.center-box').css({minHeight:'120px',height:'auto'}).fadeIn();
+                            setTimeout(function(){ $('.center-box').fadeOut(); }, 1200);
+                            return;
+                    }
                     if (!targetFoundOnce) {
                         targetFoundOnce = true;
+                        // 掃描到正確 target 時隱藏自訂掃描框動畫
+                        document.getElementById('custom-scan-box').style.display = 'none';
                         hideScanningHint();
                         console.log('Target found! Level:', i + 1);
                         let level = String(i + 1);
-                        // 顯示提示
-                        $('.center-box').fadeIn();
-                            $('.center-box').css({minHeight:'120px',height:'auto'}).fadeIn();
-                            $('.status-message').html('<h3 style="font-size:1.5em;font-weight:600;margin-bottom:10px;">恭喜你找到了</h3><div style="font-size:1.1em;">題目將於2秒後開啟</div>');
+                        // 直接顯示題目
+                            $('.center-box').hide();
+                            $('.status-message').html('');
                             $('.continue-btn').hide();
-                        setTimeout(function () {
-                            // 獲取關卡狀態
-                            $.ajax({
+                            $('.center-box').find('h3, div').remove();
+                            // 直接獲取關卡狀態
+                                // 顯示 loading 狀態
+                                $('#loading-box').fadeIn();
+                        $.ajax({
                                 url: postDetailUrl + phone,
                                 type: "GET",
                                 dataType: "json",
                                 success: function (data) {
                                     let status = data.content[level].status;
-                                    $('.center-box').fadeIn();
                                     if (status === 'pass' || status === 'fail') {
-                                        $('.status-message').html('<h3>你已做出選擇，請繼續前行吧</h3>');
-                                        $('.continue-btn').show();
-                                        $('.center-box').fadeIn();
+                                            $('.status-message').html('<h3>你已做出選擇，請繼續前行吧</h3>');
+                                            $('.continue-btn').show();
+                                                $('#loading-box').hide();
+                                            $('.center-box').fadeIn();
                                     } else {
                                         // 顯示題目
                                         $.ajax({
@@ -290,6 +347,7 @@
                                             type: "GET",
                                             dataType: "json",
                                             success: function (Question) {
+                                                        $('#loading-box').hide();
                                                 var correctAnswer = Question.answer;
                                                 var content = `
                                                     <div class="question">${Question.question}</div>
@@ -299,16 +357,17 @@
                                                     <button class="option" data-choice="D">${Question.choiceD}</button>
                                                     <div class="result"></div>
                                                 `;
-                                                $('.center-box').html(content);
-                                                $('.continue-btn').show();
+                                                    $('.center-box').html(content);
+                                                    $('.continue-btn').show();
+                                                    $('.center-box').fadeIn();
                                                 $('.option').click(function () {
                                                     var userChoice = $(this).data('choice');
                                                     var resultStatus = userChoice === correctAnswer ? 'pass' : 'fail';
                                                     $('.question, .option').remove();
                                                     if (resultStatus === 'pass') {
-                                                        $('.result').html('<p>恭喜通關</p><img src="https://github.com/tdance555/tdance2024/blob/beforeFinish/media/vendor_icons/correct.png?raw=true" alt="Success Image"><button class="continue-btn" onclick="window.history.back()">繼續前行</button>');
+                                                        $('.result').html('<p>恭喜通關</p><img src="https://github.com/tdance555/tdance2024/blob/beforeFinish/media/vendor_icons/correct.png?raw=true" alt="Success Image"><button class="continue-btn" onclick="window.location.href=\'route1.html\'">繼續前行</button>');
                                                     } else {
-                                                        $('.result').html('<p>挑戰失敗</p><img src="https://github.com/tdance555/tdance2024/blob/beforeFinish/media/vendor_icons/wrong.png?raw=true" alt="Failure Image"><button class="continue-btn" onclick="window.history.back()">繼續前行</button>');
+                                                        $('.result').html('<p>挑戰失敗</p><img src="https://github.com/tdance555/tdance2024/blob/beforeFinish/media/vendor_icons/wrong.png?raw=true" alt="Failure Image"><button class="continue-btn" onclick="window.location.href=\'route1.html\'">繼續前行</button>');
                                                     }
                                                     $('.result').fadeIn();
                                                     $.ajax({
@@ -319,10 +378,15 @@
                                                             level: level,
                                                             status: resultStatus,
                                                             user_answer: userChoice,
-                                                            correct_answer: correctAnswer
+                                                            correct_answer: correctAnswer,
+                                                            market: localStorage.getItem('route1_market') || '市集'
                                                         }),
                                                         success: function (response) {
                                                             console.log("數據更新成功:", response);
+                                                            // 答題成功自動跳轉回 route1.html，進度自動刷新
+                                                            setTimeout(function() {
+                                                                window.location.href = 'route1.html';
+                                                            }, 800); // 0.8秒後跳轉，讓動畫顯示
                                                         },
                                                         error: function (xhr, status, error) {
                                                             console.error("更新失敗:", xhr.responseText);
@@ -331,16 +395,17 @@
                                                 });
                                             },
                                             error: function (xhr, status, error) {
+                                                    $('#loading-box').hide();
                                                 console.error("獲取問題失敗:", xhr.responseText);
                                             }
                                         });
                                     }
                                 },
                                 error: function (xhr, status, error) {
+                                        $('#loading-box').hide();
                                     console.error("獲取數據失敗:", xhr.responseText);
                                 }
                             });
-                        }, 2000);
                     }
                 });
             }

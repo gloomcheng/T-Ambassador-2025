@@ -181,36 +181,32 @@ class PostUpdateAPIView(APIView):
         level_status = request.data.get('status')
         user_answer = request.data.get('user_answer')
         correct_answer = request.data.get('correct_answer')
+        market = request.data.get('market')
 
-        if level is None:
-            return Response({"error": "缺少 level 或 data 参数"}, status=status.HTTP_400_BAD_REQUEST)
+        if level is None or market is None:
+            return Response({"error": "缺少 level 或 market 参数"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 初始化 content 作為一個空字典（若之前沒有設置 content）
-        if post.content is None:
-            post.content = {}
 
-        content = post.content
+        # 初始化 content2 結構（與 init_content2 一致）
+        if post.content2 is None:
+            post.content2 = {}
+        if market not in post.content2:
+            post.content2[market] = {"data": {}}
+        if "data" not in post.content2[market]:
+            post.content2[market]["data"] = {}
 
-        # 檢查關卡是否存在並更新或創建對應的內容
-        if level in content:
-            if level_status is not None:
-                content[level]['status'] = level_status
-            if user_answer is not None:
-                content[level]['user_answer'] = user_answer
-            if correct_answer is not None:
-                content[level]['correct_answer'] = correct_answer
-        else:
-            content[level] = {
-                'status': level_status or '',
-                'user_answer': user_answer or '',
-                'correct_answer': correct_answer or ''
-            }
+        # 寫入/更新指定題目狀態
+        post.content2[market]["data"][level] = {
+            'status': level_status or '',
+            'user_answer': user_answer or '',
+            'correct_answer': correct_answer or ''
+        }
 
         # 保存更新
-        post.content = content
+        # post.content = content  # 舊邏輯註解
         post.save()
 
-        return Response(content[level], status=status.HTTP_200_OK)
+        return Response(post.content2[market]["data"][level], status=status.HTTP_200_OK)
 
 
 class PostListCreate(generics.ListCreateAPIView):
