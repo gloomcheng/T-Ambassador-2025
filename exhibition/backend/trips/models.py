@@ -13,9 +13,15 @@ def default_content():
 
 
 class Question(models.Model):
+    is_open = models.BooleanField(default=False, verbose_name='是否開放')  # 題目是否開放
     number = models.PositiveIntegerField(unique=True)
-    batch = models.CharField(max_length=100)  # 梯次 第一天,第二天
-    route = models.CharField(max_length=1)  #路線名稱 A,B,C
+    date = models.DateField(
+        verbose_name='日期',
+        blank=True,
+        null=True,
+        help_text='若需指定日期才填寫，否則可留空'
+    )  # 哪一天
+    route = models.CharField(max_length=20, verbose_name='所屬市集')  #可填中文市集名稱
     title = models.CharField(max_length=100) #廠商名稱
     icon = models.URLField(blank=True) #廠商icon
     question = models.CharField(max_length=100) #題目
@@ -44,6 +50,8 @@ class UserProfile(models.Model):
 class Post(models.Model):
     user = models.OneToOneField(UserProfile, on_delete=models.SET_NULL, related_name='post', null=True, blank=True)
     content = models.JSONField(default=default_content)
+    # 多市集進度：{ "A": {"data": {...}}, "B": {"data": {...}} }
+    content2 = models.JSONField(default=dict)  # 初始為空 dict，動態新增市集
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

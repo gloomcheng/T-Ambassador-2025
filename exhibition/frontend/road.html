@@ -163,11 +163,75 @@
     <button class="back-button" onclick="window.history.back()"></button>
     <div class="container">
         <div class="content">
-            <h1>您來到了門外小屋，這裡有三條道路</h1>
-            <h2 class="h2Row2">請選擇你想行走的道路</h2>
+            <h1>請選擇你所在的市集</h1>
             <div class="btr">
 
+            <!-- 市集清單將由 JS 動態生成 -->
+            <div id="marketBlock" style="display:none;">
+                <form id="marketForm">
+                    <div id="marketRadios" style="text-align:left; margin-left:0; padding-left:0;"></div>
+                    <button type="submit" id="marketSubmit" style="margin-top:20px;">送出</button>
+                </form>
+                <div id="marketResult" style="margin-top:20px;color:green;"></div>
             </div>
+            <script>
+            // 控制市集選擇區塊是否顯示
+            var marketEnabled = false; // true: 顯示市集選擇, false: 隱藏
+
+            function updateMarketBlock() {
+                document.getElementById('marketBlock').style.display = marketEnabled ? '' : 'none';
+            }
+
+            // 可在此切換 marketEnabled 狀態
+            // marketEnabled = true; // 若要開啟市集選擇，將此行設為 true
+            updateMarketBlock();
+
+            // 動態載入市集清單並生成單選 radio
+            document.addEventListener('DOMContentLoaded', function() {
+                // 若要自動開啟市集選擇，請將 marketEnabled 設為 true
+                // marketEnabled = true;
+                updateMarketBlock();
+                if (!marketEnabled) return;
+                fetch('/api/markets/')
+                    .then(res => res.json())
+                    .then(data => {
+                        const radiosDiv = document.getElementById('marketRadios');
+                        radiosDiv.innerHTML = '';
+                        if (Array.isArray(data.markets) && data.markets.length > 0) {
+                            data.markets.forEach((market, idx) => {
+                                const label = document.createElement('label');
+                                label.style.display = 'block';
+                                label.style.marginBottom = '8px';
+                                const radio = document.createElement('input');
+                                radio.type = 'radio';
+                                radio.name = 'market';
+                                radio.value = market;
+                                if (idx === 0) radio.checked = true;
+                                label.appendChild(radio);
+                                label.appendChild(document.createTextNode(' ' + market));
+                                radiosDiv.appendChild(label);
+                            });
+                        } else {
+                            radiosDiv.innerHTML = '<span style="color:red">目前無市集可選擇</span>';
+                            document.getElementById('marketSubmit').disabled = true;
+                        }
+                    })
+                    .catch(() => {
+                        document.getElementById('marketRadios').innerHTML = '<span style="color:red">載入市集失敗</span>';
+                        document.getElementById('marketSubmit').disabled = true;
+                    });
+
+                // 表單送出事件
+                document.getElementById('marketForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const selected = document.querySelector('input[name="market"]:checked');
+                    if (selected) {
+                        document.getElementById('marketResult').textContent = '已選擇市集：' + selected.value;
+                        // TODO: 可在此加入後續跳轉或 API 送出邏輯
+                    }
+                });
+            });
+            </script>
         </div>
     </div>
 </body>

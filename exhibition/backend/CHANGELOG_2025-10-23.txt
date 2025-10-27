@@ -23,6 +23,33 @@
 - route1.js API baseUrl 改為引用 link.js 變數，確保所有頁面自動切換 API。
 - Post model __str__ 方法安全性修正，避免 Django Admin 報錯。
 
+## 資料庫欄位新增/修改標準流程
+
+1. 編輯 models.py，新增或修改欄位。
+2. 於本地執行：
+   ```
+   python manage.py makemigrations
+   ```
+   產生 migration 檔案。
+3. 於本地執行：
+   ```
+   python manage.py migrate
+   ```
+   套用 migration，更新本地資料庫結構。
+4. 若有遠端伺服器，需將程式碼與 migration 檔案一併部署到遠端，並在遠端執行：
+   ```
+   python manage.py migrate
+   ```
+   遠端資料庫才會同步更新。
+5. 建議先備份資料庫再執行 migrate，避免資料遺失。
+   - SQLite 備份範例：
+     ```
+     copy db.sqlite3 db_backup_$(Get-Date -Format yyyyMMddHHmmss).sqlite3
+     ```
+   - MySQL/PostgreSQL 可用 dump/export 工具。
+
+> 注意：只上傳 models.py 不會自動改變資料庫結構，必須執行 makemigrations + migrate。
+
 ---
 
 > 本檔案自動記錄所有新增、修改、修正功能細節，方便日後查詢與維護。

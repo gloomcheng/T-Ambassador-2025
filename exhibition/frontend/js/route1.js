@@ -1,83 +1,120 @@
 document.addEventListener('DOMContentLoaded', function () {
     const phone = getCookie('phone');
-
-// 修改區開始------------------------------------------------------------------------------------
-//一個關卡有兩處要修改
-
-    const levels = [6, 7, 8, 9, 10, 11];  // 1.設定關卡編號
-    const buttonImages = {
-        //2.設定關卡圖片
-        6: './media/vendor_icons/6.png',
-        7: './media/vendor_icons/7.png',
-        8: './media/vendor_icons/8.png',
-        9: './media/vendor_icons/9.png',
-        10: './media/vendor_icons/10.png',
-        11: './media/vendor_icons/11.png',
-    };
-
-    // 改為引用 link.js 的 postDetailUrl，確保自動切換本地/遠端 API
-    // link.js 必須已在 html 先載入
-    // var postDetailUrl = "https://tdance.fansee.studio/trips/api/post-detail/";
-    // 若未載入 link.js，請在 html <head> 加入 <script src="js/link.js"></script>
-    // 這裡直接使用 link.js 注入的 postDetailUrl
-// 修改區結束------------------------------------------------------------------------------------
-
-
-
-
-
+    // 優先從 localStorage 取得 route1_questions_{market}
+    let questions = [];
+    let market = localStorage.getItem('route1_market') || '';
+    if (market) {
+        try {
+            questions = JSON.parse(localStorage.getItem('route1_questions_' + market)) || [];
+        } catch { questions = []; }
+    }
 
     const contentDiv = document.querySelector('.content');
+    if (questions.length > 0) {
+        // 題號排序（由小到大）
+        questions = questions.slice().sort((a, b) => parseInt(a.number) - parseInt(b.number));
+        // 依據題目動態產生 6 個按鈕
+        questions.forEach((q, idx) => {
+            const buttonContainer = document.createElement('div');
+            buttonContainer.classList.add('button-container');
 
-    // 生成按鈕
-    levels.forEach(level => {
-        const buttonContainer = document.createElement('div');
-        buttonContainer.classList.add('button-container');
+            const button = document.createElement('button');
+            button.dataset.level = q.number;
+            // 圖片路徑統一改為 frontend/media/vendor_icons/題號.png
+            button.style.backgroundImage = `url(./media/vendor_icons/${q.number}.png)`;
 
-        const button = document.createElement('button');
-        button.dataset.level = level;
-        button.style.backgroundImage = `url(${buttonImages[level]})`;
+            const statusPassElement = document.createElement('div');
+            statusPassElement.classList.add('status-pass');
+            statusPassElement.id = `status${q.number}`;
 
-        const statusPassElement = document.createElement('div');
-        statusPassElement.classList.add('status-pass');
-        statusPassElement.id = `status${level}`;
+            const statusFailElement = document.createElement('div');
+            statusFailElement.classList.add('status-fail');
+            statusFailElement.id = `fail${q.number}`;
 
-        const statusFailElement = document.createElement('div');
-        statusFailElement.classList.add('status-fail');
-        statusFailElement.id = `fail${level}`;
-
-        // 將按鈕和狀態元素添加到容器
-        buttonContainer.appendChild(button);
-        buttonContainer.appendChild(statusPassElement);
-        buttonContainer.appendChild(statusFailElement);
-
-        // 將按鈕容器添加到頁面
-        contentDiv.appendChild(buttonContainer);
-    });
-
-    if (phone) {
-        // fetch(`https://tdance.fansee.studio/trips/api/post-detail/${phone}/`)
-        fetch(postDetailUrl+phone)
-            .then(response => response.json())
-            .then(data => {
-                levels.forEach(level => {
-                    const statusPassElement = document.getElementById(`status${level}`);
-                    const statusFailElement = document.getElementById(`fail${level}`);
-                    const button = document.querySelector(`button[data-level="${level}"]`);
-
-                    const status = data.content[level.toString()]?.status;
-                    if (status === 'pass') {
-                        button.disabled = true;
-                        statusPassElement.style.display = 'block';
-                    } else if (status === 'fail') {
-                        button.disabled = true;
-                        statusFailElement.style.display = 'block';
-                    }
+            buttonContainer.appendChild(button);
+            buttonContainer.appendChild(statusPassElement);
+            buttonContainer.appendChild(statusFailElement);
+            contentDiv.appendChild(buttonContainer);
+        });
+        // 狀態顯示
+        if (phone) {
+            fetch(postDetailUrl+phone)
+                .then(response => response.json())
+                .then(data => {
+                    // 修正：content2 新結構
+                    let content2 = data.content;
+                    let content2Data = content2 && content2.data ? content2.data : content2;
+                    let market = content2 && content2.market ? content2.market : '';
+                    // 可在此 console.log 市集名稱
+                    console.log('[route1] 所屬市集:', market);
+                    questions.forEach(q => {
+                        const statusPassElement = document.getElementById(`status${q.number}`);
+                        const statusFailElement = document.getElementById(`fail${q.number}`);
+                        const button = document.querySelector(`button[data-level="${q.number}"]`);
+                        const status = content2Data[q.number.toString()]?.status;
+                        if (status === 'pass') {
+                            button.disabled = true;
+                            statusPassElement.style.display = 'block';
+                        } else if (status === 'fail') {
+                            button.disabled = true;
+                            statusFailElement.style.display = 'block';
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching post details', error);
                 });
-            })
-            .catch(error => {
-                console.error('Error fetching post details', error);
-            });
+        }
+    } else {
+        // fallback: 沒有 localStorage 則用原本寫死的
+        const levels = [6, 7, 8, 9, 10, 11];
+        const buttonImages = {
+            6: './media/vendor_icons/6.png',
+            7: './media/vendor_icons/7.png',
+            8: './media/vendor_icons/8.png',
+            9: './media/vendor_icons/9.png',
+            10: './media/vendor_icons/10.png',
+            11: './media/vendor_icons/11.png',
+        };
+        levels.forEach(level => {
+            const buttonContainer = document.createElement('div');
+            buttonContainer.classList.add('button-container');
+            const button = document.createElement('button');
+            button.dataset.level = level;
+            button.style.backgroundImage = `url(${buttonImages[level]})`;
+            const statusPassElement = document.createElement('div');
+            statusPassElement.classList.add('status-pass');
+            statusPassElement.id = `status${level}`;
+            const statusFailElement = document.createElement('div');
+            statusFailElement.classList.add('status-fail');
+            statusFailElement.id = `fail${level}`;
+            buttonContainer.appendChild(button);
+            buttonContainer.appendChild(statusPassElement);
+            buttonContainer.appendChild(statusFailElement);
+            contentDiv.appendChild(buttonContainer);
+        });
+        if (phone) {
+            fetch(postDetailUrl+phone)
+                .then(response => response.json())
+                .then(data => {
+                    levels.forEach(level => {
+                        const statusPassElement = document.getElementById(`status${level}`);
+                        const statusFailElement = document.getElementById(`fail${level}`);
+                        const button = document.querySelector(`button[data-level="${level}"]`);
+                        const status = data.content[level.toString()]?.status;
+                        if (status === 'pass') {
+                            button.disabled = true;
+                            statusPassElement.style.display = 'block';
+                        } else if (status === 'fail') {
+                            button.disabled = true;
+                            statusFailElement.style.display = 'block';
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching post details', error);
+                });
+        }
     }
 });
 

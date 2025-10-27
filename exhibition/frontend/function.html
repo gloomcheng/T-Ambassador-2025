@@ -293,12 +293,67 @@
 <body>
     <div class="container">
         <div class="content">
-            <h1>親愛的旅者，歡迎來到休憩小屋</h1>
-            <h2>這裡是您休憩的地點</h2>
-            <h2 class="h2Row2">您可以隨時回來並選擇你想做的事</h2>
-            <button onclick="ToGamePage()" class="buttonStart">選擇旅遊路線</button>
+            <h1>親愛的旅行者，歡迎你的加入</h1>
+            <h2>請選擇您所在市集後，開啟尋寶卡</h2>
+            <h2>開始你的尋寶之旅吧~</h2>
+            <!-- 市集選擇區塊 -->
+            <div id="marketBlock" style="display:none; margin-bottom:30px;">
+                <h2 style="text-align:center; margin-bottom:16px;">請選擇你所在的市集</h2>
+                <form id="marketForm" style="display:flex; flex-direction:column; align-items:center;">
+                    <select id="marketSelect" name="market" style="width:70%; font-size:18px; margin-bottom:18px; text-align:center;"></select>
+                    <button type="button" id="marketSubmit" style="margin-top:10px; display:none;">送出</button>
+                </form>
+                <div id="marketResult" style="margin-top:20px;color:green; text-align:center;"></div>
+            </div>
+            <script>
+// 取得 cookie 的工具函式
+function getCookie(name) {
+    var value = "; " + document.cookie;
+    var parts = value.split("; " + name + "=");
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return "";
+}
+            // 控制市集選擇區塊是否顯示
+            var marketEnabled = true; // true: 顯示市集選擇, false: 隱藏
+            function updateMarketBlock() {
+                document.getElementById('marketBlock').style.display = marketEnabled ? '' : 'none';
+            }
+            updateMarketBlock();
+            document.addEventListener('DOMContentLoaded', function() {
+                updateMarketBlock();
+                if (!marketEnabled) return;
+                fetch(marketListUrl)
+                    .then(res => res.json())
+                    .then(data => {
+                        const select = document.getElementById('marketSelect');
+                        select.innerHTML = '';
+                        if (Array.isArray(data.markets) && data.markets.length > 0) {
+                            data.markets.forEach((market, idx) => {
+                                const option = document.createElement('option');
+                                option.value = market;
+                                option.textContent = market;
+                                select.appendChild(option);
+                            });
+                            select.selectedIndex = 0;
+                            document.getElementById('marketSubmit').disabled = false;
+                        } else {
+                            select.innerHTML = '<option disabled>目前無市集可選擇</option>';
+                            document.getElementById('marketSubmit').disabled = true;
+                        }
+                    })
+                    .catch(() => {
+                        const select = document.getElementById('marketSelect');
+                        select.innerHTML = '<option disabled>載入市集失敗</option>';
+                        document.getElementById('marketSubmit').disabled = true;
+                    });
+                document.getElementById('marketForm').addEventListener('submit', function(e) {
+                    
+                });
+            });
+            </script>
+            <button onclick="openTreasureGame()" class="buttonStart">開啟尋寶卡</button>
             <button onclick="toTeach()" class="buttonOther">如何遊玩遊戲</button>
-            <button onclick="openModal('mapModal')" class="buttonOther">查詢活動地圖</button>
+            <span id="mapBtnContainer"></span>
             <button onclick="openModal('aboutModal')" class="buttonOther">關於本次活動</button>
         </div>
     </div>
@@ -320,6 +375,75 @@
     </div>
 
     <script>
+    function openTreasureGame() {
+        // 取得市集選擇值
+        var marketSelect = document.getElementById('marketSelect');
+        var market = marketSelect ? marketSelect.value : null;
+        var dateInput = document.getElementById('dateInput');
+        var date = dateInput ? dateInput.value.trim() : '';
+        if (!market) {
+            alert('請先選擇市集');
+            return;
+        }
+        console.log('[openTreasureGame] 市集:', market, '日期:', date);
+        // 取得市集隨機6題（加上日期條件）
+        var apiUrl = marketQuestionsUrl + '?market=' + encodeURIComponent(market);
+        if (date) {
+            apiUrl += '&date=' + encodeURIComponent(date);
+        }
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(data => {
+                console.log('[openTreasureGame] 市集題目API回傳:', data);
+                if (Array.isArray(data.questions) && data.questions.length > 0) {
+                    var levels = data.questions.map(q => q.number);
+                    var phone = getCookie('phone');
+                    // 呼叫後端 API 初始化 content2
+                    fetch(apiBaseUrl + 'init-content2/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ phone: phone, levels: levels, market: market })
+                    })
+                    .then(res => res.json())
+                    .then(result => {
+                        console.log('[openTreasureGame] 初始化content2 API回傳:', result);
+                        // 依據後端回傳的 content2.data 產生題目
+                        var content2 = result.content2;
+                        var questionsArr = [];
+                        if (content2 && content2.data) {
+                            Object.keys(content2.data).sort((a, b) => parseInt(a) - parseInt(b)).forEach(function(key) {
+                                questionsArr.push({ number: key });
+                            });
+                        }
+                        localStorage.setItem('route1_questions_' + market, JSON.stringify(questionsArr));
+                        localStorage.setItem('route1_market', market);
+                        window.location.href = 'route1.html';
+                    })
+                    .catch((err) => {
+                        console.error('[openTreasureGame] 初始化content2 API失敗:', err);
+                        alert('初始化進度失敗');
+                        window.location.href = 'route1.html';
+                    });
+                } else {
+                    alert('此市集暫無題目');
+                }
+            })
+            .catch((err) => {
+                console.error('[openTreasureGame] 市集題目API失敗:', err);
+                if (err && err instanceof Error) {
+                    alert('載入市集題目失敗\n' + err.message);
+                } else {
+                    alert('載入市集題目失敗');
+                }
+            });
+    }
+        // 控制活動地圖按鈕是否顯示
+        var controlMapBtn = false; // 設為 false 則不顯示
+        if (controlMapBtn) {
+            document.getElementById('mapBtnContainer').innerHTML = '<button onclick="openModal(\'mapModal\')" class="buttonOther">查詢活動地圖</button>';
+        }
         function ToGamePage() {
             window.location.href =road;
         }

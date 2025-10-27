@@ -13,7 +13,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ['content', 'updated_at']
+        fields = ['content', 'content2', 'updated_at']
         read_only_fields = ['updated_at']
 
 

@@ -1,6 +1,7 @@
 // 修改區開始-----------------------------------------------------------------------------------------------------
 // 只有一處要修改(整條一起修改)
 
+var routesEnabled = true; // true: 顯示意游未境按鈕, false: 隱藏
 var routes = [
     { url: "route1.html", action: "Toroute1Page", image: "./media/vendor_icons/button_1.png" },
     { url: "route1.html", action: "Toroute1Page", image: "./media/vendor_icons/button_1.png" },
@@ -10,12 +11,6 @@ var routes = [
 ];
 
 // 修改區結束-----------------------------------------------------------------------------------------------------
-
-
-
-
-
-
 
 
 
@@ -31,14 +26,14 @@ routes.forEach((route, index) => {
 // 動態生成按鈕
 document.addEventListener('DOMContentLoaded', function() {
     const container = document.querySelector('.btr');
-    
-    routes.forEach((route, index) => {
-        const button = document.createElement('button');
-        button.className = `button0`;
-        // button.className = `button${index + 1} button0`;
-        button.style.backgroundImage = `url(${route.image})`;
-        button.onclick = window[`Toroute${index + 1}Page`];
-        container.appendChild(button);
-    });
+    if (routesEnabled) {
+        routes.forEach((route, index) => {
+            const button = document.createElement('button');
+            button.className = `button0`;
+            button.style.backgroundImage = `url(${route.image})`;
+            button.onclick = window[`Toroute${index + 1}Page`];
+            container.appendChild(button);
+        });
+    }
 });
 

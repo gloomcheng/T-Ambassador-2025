@@ -1,0 +1,12 @@
+﻿{% extends "admin/change_list.html" %}
+{% block object-tools-items %}{{ block.super }}{% endblock %}
+{% block actions %}
+  <div class="actions">
+    <label for="action-toggle">動作：</label>
+    <select name="action" id="action-toggle">
+      <option value="">---------</option>
+      <option value="delete_selected">刪除</option>
+    </select>
+    <button type="submit" class="button" title="執行動作">執行</button>
+  </div>
+{% endblock %}

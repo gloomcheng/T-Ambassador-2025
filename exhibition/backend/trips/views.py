@@ -1,3 +1,72 @@
+from rest_framework.decorators import api_view
+
+# 新增 API：根據玩家手機號與題號列表，初始化 content2
+@api_view(['POST'])
+def init_content2(request):
+    print(f"[init_content2][CALL] phone={request.data.get('phone')}, levels={request.data.get('levels')}")
+    print('[init_content2] 參數:', request.data)
+    from datetime import datetime
+    def log_event(event, phone, levels, detail):
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        logger.info(f"[{now}] [{event}] phone={phone}, levels={levels}, {detail}")
+    import logging
+    import os
+    log_dir = os.path.join(os.path.dirname(__file__), '../logs')
+    os.makedirs(log_dir, exist_ok=True)
+    log_path = os.path.join(log_dir, 'init_content2.log')
+    logger = logging.getLogger("init_content2")
+    logger.setLevel(logging.INFO)
+    # 檢查 file_handler 是否已存在，避免重複加 handler
+    if not any(isinstance(h, logging.FileHandler) and h.baseFilename == os.path.abspath(log_path) for h in logger.handlers):
+        file_handler = logging.FileHandler(log_path, encoding='utf-8')
+        logger.addHandler(file_handler)
+    phone = request.data.get('phone')
+    levels = request.data.get('levels')  # 題號列表，例：[6,7,8,9,10,11]
+    # 題號排序（由小到大）
+    if isinstance(levels, list):
+        levels = sorted(levels, key=lambda x: int(x))
+    market = request.data.get('market')  # 新增：所屬市集
+    log_event("CALL", phone, levels, "API called")
+    if not phone or not levels or not isinstance(levels, list) or not market:
+        log_event("ERROR", phone, levels, "缺少 phone、levels 或 market")
+        print('[init_content2] 回傳:', {'error': '缺少 phone、levels 或 market'})
+        return Response({'error': '缺少 phone、levels 或 market'}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        user_profile = UserProfile.objects.get(phone=phone)
+        post = Post.objects.get(user=user_profile)
+    except (UserProfile.DoesNotExist, Post.DoesNotExist) as e:
+        log_event("ERROR", phone, levels, f"User or Post not found, error={e}")
+        print('[init_content2] 回傳:', {'error': 'User or Post not found'})
+        return Response({'error': 'User or Post not found'}, status=status.HTTP_404_NOT_FOUND)
+    log_event("SUCCESS", phone, levels, f"content2={post.content2}")
+    # 多市集結構：post.content2 = { "A": {"data": {...}}, "B": {"data": {...}} }
+    if not isinstance(post.content2, dict):
+        post.content2 = {}
+    # 判斷是否已有該市集資料
+    if market in post.content2:
+        print('[init_content2] 回傳:', {'content2': post.content2[market], 'msg': '已建立過，直接載入'})
+        return Response({'content2': post.content2[market], 'msg': '已建立過，直接載入'}, status=status.HTTP_200_OK)
+    # 新市集，初始化
+    content2 = {}
+    for level in levels:
+        content2[str(level)] = {
+            "status": "null",
+            "user_answer": "",
+            "correct_answer": ""
+        }
+    post.content2[market] = {
+        "data": content2
+    }
+    post.save()
+    print('[init_content2] 回傳:', {'content2': post.content2[market], 'msg': '第一次進入，已初始化市集'})
+    return Response({'content2': post.content2[market], 'msg': '第一次進入，已初始化市集'}, status=status.HTTP_200_OK)
+from django.http import JsonResponse
+from .models import Question
+
+def market_list(request):
+    # 取得所有市集唯一值
+    markets = Question.objects.values_list('route', flat=True).distinct()
+    return JsonResponse({'markets': list(markets)})
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics, status
@@ -59,10 +128,41 @@ class UserProfileAPIView(APIView):
             return Response(user_data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
+        import logging
+        import os
+        from datetime import datetime
+        log_dir = os.path.join(os.path.dirname(__file__), '../logs')
+        os.makedirs(log_dir, exist_ok=True)
+        log_path = os.path.join(log_dir, 'user_profile_api.log')
+        logger = logging.getLogger("user_profile_api")
+        logger.setLevel(logging.INFO)
+        if not any(isinstance(h, logging.FileHandler) and h.baseFilename == os.path.abspath(log_path) for h in logger.handlers):
+            file_handler = logging.FileHandler(log_path, encoding='utf-8')
+            logger.addHandler(file_handler)
+        def log_event(event, phone, detail):
+            now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            logger.info(f"[{now}] [{event}] phone={phone}, {detail}")
+
+        phone = request.data.get('phone')
+        gender = request.data.get('gender')
+        # 檢查 phone 是否已存在
+        try:
+            user_profile = UserProfile.objects.get(phone=phone)
+            # 已註冊，直接回傳 200 OK 並帶現有資料，並加 is_duplicate 欄位
+            log_event("EXIST", phone, "帳號已存在，直接登入")
+            data = UserProfileSerializer(user_profile).data
+            data['is_duplicate'] = True
+            return Response(data, status=status.HTTP_200_OK)
+        except UserProfile.DoesNotExist:
+            pass
+        # 若未註冊，正常建立
         serializer = UserProfileSerializer(data=request.data)
         if serializer.is_valid():
             user_profile = serializer.save()
-            return Response(UserProfileSerializer(user_profile).data, status=status.HTTP_201_CREATED)
+            log_event("CREATE", phone, f"新帳號註冊，性別={gender}")
+            data = UserProfileSerializer(user_profile).data
+            data['is_duplicate'] = False
+            return Response(data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

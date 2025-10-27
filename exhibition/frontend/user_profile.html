@@ -298,8 +298,8 @@
             $('#user-form').submit(function (event) {
                 event.preventDefault();
 
-                // 獲取格式化的手機號碼
-                var formattedPhoneNumber = iti.getNumber();
+                // 獲取格式化的手機號碼，並自動移除所有空白
+                var formattedPhoneNumber = iti.getNumber().replace(/\s+/g, '');
                 var localPhoneNumber = formattedPhoneNumber.replace("+886", "0");
 
                 // 台灣手機號碼正則檢查
@@ -318,7 +318,12 @@
                         gender: $('#id_gender').val(),
                     },
                     success: function (response) {
-                        console.log(response)
+                        console.log(response);
+                            // 判斷是否為重複註冊（已存在）
+                            if (response && response.phone === localPhoneNumber && response.is_duplicate === true) {
+                                // 只在重複註冊時顯示提示
+                                alert("您的帳號已註冊，正在為您登入。");
+                            }
                         document.cookie = "phone=" + localPhoneNumber + "; path=/; max-age=86400";
                         window.location.href = "manual.html";
                     },
