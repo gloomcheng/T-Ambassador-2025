@@ -9,6 +9,10 @@
     <script src="js/route1.js"></script>
     <title>AR遊戲集點</title>
     <style>
+        .test {
+            margin-bottom: -100px;
+            padding-bottom:-100px;
+        }
         body {
             margin: 0;
             padding: 0;
@@ -145,12 +149,19 @@
 <body>
     <button class="back-button" onclick="window.history.back()"></button>
     <div class="container">
-        <div class="test"><h1 class="h1-1">這是條刺激五感享受的冒險</h1>
-            <h2 class="h2-1">請任意選擇「4個」事件並進行通關</h2></div>
+        <div class="test">
+            <h1 class="h1-1" id="marketTitle">市集尋寶卡</h1>
+            <h2 class="h2-1">請找到圖片中的寶物並回答問題</h2>
+        </div>
         <div class="content">
            
         </div>
     </div>
+    <script>
+    // 取得所選市集（route1_market）
+    var market = localStorage.getItem('route1_market') || '市集';
+    document.getElementById('marketTitle').textContent = market + '市集尋寶卡';
+    </script>
 </body>
 
 </html>
