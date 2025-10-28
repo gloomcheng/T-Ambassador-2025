@@ -19,11 +19,11 @@
             cursor: pointer;
             border: 1px solid #ccc;
             /* 按鈕邊框顏色 */
-            background-color: #f0f0f0;
+            background-color: #ffffff;
             /* 按鈕默認背景顏色 */
             color: #333;
             /* 按鈕默認文字顏色 */
-            outline: none;
+            outline: f0000000;
             flex: 1;
             /* 按鈕平分容器寬度 */
             box-sizing: border-box;
@@ -57,7 +57,7 @@
             body {
                 text-align: center;
                 /* 所有文字置中 */
-                background-image: url('./media/vendor_icons/%E4%BF%AE%E7%90%86%E7%B6%A0.png');
+                background-image: url('./media/vendor_icons/BG_2.png');
             }
 
             h1 {
@@ -93,11 +93,12 @@
             button {
                 width: 100%; /* 確保按鈕填滿父容器的寬度 */
                 padding: 10px; /* 調整內邊距 */
-                background-color: cadetblue;
-                color: white;
+                background-color: rgb(255, 255, 255);
+                color: rgb(0, 0, 0);
                 border: none;
                 cursor: pointer;
                 outline: none;
+                border-radius: 20px;
             }
 
             input[type="tel"] {
@@ -123,7 +124,7 @@
             body {
                 text-align: center;
                 /* 所有文字置中 */
-                background-image: url('./media/vendor_icons/%E4%BF%AE%E7%90%86%E7%B6%A0.png');
+                background-image: url('./media/vendor_icons/BG_2.png');
             }
 
             h1 {
@@ -186,7 +187,7 @@
             body {
                 text-align: center;
                 /* 所有文字置中 */
-                background-image: url('./media/vendor_icons/%E4%BF%AE%E7%90%86%E7%B6%A0.png');
+                background-image: url('./media/vendor_icons/BG_2.png');
             }
 
             h1 {
@@ -325,7 +326,7 @@
                                 alert("您的帳號已註冊，正在為您登入。");
                             }
                         document.cookie = "phone=" + localPhoneNumber + "; path=/; max-age=86400";
-                        window.location.href = "manual.html";
+                        window.location.href = "function.html";
                     },
                     error: function (response) {
                         console.log(response);
@@ -333,7 +334,7 @@
                         if (response.status === 400 && message === 'user profile with this phone already exists.') {
                             alert("您的帳號已經註冊過，將載入遊戲進度。"); // 顯示重複的提示信息
                             document.cookie = "phone=" + localPhoneNumber + "; path=/; max-age=86400";
-                            window.location.href = "manual.html";
+                            window.location.href = "function.html";
                         }
                     }
                 });

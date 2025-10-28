@@ -23,7 +23,8 @@ class Question(models.Model):
     )  # 哪一天
     route = models.CharField(max_length=20, verbose_name='所屬市集')  #可填中文市集名稱
     title = models.CharField(max_length=100) #廠商名稱
-    icon = models.URLField(blank=True) #廠商icon
+    icon = models.URLField(blank=True) #廠商icon（網址）
+    icon_image = models.ImageField(upload_to='question_icons/', blank=True, null=True, verbose_name='Icon 圖片') #廠商icon（上傳檔案）
     question = models.CharField(max_length=100) #題目
     choiceA = models.CharField(max_length=100) #選項
     choiceB = models.CharField(max_length=100)

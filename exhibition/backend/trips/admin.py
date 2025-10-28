@@ -21,7 +21,7 @@ class QuestionAdmin(admin.ModelAdmin):
     list_filter = ['date', 'route']
     search_fields = ('title', 'question')
     # ICON 預覽插入 Title 與 Icon 欄位之間
-    fields = ['number', 'date', 'route', 'title', 'icon_preview_inline', 'icon', 'question', 'choiceA', 'choiceB', 'choiceC', 'choiceD', 'answer']
+    fields = ['number', 'date', 'route', 'title', 'icon_preview_inline', 'icon', 'icon_image', 'question', 'choiceA', 'choiceB', 'choiceC', 'choiceD', 'answer']
     readonly_fields = ['icon_preview_inline']
     actions = ['delete_selected', 'open_selected', 'close_selected']
     def get_actions(self, request):

@@ -8,11 +8,22 @@
     <script src="js/link.js"></script>
     <title>AR遊戲集點</title>
     <style>
+        select {
+            border-radius: 20px;
+            padding: 10px;
+            border: 5px solid #4f6fab;
+            background-color: #ffffff;
+            font-size: 18px;
+            color: #000000;
+        }
+        .content h1, .content h2 {
+            color: #000000;
+        }
         body {
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
-            background-image: url('./media/vendor_icons/%E6%8D%95%E9%AD%9A%E8%97%8D.png');
+            background-image: url('./media/vendor_icons/BG_4.png');
             background-size: 100% 100%;
             background-position: center center;
             background-repeat: no-repeat;
@@ -36,10 +47,12 @@
             width: 100%;
             max-width: 375px;
             padding-top: 50px;
+            position: relative;
+            top: 35px;
         }
 
         .buttonStart {
-            background-color: #4fab9c;
+            background-color: #000000;
             color: white;
             padding: 20px 42px;
             text-align: center;
@@ -53,7 +66,7 @@
         }
 
         .buttonOther {
-            background-color: rgb(160, 111, 95);
+            background-color: rgb(0, 0, 0);
             color: white;
             padding: 20px 42px;
             text-align: center;
@@ -129,7 +142,7 @@
         /* 手機大小 */
         @media (min-width: 320px) and (max-width: 480px) {
             body {
-                background-image: url('./media/vendor_icons/%E6%8D%95%E9%AD%9A%E8%97%8D.png');
+                background-image: url('./media/vendor_icons/BG_4.png');
             }
             .container {
                 padding: 10px;
@@ -139,13 +152,13 @@
                 font-size: 14px;
             }
             .buttonStart {
-                background-color: #4fab9c;
-                color: white;
+                background-color: #ffffff;
+                color: rgb(0, 0, 0);
                 padding: 20px 42px;
                 text-align: center;
                 text-decoration: auto;
                 display: inline-block;
-                font-size: 20px;
+                font-size: 16px;
                 border-radius: 50px;
                 border: 5px solid  #4f6fab;
                 font-weight: bold;
@@ -153,8 +166,8 @@
             }
 
             .buttonOther {
-                background-color: rgb(160, 111, 95);
-                color: white;
+                background-color: rgb(255, 255, 255);
+                color: rgb(0, 0, 0);
                 padding: 20px 42px;
                 text-align: center;
                 text-decoration: auto;
@@ -183,7 +196,7 @@
         /* 平板大小 */
         @media (min-width: 481px) and (max-width: 767px) {
             body {
-                background-image: url('./media/vendor_icons/%E6%8D%95%E9%AD%9A%E8%97%8D.png');
+                background-image: url('./media/vendor_icons/BG_4.png');
             }
             .container {
                 padding: 15px;
@@ -193,7 +206,7 @@
                 font-size: 16px;
             }
             .buttonStart {
-                background-color: #4fab9c;
+                background-color: #000000;
                 color: white;
                 padding: 20px 42px;
                 text-align: center;
@@ -207,7 +220,7 @@
             }
 
             .buttonOther {
-                background-color: rgb(160, 111, 95);
+                background-color: rgb(0, 0, 0);
                 color: white;
                 padding: 20px 42px;
                 text-align: center;
@@ -237,7 +250,7 @@
         /* 電腦大小 */
         @media (min-width: 768px) {
             body {
-                background-image: url('./media/vendor_icons/%E6%8D%95%E9%AD%9A%E8%97%8D.png');
+                background-image: url('./media/vendor_icons/BG_4.png');
             }
             .container {
                 padding: 20px;
@@ -247,7 +260,7 @@
                 font-size: 18px;
             }
             .buttonStart {
-                background-color: #4fab9c;
+                background-color: #000000;
                 color: white;
                 padding: 20px 42px;
                 text-align: center;
@@ -261,7 +274,7 @@
             }
 
             .buttonOther {
-                background-color: rgb(160, 111, 95);
+                background-color: rgb(0, 0, 0);
                 color: white;
                 padding: 20px 42px;
                 text-align: center;
@@ -299,6 +312,7 @@
             <!-- 市集選擇區塊 -->
             <div id="marketBlock" style="display:none; margin-bottom:30px;">
                 <h2 style="text-align:center; margin-bottom:16px;">請選擇你所在的市集</h2>
+                <br>
                 <form id="marketForm" style="display:flex; flex-direction:column; align-items:center;">
                     <select id="marketSelect" name="market" style="width:70%; font-size:18px; margin-bottom:18px; text-align:center;"></select>
                     <button type="button" id="marketSubmit" style="margin-top:10px; display:none;">送出</button>
@@ -354,7 +368,12 @@ function getCookie(name) {
             <button onclick="openTreasureGame()" class="buttonStart">開啟尋寶卡</button>
             <button onclick="toTeach()" class="buttonOther">如何遊玩遊戲</button>
             <span id="mapBtnContainer"></span>
-            <button onclick="openModal('aboutModal')" class="buttonOther">關於本次活動</button>
+            <script>
+            var showAboutBtn = false; // 控制「關於本次活動」按鈕顯示
+            if (showAboutBtn) {
+                document.write('<button onclick="openModal(\'aboutModal\')" class="buttonOther">關於本次活動</button>');
+            }
+            </script>
         </div>
     </div>
 
