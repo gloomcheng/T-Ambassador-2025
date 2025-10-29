@@ -22,7 +22,7 @@ if (location.hostname.endsWith('github.io')) {
 	// 本地或 Cloudflare Tunnel 皆走本地 API
 	apiBaseUrl = window.location.origin + '/api/';
 } else {
-	apiBaseUrl = 'https://tdance.fansee.studio/trips/api/';
+	apiBaseUrl = 'https://tdance.fansee.studio/api/';
 }
 console.log('API baseUrl:', apiBaseUrl);
 var postDetailUrl = apiBaseUrl + 'post-detail/'; // 通關狀況讀取(arScan.js)
