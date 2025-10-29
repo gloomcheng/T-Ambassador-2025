@@ -44,8 +44,13 @@ def init_content2(request):
         post.content2 = {}
     # 判斷是否已有該市集資料
     if market in post.content2:
-        print('[init_content2] 回傳:', {'content2': post.content2[market], 'msg': '已建立過，直接載入'})
-        return Response({'content2': post.content2[market], 'msg': '已建立過，直接載入'}, status=status.HTTP_200_OK)
+        # 強制重置所有題目狀態
+        for qid, qdata in post.content2[market]['data'].items():
+            qdata['status'] = None
+            qdata['user_answer'] = ""
+        post.save()
+        print('[init_content2] 回傳:', {'content2': post.content2[market], 'msg': '已重置並載入'})
+        return Response({'content2': post.content2[market], 'msg': '已重置並載入'}, status=status.HTTP_200_OK)
     # 新市集，初始化
     content2 = {}
     for level in levels:
