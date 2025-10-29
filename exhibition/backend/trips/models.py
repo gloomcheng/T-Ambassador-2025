@@ -59,3 +59,14 @@ class Post(models.Model):
     def __str__(self):
         user_phone = self.user.phone if self.user else "Unknown"
         return f"Post by {user_phone} at {self.created_at}"
+
+# 修正：將 ManageUser 移到最外層
+class ManageUser(models.Model):
+    phone = models.CharField(max_length=20, unique=True, verbose_name='手機號碼')
+    password = models.CharField(max_length=128, verbose_name='密碼')
+    company = models.CharField(max_length=100, verbose_name='公司名稱', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.phone} - {self.company if self.company else ''}"

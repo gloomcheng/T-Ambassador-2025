@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>廠商題目管理</title>
+    <style>
+        body { background: #f7f7fa; font-family: 'Segoe UI', Arial, sans-serif; }
+        .container { max-width: 1100px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 16px rgba(0,0,0,0.08); padding: 32px; }
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 32px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 24px; table-layout: fixed; }
+        th, td { border: 1px solid #e0e0e0; padding: 8px 6px; text-align: left; font-size: 15px; vertical-align: middle; }
+        th { background: #f0f4fa; font-weight: 600; }
+        th, td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        th { text-align: left; }
+        input[type=text], input[type=date], input[type=file] {
+            width: 100%;
+            padding: 6px 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+        input[type=file] {
+            padding: 2px 0;
+        }
+        img {
+            max-height: 32px;
+            max-width: 64px;
+            display: block;
+            margin: 0 auto;
+        }
+        .save-btn {
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 32px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+        .save-btn:hover { background: #217dbb; }
+        td input[type=text], td input[type=date] {
+            margin: 0;
+        }
+    </style>
+</head>
+
+{% load icon_filters %}
+<body>
+    <div class="container">
+        <h2>廠商題目管理 - {{ company }}</h2>
+        {% if questions %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% for q in questions %}
+            <div class="question-block" style="border:1px solid #e0e0e0; border-radius:8px; padding:20px; margin-bottom:32px;">
+                <div style="margin-bottom:12px;"><label>題號：</label> {{ q.number }}</div>
+                <div style="margin-bottom:12px;"><label>日期：</label> <input type="date" name="date_{{ q.id }}" value="{{ q.date|date:'Y-m-d' }}"></div>
+                <div style="margin-bottom:12px;"><label>所屬市集：</label> <input type="text" name="route_{{ q.id }}" value="{{ q.route }}"></div>
+                <div style="margin-bottom:12px;"><label>Title：</label> <input type="text" name="title_{{ q.id }}" value="{{ q.title }}"></div>
+                <div style="margin-bottom:12px;">
+                    <label>ICON預覽：</label>
+                    {% if q.icon %}
+                        <img src="{{ q.icon|icon_url_display }}" alt="icon" style="height:32px;max-width:64px;">
+                    {% else %}
+                        <span style="color:#aaa;">無</span>
+                    {% endif %}
+                </div>
+                <div style="margin-bottom:12px;"><label>ICON網址：</label> <input type="text" name="icon_{{ q.id }}" value="{{ q.icon }}"></div>
+                <div style="margin-bottom:12px;">
+                    <label>ICON圖片：</label>
+                    {% if q.icon_image %}
+                        <img src="{{ q.icon_image.url }}" alt="icon_img" style="height:32px;max-width:64px;display:block;margin-bottom:4px;">
+                    {% endif %}
+                    <input type="file" name="icon_image_{{ q.id }}">
+                </div>
+                <div style="margin-bottom:12px;"><label>題目：</label> <input type="text" name="question_{{ q.id }}" value="{{ q.question }}"></div>
+                <div style="margin-bottom:12px;"><label>選項A：</label> <input type="text" name="choiceA_{{ q.id }}" value="{{ q.choiceA }}"></div>
+                <div style="margin-bottom:12px;"><label>選項B：</label> <input type="text" name="choiceB_{{ q.id }}" value="{{ q.choiceB }}"></div>
+                <div style="margin-bottom:12px;"><label>選項C：</label> <input type="text" name="choiceC_{{ q.id }}" value="{{ q.choiceC }}"></div>
+                <div style="margin-bottom:12px;"><label>選項D：</label> <input type="text" name="choiceD_{{ q.id }}" value="{{ q.choiceD }}"></div>
+                <div style="margin-bottom:12px;"><label>答案：</label> <input type="text" name="answer_{{ q.id }}" value="{{ q.answer }}"></div>
+            </div>
+            {% endfor %}
+            <button type="submit" class="save-btn">儲存</button>
+        </form>
+        {% else %}
+        <p style="text-align:center; color:#888;">目前尚無題目可管理。</p>
+        {% endif %}
+    </div>
+</body>
+</html>

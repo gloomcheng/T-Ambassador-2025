@@ -1,3 +1,64 @@
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render, redirect
+# ...existing code...
+
+@csrf_exempt
+def manage(request):
+    # 取得登入者手機
+    phone = request.session.get('manage_phone')
+    company = None
+    if phone:
+        user = ManageUser.objects.filter(phone=phone).first()
+        if user:
+            company = user.company
+    if not company:
+        return HttpResponse('請先登入')
+    # 取得所有 title=公司名稱的 Questions
+    questions = Question.objects.filter(title=company)
+    if request.method == 'POST':
+        # 編輯題目
+        for q in questions:
+            q.question = request.POST.get(f'question_{q.id}', q.question)
+            q.choiceA = request.POST.get(f'choiceA_{q.id}', q.choiceA)
+            q.choiceB = request.POST.get(f'choiceB_{q.id}', q.choiceB)
+            q.choiceC = request.POST.get(f'choiceC_{q.id}', q.choiceC)
+            q.choiceD = request.POST.get(f'choiceD_{q.id}', q.choiceD)
+            q.answer = request.POST.get(f'answer_{q.id}', q.answer)
+            q.icon = request.POST.get(f'icon_{q.id}', q.icon)
+            q.save()
+        return HttpResponse('儲存成功')
+    return render(request, 'manage/company_questions.html', {'questions': questions, 'company': company})
+from django.shortcuts import render
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import ManageUser
+
+# ...existing code...
+
+@csrf_exempt
+def manage_login(request):
+    if request.method == 'POST':
+        phone = request.POST.get('phone')
+        password = request.POST.get('password')
+        action = request.POST.get('action')
+        company = request.POST.get('company')
+        if action == 'register':
+            if ManageUser.objects.filter(phone=phone).exists():
+                return HttpResponse('此手機已註冊')
+            if not company:
+                return HttpResponse('請輸入公司名稱')
+            ManageUser.objects.create(phone=phone, password=password, company=company)
+            request.session['manage_phone'] = phone
+            return redirect('/manage/')
+        elif action == 'login':
+            user = ManageUser.objects.filter(phone=phone, password=password).first()
+            if user:
+                request.session['manage_phone'] = phone
+                return redirect('/manage/')
+            else:
+                return HttpResponse('手機或密碼錯誤')
+    return render(request, 'manage/login.html')
 from rest_framework.decorators import api_view
 
 # 新增 API：根據玩家手機號與題號列表，初始化 content2

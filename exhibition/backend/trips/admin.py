@@ -1,7 +1,13 @@
 from django.contrib import admin
 
 from django.utils.html import format_html
-from .models import Question, UserProfile, Post
+from .models import Question, UserProfile, Post, ManageUser
+
+# 自訂 ManageUserAdmin 顯示公司名稱與手機
+class ManageUserAdmin(admin.ModelAdmin):
+    list_display = ('company', 'phone')
+
+admin.site.register(ManageUser, ManageUserAdmin)
 
 # QuestionAdmin 顯示 icon 縮圖
 class QuestionAdmin(admin.ModelAdmin):

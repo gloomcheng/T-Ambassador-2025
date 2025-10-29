@@ -1,0 +1,101 @@
+﻿
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>廠商登入/註冊</title>
+    <style>
+        body {
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f7f7fa;
+        }
+        .login-container {
+            background: #fff;
+            padding: 32px 28px;
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            min-width: 320px;
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 24px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        label {
+            display: block;
+            margin: 12px 0 4px 0;
+            font-size: 15px;
+            color: #34495e;
+        }
+        input[type="text"], input[type="password"] {
+            width: 90%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+        button {
+            padding: 8px 24px;
+            margin: 8px 6px 0 6px;
+            border: none;
+            border-radius: 6px;
+            background: #3498db;
+            color: #fff;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #217dbb;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>廠商登入/註冊</h2>
+        <form method="post" id="loginForm">
+            <label>手機號碼：</label>
+            <input type="text" name="phone" required>
+            <label>密碼：</label>
+            <input type="password" name="password" required>
+            <div id="companyField" style="display:none;">
+                <label>公司名稱：</label>
+                <input type="text" name="company" id="companyInput">
+            </div>
+            <button type="submit" name="action" value="login" id="loginBtn">登入</button>
+            <button type="submit" name="action" value="register" id="registerBtn">註冊</button>
+        </form>
+        <script>
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const companyField = document.getElementById('companyField');
+        const form = document.getElementById('loginForm');
+
+        registerBtn.addEventListener('click', function(e) {
+            companyField.style.display = 'block';
+        });
+        loginBtn.addEventListener('click', function(e) {
+            companyField.style.display = 'none';
+        });
+
+        // 若直接送出註冊，且公司名稱沒填，阻止送出
+        form.addEventListener('submit', function(e) {
+            const action = document.activeElement.value;
+            if (action === 'register') {
+                const company = document.getElementById('companyInput').value.trim();
+                if (!company) {
+                    alert('請輸入公司名稱');
+                    e.preventDefault();
+                }
+            }
+        });
+        </script>
+    </div>
+</body>
+</html>

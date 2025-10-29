@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
+from trips.views import manage_login, manage
 
 from django.views.generic import RedirectView
 from django.conf.urls.static import static
@@ -26,6 +27,8 @@ urlpatterns = [
     path('api/', include('trips.urls')),
     path('', include('trips.urls')),
     path('', RedirectView.as_view(url='/frontend/index.html', permanent=False)),
+    path('manage/login/', manage_login, name='manage_login'),
+    path('manage/', manage, name='manage'),
 ]
 from django.views.static import serve
 urlpatterns += [
