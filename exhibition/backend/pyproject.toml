@@ -10,9 +10,10 @@ dependencies = [
     "markdown",
     "django-filter",
     "django-cors-headers",
+    "Pillow",
 ]
 
-[tool.uv]
-dev-dependencies = []
+[dependency-groups]
+dev = []
 
 # Django 專案不需要 build-system，因為這不是一個可安裝的套件
