@@ -39,7 +39,9 @@ app.post(config.APP_WEBHOOK_PATH, validateLineSignature, async (req, res) => {
 });
 
 if (config.APP_PORT) {
-  app.listen(config.APP_PORT);
+  app.listen(config.APP_PORT, () => {
+    console.log(`Server is running on port ${config.APP_PORT}`);
+  });
 }
 
 export default app;
