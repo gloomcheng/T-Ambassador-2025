@@ -20,7 +20,7 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           # 使用 base64 解碼密鑰（最可靠的方式）
-          echo "${{ secrets.SSH_PRIVATE_KEY_BASE64 }}" | base64 -d > ~/.ssh/deploy_key
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | base64 -d > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           
           # 驗證密鑰格式
