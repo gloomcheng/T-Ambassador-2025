@@ -1,3 +1,5 @@
+
+import os
 from django.db import models
 
 # Create your models here.
@@ -12,6 +14,15 @@ def default_content():
     return content
 
 
+
+def upload_to_original_filename(instance, filename):
+    # 只保留原始檔名，不加隨機字串，若有同名檔案則覆蓋
+    full_path = os.path.join('question_icons', filename)
+    from django.core.files.storage import default_storage
+    if default_storage.exists(full_path):
+        default_storage.delete(full_path)
+    return full_path
+
 class Question(models.Model):
     is_open = models.BooleanField(default=False, verbose_name='是否開放')  # 題目是否開放
     number = models.PositiveIntegerField(unique=True)
@@ -24,7 +35,7 @@ class Question(models.Model):
     route = models.CharField(max_length=20, verbose_name='所屬市集')  #可填中文市集名稱
     title = models.CharField(max_length=100) #廠商名稱
     icon = models.URLField(blank=True) #廠商icon（網址）
-    icon_image = models.ImageField(upload_to='question_icons/', blank=True, null=True, verbose_name='Icon 圖片') #廠商icon（上傳檔案）
+    icon_image = models.ImageField(upload_to=upload_to_original_filename, blank=True, null=True, verbose_name='Icon 圖片') #廠商icon（上傳檔案）
     question = models.CharField(max_length=100) #題目
     choiceA = models.CharField(max_length=100) #選項
     choiceB = models.CharField(max_length=100)

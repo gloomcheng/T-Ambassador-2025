@@ -44,6 +44,10 @@ class QuestionAdmin(admin.ModelAdmin):
         js = ('trips/custom_action_label.js',)
 
     def icon_preview_inline(self, obj):
+        # 優先顯示本地上傳圖片
+        if obj.icon_image:
+            return format_html('<img src="{}" style="height:40px;max-width:60px;object-fit:contain;margin-bottom:8px;" />', obj.icon_image.url)
+        # 沒有本地圖片才顯示外部網址
         icon_url = str(obj.icon) if obj.icon else ''
         if icon_url:
             if 'github.com' in icon_url and '/blob/' in icon_url:

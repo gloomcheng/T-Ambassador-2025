@@ -115,8 +115,7 @@
 <body>
         <button class="back-button" onclick="goBack()"></button>
     <h1></h1>
-    
-    <a-scene mindar-image="imageTargetSrc: mind/targets_00.mind; uiScanning: no; uiLoading: no; uiError: no;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <a-scene mindar-image="imageTargetSrc: ./mind/targets_03.mind; uiScanning: no; uiLoading: no; uiError: no;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
 
         <a-assets>
             <!-- 換圖片 -->
@@ -126,29 +125,9 @@
             <img id="card4" src="img/img_04.png" />
             <img id="card5" src="img/img_05.png" />
             <img id="card6" src="img/img_06.png" />
-            <img id="card7" src="img/img_07.png" />
-            <img id="card8" src="img/img_08.png" />
-            <img id="card9" src="img/img_09.png" />
-            <img id="card10" src="img/img_10.png" />
-            <img id="card11" src="img/img_11.png" />
-            <img id="card12" src="img/img_12.png" />
-            <img id="card13" src="img/img_13.png" />
-            <img id="card14" src="img/img_14.png" />
-            <img id="card15" src="img/img_15.png" />
-            <img id="card16" src="img/img_16.png" />
-            <img id="card17" src="img/img_17.png" />
-            <img id="card18" src="img/img_18.png" />
-            <img id="card19" src="img/img_19.jpg" />
-            <img id="card20" src="img/img_20.png" />
-            <img id="card21" src="img/img_21.png" />
-            <img id="card22" src="img/img_22.png" />
-            <img id="card23" src="img/img_23.png" />
-            <img id="card24" src="img/img_24.png" />
-            <img id="card25" src="img/img_25.png" />
-            <img id="card26" src="img/img_26.png" />
-            <img id="card27" src="img/img_27.png" />
-            <img id="card28" src="img/img_28.png" />
-            <img id="card29" src="img/img_29.png" />
+
+            
+
 
             <a-asset-item id="avatarModel" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/softmind/scene.gltf"></a-asset-item>
         
@@ -163,29 +142,7 @@
         <a-entity mindar-image-target="targetIndex: 3"></a-entity>
         <a-entity mindar-image-target="targetIndex: 4"></a-entity>
         <a-entity mindar-image-target="targetIndex: 5"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 6"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 7"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 8"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 9"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 10"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 11"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 12"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 13"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 14"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 15"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 16"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 17"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 18"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 19"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 20"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 21"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 22"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 23"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 24"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 25"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 26"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 27"></a-entity>
-        <a-entity mindar-image-target="targetIndex: 28"></a-entity>
+
 
 
     </a-scene>
@@ -270,11 +227,39 @@
         }
 
         $(document).ready(function () {
+            // 顯示 MIND 檔案路徑 LOG
+            const mindPath = $('a-scene').attr('mindar-image').match(/imageTargetSrc:\s*([^;]+)/);
+            let selectedLevel = localStorage.getItem('route1_selected_level');
+            let mindIndex = selectedLevel ? (parseInt(selectedLevel) - 1) : null;
+            let scanImageName = '';
+            // 取得需掃描的正確圖案名稱（假設 img id 與題號對應）
+            if (selectedLevel) {
+                let imgEl = document.getElementById('card' + selectedLevel);
+                if (imgEl) {
+                    scanImageName = imgEl.getAttribute('src');
+                }
+            }
+            if (mindPath && mindPath[1]) {
+                const link = document.createElement('a');
+                link.href = mindPath[1];
+                const absoluteUrl = link.href;
+                console.log('[MIND 檔案路徑]', absoluteUrl);
+            } else {
+                console.log('[MIND 檔案路徑] 未偵測到');
+            }
+            console.log('[題號 selectedLevel]', selectedLevel);
+            console.log('[MIND INDEX]', mindIndex);
+            console.log('[需掃描的正確圖案]', scanImageName);
+            // 額外印出所有 (i + 1) 與 selectedLevel 比對
+            for (let i = 0; i <= 5; i++) {
+                console.log(`[targetIndex ${i}] (i+1): ${i+1}, selectedLevel: ${selectedLevel}`);
+            }
+
             // 頁面載入時顯示自訂掃描框動畫
             document.getElementById('custom-scan-box').style.display = 'flex';
             let targetFoundOnce = false;
             let phone = getCookie('phone');
-            
+
             // 顯示掃描提示（延遲3秒後顯示）
             function showScanningHint() {
                 console.log('Starting scanning hint timer...');
@@ -286,11 +271,11 @@
                     }
                 }, 3000); // 3秒後顯示提示
             }
-            
+
             // 立即開始計時器（頁面載入後）
             console.log('Document ready, starting hint timer immediately');
             showScanningHint();
-            
+
             // 同時監聽 A-Frame scene 事件（備用）
             $(document).on('DOMContentLoaded', function() {
                 console.log('DOMContentLoaded triggered');
@@ -301,18 +286,17 @@
 
             // 監聽每個 targetIndex 的事件
             // 只允許掃描到 route1_selected_level 對應的 targetIndex 時才顯示題目
-            let selectedLevel = localStorage.getItem('route1_selected_level');
-            for (let i = 0; i <= 28; i++) {
+            for (let i = 0; i <= 5; i++) {
                 let mindarEntity = document.querySelector(`a-entity[mindar-image-target="targetIndex: ${i}"]`);
                 mindarEntity.addEventListener('targetFound', function (event) {
-                    // 僅當掃描到正確題號才顯示題目
+                    // 僅當掃描到正確題號才顯示說明頁
                     if (String(i + 1) !== selectedLevel) {
                         // 可選：顯示提示
-                            $('.status-message').html('<h3 style="font-size:1.2em;font-weight:600;margin-bottom:10px;">請掃描正確的圖卡！</h3>');
-                            $('.continue-btn').hide();
-                            $('.center-box').css({minHeight:'120px',height:'auto'}).fadeIn();
-                            setTimeout(function(){ $('.center-box').fadeOut(); }, 1200);
-                            return;
+                        $('.status-message').html('<h3 style="font-size:1.2em;font-weight:600;margin-bottom:10px;">請掃描正確的圖卡！</h3>');
+                        $('.continue-btn').hide();
+                        $('.center-box').css({minHeight:'120px',height:'auto'}).fadeIn();
+                        setTimeout(function(){ $('.center-box').fadeOut(); }, 1200);
+                        return;
                     }
                     if (!targetFoundOnce) {
                         targetFoundOnce = true;
@@ -321,25 +305,40 @@
                         hideScanningHint();
                         console.log('Target found! Level:', i + 1);
                         let level = String(i + 1);
-                        // 直接顯示題目
+                        // 根據題號顯示不同說明
+                        const introMap = {
+                            '1': '第一關｜山林之源：霧中孕育的茶香六龜位於高雄山區，四面環山、雲霧繚繞。早晨的霧氣為茶樹帶來天然保濕，也讓茶湯散發清新的花香。當地茶農稱這裡的「霧氣」是最好的老師，教會茶樹慢慢生長，慢慢釋放香氣。',
+                            '2': '第二關｜手工摘採：一心二葉的堅持六龜的茶農延續傳統採摘方式，只取「一心二葉」——也就是最嫩的茶芽與兩片新葉。這樣做不但能確保茶香純淨，也體現對品質的堅持。每一籃茶葉都凝聚了農人清晨的汗水與眼光。',
+                            '3': '第三關｜火候的藝術：製茶師的手感烘培茶葉是決定香氣的靈魂。六龜的製茶師不用溫度計，全靠「手感」判斷茶葉的乾濕與香氣變化。他們說：「茶會告訴你它準備好了。」這份技藝，是時間和經驗累積的智慧。',
+                            '4': '第四關｜你來到山腰的一處茶室，窗外雲霧繚繞。茶師正以不同的壺具沖泡同樣的山茶，香氣卻各異。她微笑著說：「懂茶的人，不只懂葉，也懂壺。',
+                            '5': '第五關｜茶湯的顏色語言你端起茶杯，茶湯如金、如琥珀。老人問：「看顏色，就知道茶的性情。」綠茶湯色淡黃清亮；烏龍茶呈金黃或蜜綠；紅茶則是紅褐色。六龜的山茶屬輕發酵茶，湯色明亮、帶花果香。',
+                            '6': '第六關｜手炒茶的時光香氣你拾階而上，來到古老的製茶小屋。屋內傳來陣陣茶香，一位婦人正用雙手翻炒茶葉。火光映照她的臉龐，她說：「每一片茶葉，都有祖先留下的手感。'
+                        };
+                        let introText = introMap[level] || '本關卡說明：請仔細閱讀規則與提示，點擊「下一頁」開始答題。';
+                        $('.center-box').html(`
+                            <div class="intro-text" style="font-size:1.1em;margin-bottom:18px;">${introText}</div>
+                            <button class="continue-btn" id="nextToQuestion">下一頁</button>
+                        `);
+                        $('.center-box').show();
+                        // 點下一頁才顯示問答區塊
+                        $('#nextToQuestion').off('click').on('click', function() {
                             $('.center-box').hide();
                             $('.status-message').html('');
                             $('.continue-btn').hide();
                             $('.center-box').find('h3, div').remove();
-                            // 直接獲取關卡狀態
-                                // 顯示 loading 狀態
-                                $('#loading-box').fadeIn();
-                        $.ajax({
+                            // 顯示 loading 狀態
+                            $('#loading-box').fadeIn();
+                            $.ajax({
                                 url: postDetailUrl + phone,
                                 type: "GET",
                                 dataType: "json",
                                 success: function (data) {
                                     let status = data.content[level].status;
                                     if (status === 'pass' || status === 'fail') {
-                                            $('.status-message').html('<h3>你已做出選擇，請繼續前行吧</h3>');
-                                            $('.continue-btn').show();
-                                                $('#loading-box').hide();
-                                            $('.center-box').fadeIn();
+                                        $('.status-message').html('<h3>你已做出選擇，請繼續前行吧</h3>');
+                                        $('.continue-btn').show();
+                                        $('#loading-box').hide();
+                                        $('.center-box').fadeIn();
                                     } else {
                                         // 顯示題目
                                         $.ajax({
@@ -347,7 +346,7 @@
                                             type: "GET",
                                             dataType: "json",
                                             success: function (Question) {
-                                                        $('#loading-box').hide();
+                                                $('#loading-box').hide();
                                                 var correctAnswer = Question.answer;
                                                 var content = `
                                                     <div class="question">${Question.question}</div>
@@ -357,9 +356,9 @@
                                                     <button class="option" data-choice="D">${Question.choiceD}</button>
                                                     <div class="result"></div>
                                                 `;
-                                                    $('.center-box').html(content);
-                                                    $('.continue-btn').show();
-                                                    $('.center-box').fadeIn();
+                                                $('.center-box').html(content);
+                                                $('.continue-btn').show();
+                                                $('.center-box').fadeIn();
                                                 $('.option').click(function () {
                                                     var userChoice = $(this).data('choice');
                                                     var resultStatus = userChoice === correctAnswer ? 'pass' : 'fail';
@@ -395,17 +394,18 @@
                                                 });
                                             },
                                             error: function (xhr, status, error) {
-                                                    $('#loading-box').hide();
+                                                $('#loading-box').hide();
                                                 console.error("獲取問題失敗:", xhr.responseText);
                                             }
                                         });
                                     }
                                 },
                                 error: function (xhr, status, error) {
-                                        $('#loading-box').hide();
+                                    $('#loading-box').hide();
                                     console.error("獲取數據失敗:", xhr.responseText);
                                 }
                             });
+                        });
                     }
                 });
             }
