@@ -17,20 +17,24 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
-from trips.views import manage_login, manage
-
 from django.views.generic import RedirectView
 from django.conf.urls.static import static
+from django.views.static import serve
+
+from trips.views import manage_login, manage
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('trips.urls')),
     path('', include('trips.urls')),
-    path('', RedirectView.as_view(url='/frontend/index.html', permanent=False)),
+    path(
+        '',
+        RedirectView.as_view(url='/frontend/index.html', permanent=False)
+    ),
     path('manage/login/', manage_login, name='manage_login'),
     path('manage/', manage, name='manage'),
 ]
-from django.views.static import serve
+
 urlpatterns += [
     path('frontend/<path:path>', serve, {
         'document_root': settings.BASE_DIR / '../frontend'
@@ -39,7 +43,9 @@ urlpatterns += [
         'document_root': settings.BASE_DIR / '../lukui'
     }),
 ]
+
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT
+    )
