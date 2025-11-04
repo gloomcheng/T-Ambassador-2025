@@ -10,13 +10,13 @@
     <title>AR遊戲集點</title>
     <style>
         .test {
-            margin-bottom: -100px;
-            padding-bottom:-100px;
+            /* 讓標題區塊與按鈕/圖片區塊有間距 */
+            margin-bottom: 1vh;  
+            margin-top: 10vh;
             position: relative;
         }
         .test .h1-1, .test .h2-1 {
-            position: relative;
-            top: 35px;
+            margin-top: 1vh;
         }
         body {
             margin: 0;
@@ -58,7 +58,6 @@
 
             .back-button {
                 position: fixed;
-                top: 10px;
                 left: 10px;
                 width: 100px;
                 height: 100px;
@@ -103,14 +102,14 @@
                 background-image: url('./media/vendor_icons/%E5%B0%8D%E9%8C%AF%E8%BF%94%E5%9B%9E_%E5%B7%A5%E4%BD%9C%E5%8D%80%E5%9F%9F%201%20%E8%A4%87%E6%9C%AC%204.png');
             }
             .container {
-                padding: 15px;
-            }
-
-            h1,
-            h2 {
+                padding: 20px;
+                border-radius: 5px;
                 text-align: center;
-                color: #333;
-            }
+                width: 100%;
+                max-width: 375px;
+
+                position: relative;
+                top: 35px;
 
             .h1-1 {
                 font-size: 23px;
@@ -169,14 +168,14 @@
             justify-content: center;
         }
         .retry-btn {
-            width: 92px;
+            width: 100px;
             height: 40px;
             background: linear-gradient(135deg, #fffbe6 60%, #ffe0b2 100%);
             border: 2px solid #ffb74d;
             border-radius: 20px;
             color: #ff9800;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 15px;
             box-shadow: 0 2px 8px rgba(255, 193, 7, 0.18);
             cursor: pointer;
             transition: box-shadow 0.18s, background 0.18s, transform 0.18s, color 0.18s, border 0.18s;
