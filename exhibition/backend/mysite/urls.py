@@ -32,7 +32,12 @@ urlpatterns = [
 ]
 from django.views.static import serve
 urlpatterns += [
-    path('frontend/<path:path>', serve, {'document_root': settings.BASE_DIR / '../frontend'}),
+    path('frontend/<path:path>', serve, {
+        'document_root': settings.BASE_DIR / '../frontend'
+    }),
+    path('lukui/<path:path>', serve, {
+        'document_root': settings.BASE_DIR / '../lukui'
+    }),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

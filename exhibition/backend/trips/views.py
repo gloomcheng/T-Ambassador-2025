@@ -428,3 +428,48 @@ def ar_scan_view(request, level):
         'level': level,
     }
     return render(request, 'arScan.html', context)
+
+
+# 六龜山茶館/崙港 AR 模組視圖
+@csrf_exempt
+def lukui_index_view(request):
+    """
+    六龜山茶館/崙港 AR 模組選單頁
+    """
+    import os
+    from django.conf import settings
+
+    lukui_path = os.path.join(
+        settings.BASE_DIR.parent,
+        'lukui',
+        'index.html'
+    )
+
+    try:
+        with open(lukui_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return HttpResponse(content)
+    except FileNotFoundError:
+        raise Http404("頁面不存在")
+
+
+@csrf_exempt
+def lukui_ar_view(request):
+    """
+    六龜山茶館/崙港 AR 掃描頁面
+    """
+    import os
+    from django.conf import settings
+
+    ar_path = os.path.join(
+        settings.BASE_DIR.parent,
+        'lukui',
+        'arGuide.html'
+    )
+
+    try:
+        with open(ar_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return HttpResponse(content)
+    except FileNotFoundError:
+        raise Http404("頁面不存在")
