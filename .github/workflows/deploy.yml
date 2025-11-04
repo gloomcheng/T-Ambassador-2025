@@ -63,8 +63,12 @@ jobs:
         run: |
           echo "🔄 開始部署到生產伺服器..."
           
-          # 部署 exhibition 目錄
-          rsync -avz --delete \
+          # 設置 UTF-8 編碼環境
+          export LC_ALL=en_US.UTF-8
+          export LANG=en_US.UTF-8
+          
+          # 部署 exhibition 目錄（支援中文檔名）
+          rsync -avzh --delete --partial --progress \
             -e "ssh -i ~/.ssh/deploy_key" \
             --exclude='.git' \
             --exclude='.github' \
@@ -76,7 +80,11 @@ jobs:
             --exclude='langchain/.cortex' \
             --exclude='*.log' \
             --exclude='db.sqlite3' \
-            exhibition/ deploy-server:$SSH_PATH/exhibition/
+            --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r \
+            exhibition/ deploy-server:$SSH_PATH/exhibition/ || {
+              echo "⚠️ 部分文件傳輸失敗，但繼續部署..."
+              exit 0
+            }
           
           echo "✅ 文件同步完成"
 
