@@ -19,19 +19,30 @@ jobs:
       - name: 🔐 Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          # 使用 printf 確保正確處理換行符
+          printf "%s\n" "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
           
-          # 配置 SSH 使用指定的密鑰
-          cat >> ~/.ssh/config << EOF
+          # 驗證密鑰格式
+          ssh-keygen -l -f ~/.ssh/deploy_key || (echo "❌ 密鑰格式錯誤" && exit 1)
+          
+          # 添加 known hosts
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          
+          # 配置 SSH
+          cat >> ~/.ssh/config << 'EOF'
           Host deploy-server
             HostName ${{ secrets.SSH_HOST }}
             User ${{ secrets.SSH_USER }}
             IdentityFile ~/.ssh/deploy_key
-            StrictHostKeyChecking no
+            StrictHostKeyChecking accept-new
+            PubkeyAuthentication yes
+            PasswordAuthentication no
           EOF
           chmod 600 ~/.ssh/config
+          
+          # 測試連線
+          ssh -i ~/.ssh/deploy_key -o ConnectTimeout=10 deploy-server "echo '✅ SSH 連線測試成功'"
 
       - name: 🚀 Deploy to server
         env:
