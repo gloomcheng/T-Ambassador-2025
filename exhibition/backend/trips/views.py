@@ -1,7 +1,22 @@
-from django.contrib.auth.decorators import login_required
+import logging
+import os
+from datetime import datetime
+
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, redirect
-# ...existing code...
+from django.http import Http404, HttpResponse, JsonResponse
+from rest_framework.decorators import api_view
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import generics, status
+
+from .models import ManageUser, Question, Post, UserProfile
+from .serializers import (
+    QuestionSerializer,
+    UserProfileSerializer,
+    PostSerializer
+)
+
 
 @csrf_exempt
 def manage(request):
@@ -28,13 +43,12 @@ def manage(request):
             q.icon = request.POST.get(f'icon_{q.id}', q.icon)
             q.save()
         return HttpResponse('儲存成功')
-    return render(request, 'manage/company_questions.html', {'questions': questions, 'company': company})
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import ManageUser
+    return render(
+        request,
+        'manage/company_questions.html',
+        {'questions': questions, 'company': company}
+    )
 
-# ...existing code...
 
 @csrf_exempt
 def manage_login(request):
@@ -48,59 +62,105 @@ def manage_login(request):
                 return HttpResponse('此手機已註冊')
             if not company:
                 return HttpResponse('請輸入公司名稱')
-            ManageUser.objects.create(phone=phone, password=password, company=company)
+            ManageUser.objects.create(
+                phone=phone,
+                password=password,
+                company=company
+            )
             request.session['manage_phone'] = phone
             return redirect('/manage/')
         elif action == 'login':
-            user = ManageUser.objects.filter(phone=phone, password=password).first()
+            user = ManageUser.objects.filter(
+                phone=phone,
+                password=password
+            ).first()
             if user:
                 request.session['manage_phone'] = phone
                 return redirect('/manage/')
             else:
                 return HttpResponse('手機或密碼錯誤')
     return render(request, 'manage/login.html')
-from rest_framework.decorators import api_view
+
 
 # 新增 API：根據玩家手機號與題號列表，初始化 content2
 @api_view(['POST'])
 def init_content2(request):
-    print(f"[init_content2][CALL] phone={request.data.get('phone')}, levels={request.data.get('levels')}")
-    print('[init_content2] 參數:', request.data)
-    from datetime import datetime
-    def log_event(event, phone, levels, detail):
-        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        logger.info(f"[{now}] [{event}] phone={phone}, levels={levels}, {detail}")
-    import logging
-    import os
-    log_dir = os.path.join(os.path.dirname(__file__), '../logs')
-    os.makedirs(log_dir, exist_ok=True)
-    log_path = os.path.join(log_dir, 'init_content2.log')
-    logger = logging.getLogger("init_content2")
-    logger.setLevel(logging.INFO)
-    # 檢查 file_handler 是否已存在，避免重複加 handler
-    if not any(isinstance(h, logging.FileHandler) and h.baseFilename == os.path.abspath(log_path) for h in logger.handlers):
-        file_handler = logging.FileHandler(log_path, encoding='utf-8')
-        logger.addHandler(file_handler)
     phone = request.data.get('phone')
-    levels = request.data.get('levels')  # 題號列表，例：[6,7,8,9,10,11]
+    levels = request.data.get('levels')
+    market = request.data.get('market')
+
+    print(
+        f"[init_content2][CALL] phone={phone}, "
+        f"levels={levels}"
+    )
+    print('[init_content2] 參數:', request.data)
+
+    def log_event(event, phone_param, levels_param, detail):
+        log_dir = os.path.join(os.path.dirname(__file__), '../logs')
+        os.makedirs(log_dir, exist_ok=True)
+        log_path = os.path.join(log_dir, 'init_content2.log')
+        logger = logging.getLogger("init_content2")
+        logger.setLevel(logging.INFO)
+        # 檢查 file_handler 是否已存在，避免重複加 handler
+        if not any(
+            isinstance(h, logging.FileHandler) and
+            h.baseFilename == os.path.abspath(log_path)
+            for h in logger.handlers
+        ):
+            file_handler = logging.FileHandler(
+                log_path,
+                encoding='utf-8'
+            )
+            logger.addHandler(file_handler)
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        logger.info(
+            f"[{now}] [{event}] phone={phone_param}, "
+            f"levels={levels_param}, {detail}"
+        )
+
     # 題號排序（由小到大）
     if isinstance(levels, list):
         levels = sorted(levels, key=lambda x: int(x))
-    market = request.data.get('market')  # 新增：所屬市集
+
     log_event("CALL", phone, levels, "API called")
-    if not phone or not levels or not isinstance(levels, list) or not market:
+    if (not phone or not levels or not isinstance(levels, list) or
+            not market):
         log_event("ERROR", phone, levels, "缺少 phone、levels 或 market")
-        print('[init_content2] 回傳:', {'error': '缺少 phone、levels 或 market'})
-        return Response({'error': '缺少 phone、levels 或 market'}, status=status.HTTP_400_BAD_REQUEST)
+        print(
+            '[init_content2] 回傳:',
+            {'error': '缺少 phone、levels 或 market'}
+        )
+        return Response(
+            {'error': '缺少 phone、levels 或 market'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
     try:
         user_profile = UserProfile.objects.get(phone=phone)
-        post = Post.objects.get(user=user_profile)
+        Post.objects.get(user=user_profile)
     except (UserProfile.DoesNotExist, Post.DoesNotExist) as e:
-        log_event("ERROR", phone, levels, f"User or Post not found, error={e}")
-        print('[init_content2] 回傳:', {'error': 'User or Post not found'})
-        return Response({'error': 'User or Post not found'}, status=status.HTTP_404_NOT_FOUND)
+        log_event(
+            "ERROR",
+            phone,
+            levels,
+            f"User or Post not found, error={e}"
+        )
+        print(
+            '[init_content2] 回傳:',
+            {'error': 'User or Post not found'}
+        )
+        return Response(
+            {'error': 'User or Post not found'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    # 重新獲取 post 對象用於後續操作
+    user_profile = UserProfile.objects.get(phone=phone)
+    post = Post.objects.get(user=user_profile)
+
     log_event("SUCCESS", phone, levels, f"content2={post.content2}")
-    # 多市集結構：post.content2 = { "A": {"data": {...}}, "B": {"data": {...}} }
+    # 多市集結構：post.content2 = {
+    #   "A": {"data": {...}}, "B": {"data": {...}}
+    # }
     if not isinstance(post.content2, dict):
         post.content2 = {}
     # 判斷是否已有該市集資料
@@ -110,8 +170,14 @@ def init_content2(request):
             qdata['status'] = None
             qdata['user_answer'] = ""
         post.save()
-        print('[init_content2] 回傳:', {'content2': post.content2[market], 'msg': '已重置並載入'})
-        return Response({'content2': post.content2[market], 'msg': '已重置並載入'}, status=status.HTTP_200_OK)
+        print(
+            '[init_content2] 回傳:',
+            {'content2': post.content2[market], 'msg': '已重置並載入'}
+        )
+        return Response(
+            {'content2': post.content2[market], 'msg': '已重置並載入'},
+            status=status.HTTP_200_OK
+        )
     # 新市集，初始化
     content2 = {}
     for level in levels:
@@ -124,20 +190,20 @@ def init_content2(request):
         "data": content2
     }
     post.save()
-    print('[init_content2] 回傳:', {'content2': post.content2[market], 'msg': '第一次進入，已初始化市集'})
-    return Response({'content2': post.content2[market], 'msg': '第一次進入，已初始化市集'}, status=status.HTTP_200_OK)
-from django.http import JsonResponse
-from .models import Question
+    print(
+        '[init_content2] 回傳:',
+        {'content2': post.content2[market], 'msg': '第一次進入，已初始化市集'}
+    )
+    return Response(
+        {'content2': post.content2[market], 'msg': '第一次進入，已初始化市集'},
+        status=status.HTTP_200_OK
+    )
+
 
 def market_list(request):
     # 取得所有市集唯一值
     markets = Question.objects.values_list('route', flat=True).distinct()
     return JsonResponse({'markets': list(markets)})
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import generics, status
-from .models import Post, Question, UserProfile
-from .serializers import QuestionSerializer, UserProfileSerializer, PostSerializer
 
 
 class QuestionDetailAPIView(APIView):
@@ -160,54 +226,79 @@ class QuestionDetailAPIView(APIView):
 
 
 class UserProfileAPIView(APIView):
+
     def get(self, request):
         phone = request.query_params.get('phone')
         level = request.query_params.get('level')
 
         if not phone:
-            return Response({"error": "缺少手機號碼"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "缺少手機號碼"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
             user_profile = UserProfile.objects.get(phone=phone)
         except UserProfile.DoesNotExist:
-            return Response({"error": "使用者不存在"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "使用者不存在"},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
         try:
-            post = Post.objects.get(user=user_profile)
+            Post.objects.get(user=user_profile)
         except Post.DoesNotExist:
-            return Response({"error": "使用者遊戲歷程不存在"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "使用者遊戲歷程不存在"},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
         user_data = UserProfileSerializer(user_profile).data
 
         if level:
-            if not level.isdigit() or int(level) < 1 or int(level) > 29:
-                return Response({"error": "無效的關卡參數"}, status=status.HTTP_400_BAD_REQUEST)
+            if (not level.isdigit() or int(level) < 1 or
+                    int(level) > 29):
+                return Response(
+                    {"error": "無效的關卡參數"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
             level = str(int(level))
             content = user_data['post']['content']
 
             if level not in content:
-                return Response({"error": "該關卡不存在"}, status=status.HTTP_404_NOT_FOUND)
+                return Response(
+                    {"error": "該關卡不存在"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
 
-            return Response({level: content[level]}, status=status.HTTP_200_OK)
+            return Response(
+                {level: content[level]},
+                status=status.HTTP_200_OK
+            )
         else:
             return Response(user_data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
-        import logging
-        import os
-        from datetime import datetime
         log_dir = os.path.join(os.path.dirname(__file__), '../logs')
         os.makedirs(log_dir, exist_ok=True)
         log_path = os.path.join(log_dir, 'user_profile_api.log')
         logger = logging.getLogger("user_profile_api")
         logger.setLevel(logging.INFO)
-        if not any(isinstance(h, logging.FileHandler) and h.baseFilename == os.path.abspath(log_path) for h in logger.handlers):
-            file_handler = logging.FileHandler(log_path, encoding='utf-8')
+        if not any(
+            isinstance(h, logging.FileHandler) and
+            h.baseFilename == os.path.abspath(log_path)
+            for h in logger.handlers
+        ):
+            file_handler = logging.FileHandler(
+                log_path,
+                encoding='utf-8'
+            )
             logger.addHandler(file_handler)
-        def log_event(event, phone, detail):
+
+        def log_event(event, phone_param, detail):
             now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            logger.info(f"[{now}] [{event}] phone={phone}, {detail}")
+            logger.info(f"[{now}] [{event}] phone={phone_param}, {detail}")
 
         phone = request.data.get('phone')
         gender = request.data.get('gender')
@@ -229,19 +320,33 @@ class UserProfileAPIView(APIView):
             data = UserProfileSerializer(user_profile).data
             data['is_duplicate'] = False
             return Response(data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class PostUpdateAPIView(APIView):
+
     def patch(self, request, phone, *args, **kwargs):
         try:
             # 獲取或創建與該手機號碼相關的 user_profile 和 post
-            user_profile, _ = UserProfile.objects.get_or_create(phone=phone)
-            post, created = Post.objects.get_or_create(user=user_profile)
+            user_profile, _ = UserProfile.objects.get_or_create(
+                phone=phone
+            )
+            post, created = Post.objects.get_or_create(
+                user=user_profile
+            )
         except UserProfile.DoesNotExist:
-            return Response({"error": "User profile not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "User profile not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
         except Post.DoesNotExist:
-            return Response({"error": "User post not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "User post not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
         level = request.data.get("level")
         level_status = request.data.get('status')
@@ -250,8 +355,10 @@ class PostUpdateAPIView(APIView):
         market = request.data.get('market')
 
         if level is None or market is None:
-            return Response({"error": "缺少 level 或 market 参数"}, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response(
+                {"error": "缺少 level 或 market 参数"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         # 初始化 content2 結構（與 init_content2 一致）
         if post.content2 is None:
@@ -272,7 +379,10 @@ class PostUpdateAPIView(APIView):
         # post.content = content  # 舊邏輯註解
         post.save()
 
-        return Response(post.content2[market]["data"][level], status=status.HTTP_200_OK)
+        return Response(
+            post.content2[market]["data"][level],
+            status=status.HTTP_200_OK
+        )
 
 
 class PostListCreate(generics.ListCreateAPIView):
@@ -281,6 +391,7 @@ class PostListCreate(generics.ListCreateAPIView):
 
 
 class PostDetailAPIView(APIView):
+
     def get_object(self, phone):
         try:
             user_profile = UserProfile.objects.get(phone=phone)
@@ -300,3 +411,20 @@ class PostDetailAPIView(APIView):
 
         serializer = PostSerializer(post_instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# AR 掃描動態視圖
+@csrf_exempt
+def ar_scan_view(request, level):
+    """
+    動態 AR 掃描頁面
+    統一處理所有 level 的 AR 掃描功能
+    """
+    # 驗證 level 範圍 (1-29)
+    if level < 1 or level > 29:
+        raise Http404("關卡不存在")
+
+    context = {
+        'level': level,
+    }
+    return render(request, 'arScan.html', context)
