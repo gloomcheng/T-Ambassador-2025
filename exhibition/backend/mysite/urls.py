@@ -39,9 +39,6 @@ urlpatterns += [
     path('frontend/<path:path>', serve, {
         'document_root': settings.BASE_DIR / '../frontend'
     }),
-    path('lukui/<path:path>', serve, {
-        'document_root': settings.BASE_DIR / '../lukui'
-    }),
 ]
 
 if settings.DEBUG:

@@ -8,9 +8,7 @@ from .views import (
     PostDetailAPIView,
     market_list,
     init_content2,
-    ar_scan_view,
-    lukui_index_view,
-    lukui_ar_view
+    ar_scan_view
 )
 from .views_market_questions import market_questions
 
@@ -40,7 +38,4 @@ urlpatterns = [
     path('api/init-content2/', init_content2, name='init-content2'),
     # AR 掃描動態路由（統一處理所有 level）
     path('arScan<int:level>/', ar_scan_view, name='ar-scan'),
-    # 六龜山茶館/崙港 AR 模組
-    path('lukui/', lukui_index_view, name='lukui-index'),
-    path('lukui/ar/', lukui_ar_view, name='lukui-ar'),
 ]

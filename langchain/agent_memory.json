@@ -1,0 +1,44 @@
+{
+  "chat_history": [
+    {
+      "type": "HumanMessage",
+      "content": "記住我的名字是小明"
+    },
+    {
+      "type": "AIMessage",
+      "content": "你的名字是小明"
+    },
+    {
+      "type": "HumanMessage",
+      "content": "記住我喜歡吃披薩"
+    },
+    {
+      "type": "AIMessage",
+      "content": "披薩"
+    },
+    {
+      "type": "HumanMessage",
+      "content": "記住我住在台北"
+    },
+    {
+      "type": "AIMessage",
+      "content": "台北"
+    },
+    {
+      "type": "HumanMessage",
+      "content": "請告訴我記住的所有事實"
+    },
+    {
+      "type": "AIMessage",
+      "content": "Agent stopped due to iteration limit or time limit."
+    },
+    {
+      "type": "HumanMessage",
+      "content": "計算 25 * 4"
+    },
+    {
+      "type": "AIMessage",
+      "content": "Agent stopped due to iteration limit or time limit."
+    }
+  ]
+}
