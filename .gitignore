@@ -84,5 +84,30 @@ target/
 *.pyc
 __pycache__/
 local_settings.py
+db.sqlite3
+staticfiles/
+media/
 
 .env
+
+### Node ###
+node_modules/
+npm-debug.log
+yarn-error.log
+
+### CI/CD ###
+.cortex/
+*.swp
+*.swo
+*~
+
+### IDE ###
+.vscode/
+.idea/
+*.sublime-*
+
+### Deployment ###
+*.pem
+*.key
+!*.pub
+.github/.deploy-config.local

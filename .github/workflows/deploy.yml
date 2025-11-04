@@ -1,0 +1,89 @@
+name: Deploy to Production Server
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔐 Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: 📋 Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: 🚀 Deploy to server
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PATH: ${{ secrets.SSH_PATH }}
+        run: |
+          echo "🔄 開始部署到生產伺服器..."
+          
+          # 部署 exhibition 目錄
+          rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='__pycache__' \
+            --exclude='*.pyc' \
+            --exclude='.DS_Store' \
+            --exclude='node_modules' \
+            --exclude='.cortex' \
+            --exclude='langchain/.cortex' \
+            --exclude='*.log' \
+            --exclude='db.sqlite3' \
+            exhibition/ $SSH_USER@$SSH_HOST:$SSH_PATH/exhibition/
+          
+          echo "✅ 文件同步完成"
+
+      - name: 🔧 Restart services on server
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          ssh $SSH_USER@$SSH_HOST << 'EOF'
+            echo "🔄 重啟 Django 服務..."
+            
+            # 進入專案目錄
+            cd /var/www/sites/T-Ambassador-2025/exhibition/backend
+            
+            # 收集靜態文件
+            python3 manage.py collectstatic --noinput || true
+            
+            # 執行資料庫遷移
+            python3 manage.py migrate --noinput || true
+            
+            # 重啟 Apache/Django 服務
+            sudo systemctl restart apache2 || true
+            
+            echo "✅ 服務重啟完成"
+          EOF
+
+      - name: 📊 Deployment summary
+        if: success()
+        run: |
+          echo "🎉 部署成功！"
+          echo "📅 時間: $(date)"
+          echo "🌐 URL: https://tdance.fansee.studio"
+          echo "📝 提交: ${{ github.sha }}"
+
+      - name: ⚠️ Deployment failed
+        if: failure()
+        run: |
+          echo "❌ 部署失敗！"
+          echo "請檢查日誌並手動部署。"
+
