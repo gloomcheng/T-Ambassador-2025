@@ -88,16 +88,13 @@ jobs:
             # 進入專案目錄
             cd /var/www/sites/T-Ambassador-2025/exhibition/backend
             
-            # 檢查並啟用虛擬環境
-            if [ -d "venv" ]; then
+            # 啟用虛擬環境
+            if [ -d ".venv" ]; then
+              echo "✅ 啟用虛擬環境: .venv"
+              source .venv/bin/activate
+            elif [ -d "venv" ]; then
               echo "✅ 啟用虛擬環境: venv"
               source venv/bin/activate
-            elif [ -d "../venv" ]; then
-              echo "✅ 啟用虛擬環境: ../venv"
-              source ../venv/bin/activate
-            elif [ -d "/var/www/sites/T-Ambassador-2025/venv" ]; then
-              echo "✅ 啟用虛擬環境: /var/www/sites/T-Ambassador-2025/venv"
-              source /var/www/sites/T-Ambassador-2025/venv/bin/activate
             else
               echo "⚠️  找不到虛擬環境，使用系統 Python"
             fi
