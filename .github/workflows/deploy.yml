@@ -17,25 +17,31 @@ jobs:
           fetch-depth: 0
 
       - name: 🔐 Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: 📋 Add server to known hosts
         run: |
           mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          
+          # 配置 SSH 使用指定的密鑰
+          cat >> ~/.ssh/config << EOF
+          Host deploy-server
+            HostName ${{ secrets.SSH_HOST }}
+            User ${{ secrets.SSH_USER }}
+            IdentityFile ~/.ssh/deploy_key
+            StrictHostKeyChecking no
+          EOF
+          chmod 600 ~/.ssh/config
 
       - name: 🚀 Deploy to server
         env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PATH: ${{ secrets.SSH_PATH }}
         run: |
           echo "🔄 開始部署到生產伺服器..."
           
           # 部署 exhibition 目錄
           rsync -avz --delete \
+            -e "ssh -i ~/.ssh/deploy_key" \
             --exclude='.git' \
             --exclude='.github' \
             --exclude='__pycache__' \
@@ -46,16 +52,13 @@ jobs:
             --exclude='langchain/.cortex' \
             --exclude='*.log' \
             --exclude='db.sqlite3' \
-            exhibition/ $SSH_USER@$SSH_HOST:$SSH_PATH/exhibition/
+            exhibition/ deploy-server:$SSH_PATH/exhibition/
           
           echo "✅ 文件同步完成"
 
       - name: 🔧 Restart services on server
-        env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
         run: |
-          ssh $SSH_USER@$SSH_HOST << 'EOF'
+          ssh -i ~/.ssh/deploy_key deploy-server << 'EOF'
             echo "🔄 重啟 Django 服務..."
             
             # 進入專案目錄
