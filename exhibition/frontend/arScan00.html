@@ -28,11 +28,14 @@
               top: 50%;
               left: 50%;
               transform: translate(-50%, -50%);
-              min-width: 280px;
+              min-width: 300px;
               max-width: 90vw;
-              min-height: 120px;
-              max-height: 80vh;
+              min-height: 700px;
+              max-height: 90vh;
               background-color: white;
+              background-image: url('media/vendor_icons/BG_2.png');
+              background-size: cover;
+              background-position: center;
               border-radius: 15px;
               box-sizing: border-box;
               display: none;
@@ -43,6 +46,7 @@
 
         .question {
             margin-bottom: 20px;
+            margin-top: 80px;
             font-size: 24px;
             font-weight: bold;
             text-align:left;
@@ -50,14 +54,19 @@
 
         .option {
             display: block;
-            margin: 10px 0;
+            margin-top: 10px;
             padding: 10px;
             font-size: 22px;
             cursor: pointer;
-            background-color: #4F74AB;
+            background-color: #FFF7E0;
             border-radius: 5px;
-            color: white;
+            color: #2d741c;
+            font-weight: bold;
             align-self:center;
+        }
+        
+        .option:first-of-type {
+            margin-top: 50px;
         }
 
         .result {
@@ -74,8 +83,8 @@
             display: inline-block;
             padding: 10px 20px;
             margin-top: 20px;
-            background-color: #4F74AB;
-            color: white;
+            background-color: #FFF7E0;
+            color: #2d741c;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -307,18 +316,18 @@
                         let level = String(i + 1);
                         // 根據題號顯示不同說明
                         const introMap = {
-                            '1': '第一關｜山林之源：霧中孕育的茶香六龜位於高雄山區，四面環山、雲霧繚繞。早晨的霧氣為茶樹帶來天然保濕，也讓茶湯散發清新的花香。當地茶農稱這裡的「霧氣」是最好的老師，教會茶樹慢慢生長，慢慢釋放香氣。',
-                            '2': '第二關｜手工摘採：一心二葉的堅持六龜的茶農延續傳統採摘方式，只取「一心二葉」——也就是最嫩的茶芽與兩片新葉。這樣做不但能確保茶香純淨，也體現對品質的堅持。每一籃茶葉都凝聚了農人清晨的汗水與眼光。',
-                            '3': '第三關｜火候的藝術：製茶師的手感烘培茶葉是決定香氣的靈魂。六龜的製茶師不用溫度計，全靠「手感」判斷茶葉的乾濕與香氣變化。他們說：「茶會告訴你它準備好了。」這份技藝，是時間和經驗累積的智慧。',
-                            '4': '第四關｜你來到山腰的一處茶室，窗外雲霧繚繞。茶師正以不同的壺具沖泡同樣的山茶，香氣卻各異。她微笑著說：「懂茶的人，不只懂葉，也懂壺。',
-                            '5': '第五關｜茶湯的顏色語言你端起茶杯，茶湯如金、如琥珀。老人問：「看顏色，就知道茶的性情。」綠茶湯色淡黃清亮；烏龍茶呈金黃或蜜綠；紅茶則是紅褐色。六龜的山茶屬輕發酵茶，湯色明亮、帶花果香。',
-                            '6': '第六關｜手炒茶的時光香氣你拾階而上，來到古老的製茶小屋。屋內傳來陣陣茶香，一位婦人正用雙手翻炒茶葉。火光映照她的臉龐，她說：「每一片茶葉，都有祖先留下的手感。'
+                            '1': '第一關｜山林之源：霧中孕育的茶香<br><br>六龜位於高雄山區，四面環山、雲霧繚繞。早晨的霧氣為茶樹帶來天然保濕，也讓茶湯散發清新的花香。當地茶農稱這裡的「霧氣」是最好的老師，教會茶樹慢慢生長，慢慢釋放香氣。',
+                            '2': '第二關｜手工摘採：一心二葉的堅持<br><br>六龜的茶農延續傳統採摘方式，只取「一心二葉」——也就是最嫩的茶芽與兩片新葉。這樣做不但能確保茶香純淨，也體現對品質的堅持。每一籃茶葉都凝聚了農人清晨的汗水與眼光。',
+                            '3': '第三關｜火候的藝術：製茶師的手感<br><br>烘培茶葉是決定香氣的靈魂。六龜的製茶師不用溫度計，全靠「手感」判斷茶葉的乾濕與香氣變化。他們說：「茶會告訴你它準備好了。」這份技藝，是時間和經驗累積的智慧。',
+                            '4': '第四關｜茶與器的對話：映出山色的壺<br><br>你來到山腰的一處茶室，窗外雲霧繚繞。茶師正以不同的壺具沖泡同樣的山茶，香氣卻各異。她微笑著說：「懂茶的人，不只懂葉，也懂壺。',
+                            '5': '第五關｜金湯觀色：茶湯的顏色語言<br><br>你端起茶杯，茶湯如金、如琥珀。老人問：「看顏色，就知道茶的性情。」綠茶湯色淡黃清亮；烏龍茶呈金黃或蜜綠；紅茶則是紅褐色。六龜的山茶屬輕發酵茶，湯色明亮、帶花果香。',
+                            '6': '第六關｜山林記憶：手炒茶的時光香氣<br><br>手炒茶的時光香氣你拾階而上，來到古老的製茶小屋。屋內傳來陣陣茶香，一位婦人正用雙手翻炒茶葉。火光映照她的臉龐，她說：「每一片茶葉，都有祖先留下的手感。'
                         };
                         let introText = introMap[level] || '本關卡說明：請仔細閱讀規則與提示，點擊「下一頁」開始答題。';
-                        $('.center-box').html(`
-                            <div class="intro-text" style="font-size:1.1em;margin-bottom:18px;">${introText}</div>
-                            <button class="continue-btn" id="nextToQuestion">下一頁</button>
-                        `);
+                            $('.center-box').html(`
+                                <div class="intro-text" style="font-size:1.1em;margin-bottom:18px; margin-top:150px;">${introText}</div>
+                                <button class="continue-btn" id="nextToQuestion" style="margin-top:50px;">下一頁</button>
+                            `);
                         $('.center-box').show();
                         // 點下一頁才顯示問答區塊
                         $('#nextToQuestion').off('click').on('click', function() {

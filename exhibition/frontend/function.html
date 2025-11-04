@@ -12,12 +12,13 @@
             border-radius: 20px;
             padding: 10px;
             border: 5px solid #4f6fab;
-            background-color: #ffffff;
+            background-color: #FFF7E0;
             font-size: 18px;
-            color: #000000;
+            color: #2d741c;
+            font-weight: bold;
         }
         .content h1, .content h2 {
-            color: #000000;
+            color: #FFF7E0;
         }
         body {
             margin: 0;
@@ -52,8 +53,8 @@
         }
 
         .buttonStart {
-            background-color: #000000;
-            color: white;
+            background-color: #FFF7E0;
+            color: #2d741c;
             padding: 20px 42px;
             text-align: center;
             text-decoration: auto;
@@ -152,8 +153,8 @@
                 font-size: 14px;
             }
             .buttonStart {
-                background-color: #ffffff;
-                color: rgb(0, 0, 0);
+                background-color: #FFF7E0;
+            color: #2d741c;
                 padding: 20px 42px;
                 text-align: center;
                 text-decoration: auto;
@@ -206,8 +207,8 @@
                 font-size: 16px;
             }
             .buttonStart {
-                background-color: #000000;
-                color: white;
+                background-color: #FFF7E0;
+            color: #2d741c;
                 padding: 20px 42px;
                 text-align: center;
                 text-decoration: auto;
@@ -366,7 +367,7 @@ function getCookie(name) {
             });
             </script>
             <button onclick="openTreasureGame()" class="buttonStart">開啟尋寶卡</button>
-            <button onclick="toTeach()" class="buttonOther">如何遊玩遊戲</button>
+            <span id="teachBtnContainer"></span>
             <span id="mapBtnContainer"></span>
             <script>
             var showAboutBtn = false; // 控制「關於本次活動」按鈕顯示
@@ -438,12 +439,12 @@ function getCookie(name) {
                         }
                         localStorage.setItem('route1_questions_' + market, JSON.stringify(questionsArr));
                         localStorage.setItem('route1_market', market);
-                        window.location.href = 'route1.html';
+                        window.location.href = 'story.html';
                     })
                     .catch((err) => {
                         console.error('[openTreasureGame] 初始化content2 API失敗:', err);
                         alert('初始化進度失敗');
-                        window.location.href = 'route1.html';
+                        window.location.href = 'story.html';
                     });
                 } else {
                     alert('此市集暫無題目');
@@ -481,6 +482,12 @@ function getCookie(name) {
 
         function toTeach() {
             window.location.href = teach;
+        }
+
+        // 「如何遊玩遊戲」按鈕顯示
+        var showTeachBtn = false; // 設為 false 則不顯示
+        if (showTeachBtn) {
+            document.getElementById('teachBtnContainer').innerHTML = '<button onclick="toTeach()" class="buttonOther">如何遊玩遊戲</button>';
         }
         window.onclick = function (event) {
             if (event.target.classList.contains('modal')) {

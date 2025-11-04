@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>故事情境引導</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background: url('media/vendor_icons/BG_4.png') no-repeat center center;
+            background-size: cover;
+            font-family: 'Noto Sans TC', 'Microsoft JhengHei', Arial, sans-serif;
+        }
+        .story-container {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80vw;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0);
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0);
+            padding: 32px 24px;
+            text-align: left;
+        }
+        .story-text {
+            font-size: 1.18em;
+            color: #FFF7E0;
+            line-height: 1.8;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+        }
+        .back-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 100px;
+            height: 100px;
+            background-image: url('media/vendor_icons/%E5%B0%8D%E9%8C%AF%E8%BF%94%E5%9B%9E_%E5%B7%A5%E4%BD%9C%E5%8D%80%E5%9F%9F%201%20%E8%A4%87%E6%9C%AC%204.png');
+            background-size: cover;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        @media (max-width: 600px) {
+            .story-container {
+                width: 92vw;
+                padding: 18px 8px;
+                font-size: 1em;
+            }
+            .back-button {
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                width: 100px;
+                height: 100px;
+                background-image: url('media/vendor_icons/%E5%B0%8D%E9%8C%AF%E8%BF%94%E5%9B%9E_%E5%B7%A5%E4%BD%9C%E5%8D%80%E5%9F%9F%201%20%E8%A4%87%E6%9C%AC%204.png');
+            }
+        }
+        @media (min-width: 768px) {
+            .back-button {
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                width: 100px;
+                height: 100px;
+                background-image: url('media/vendor_icons/%E5%B0%8D%E9%8C%AF%E8%BF%94%E5%9B%9E_%E5%B7%A5%E4%BD%9C%E5%8D%80%E5%9F%9F%201%20%E8%A4%87%E6%9C%AC%204.png');
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.history.back()"></button>
+    <div class="story-container">
+        <div class="story-text">
+            你醒來時，身邊只有一壺冷卻的茶與一本泛黃的筆記。<br><br>
+            筆記上寫著：「回到六龜，記起你的根。」<br><br>
+            你曾是這座山中唯一的年輕採茶人，卻忘了茶的名字與香氣。<br><br>
+            為了尋回遺失的記憶，你必須闖過六道關卡，重新學會——<br>
+            如何栽茶、製茶、品茶，並傳承屬於山林的智慧。<br><br>
+            接下來的六段記憶，將引導你重拾六龜山茶的智慧。
+        </div>
+        <div style="text-align:center; margin-top:32px;">
+            <a href="route1.html" class="next-btn">下一頁</a>
+        </div>
+        </div>
+    </div>
+    <style>
+        .next-btn {
+            display: inline-block;
+            padding: 12px 32px;
+            background-color: #FFF7E0;
+            color: #2d741c;
+            font-size: 1.15em;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .next-btn:hover {
+            background-color: #ffffff;
+        }
+        }
