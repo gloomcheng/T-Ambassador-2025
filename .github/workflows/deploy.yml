@@ -88,11 +88,25 @@ jobs:
             # 進入專案目錄
             cd /var/www/sites/T-Ambassador-2025/exhibition/backend
             
+            # 檢查並啟用虛擬環境
+            if [ -d "venv" ]; then
+              echo "✅ 啟用虛擬環境: venv"
+              source venv/bin/activate
+            elif [ -d "../venv" ]; then
+              echo "✅ 啟用虛擬環境: ../venv"
+              source ../venv/bin/activate
+            elif [ -d "/var/www/sites/T-Ambassador-2025/venv" ]; then
+              echo "✅ 啟用虛擬環境: /var/www/sites/T-Ambassador-2025/venv"
+              source /var/www/sites/T-Ambassador-2025/venv/bin/activate
+            else
+              echo "⚠️  找不到虛擬環境，使用系統 Python"
+            fi
+            
             # 收集靜態文件
-            python3 manage.py collectstatic --noinput || true
+            python manage.py collectstatic --noinput || true
             
             # 執行資料庫遷移
-            python3 manage.py migrate --noinput || true
+            python manage.py migrate --noinput || true
             
             # 重啟 Apache/Django 服務
             sudo systemctl restart apache2 || true
