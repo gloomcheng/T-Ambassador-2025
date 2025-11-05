@@ -319,29 +319,37 @@
                     return;
                 }
 
-                // 檢查手機號碼是否重複
+                // 檢查手機號碼是否重複，改用 application/json 格式
                 $.ajax({
                     url: userUrl,
                     method: 'POST',
-                    data: {
-                        phone: localPhoneNumber,  // 將本地格式的手機號碼發送給後端
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        phone: localPhoneNumber,
                         gender: $('#id_gender').val(),
-                    },
+                    }),
                     success: function (response) {
                         console.log(response);
-                            // 判斷是否為重複註冊（已存在）
-                            if (response && response.phone === localPhoneNumber && response.is_duplicate === true) {
-                                // 只在重複註冊時顯示提示
-                                alert("您的帳號已註冊，正在為您登入。");
-                            }
+                        // 判斷是否為重複註冊（已存在）
+                        if (response && response.phone === localPhoneNumber && response.is_duplicate === true) {
+                            alert("您的帳號已註冊，正在為您登入。");
+                        }
                         document.cookie = "phone=" + localPhoneNumber + "; path=/; max-age=86400";
                         window.location.href = "function.html";
                     },
                     error: function (response) {
                         console.log(response);
-                        message = JSON.parse(response.responseText).phone[0];
+                        var message = '';
+                        try {
+                            var respJson = JSON.parse(response.responseText);
+                            if (respJson.phone && Array.isArray(respJson.phone)) {
+                                message = respJson.phone[0];
+                            }
+                        } catch (e) {
+                            message = '';
+                        }
                         if (response.status === 400 && message === 'user profile with this phone already exists.') {
-                            alert("您的帳號已經註冊過，將載入遊戲進度。"); // 顯示重複的提示信息
+                            alert("您的帳號已經註冊過，將載入遊戲進度。");
                             document.cookie = "phone=" + localPhoneNumber + "; path=/; max-age=86400";
                             window.location.href = "function.html";
                         }
