@@ -107,6 +107,20 @@ jobs:
               echo "⚠️  找不到虛擬環境，使用系統 Python"
             fi
             
+            # 設置 SQLite 資料庫權限（重要！）
+            echo "🔐 設置資料庫權限..."
+            sudo chown gloomcheng:www-data db.sqlite3 2>/dev/null || true
+            sudo chmod 664 db.sqlite3 2>/dev/null || true
+            sudo chown gloomcheng:www-data . 2>/dev/null || true
+            sudo chmod 775 . 2>/dev/null || true
+            
+            # 設置 media 和 logs 目錄權限
+            sudo chown -R gloomcheng:www-data media 2>/dev/null || true
+            sudo chmod -R 775 media 2>/dev/null || true
+            sudo mkdir -p logs 2>/dev/null || true
+            sudo chown -R gloomcheng:www-data logs 2>/dev/null || true
+            sudo chmod -R 775 logs 2>/dev/null || true
+            
             # 收集靜態文件
             python manage.py collectstatic --noinput || true
             
