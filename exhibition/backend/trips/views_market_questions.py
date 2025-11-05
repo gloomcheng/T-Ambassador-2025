@@ -1,7 +1,10 @@
 ﻿from django.db.models import Count
 # 市集列表 API：只回傳有 6 題開放題目的市集
+from datetime import date as dtdate
+from django.db.models import Q
 def market_list(request):
-    qs = Question.objects.filter(is_open=True)
+    today = dtdate.today()
+    qs = Question.objects.filter(is_open=True).filter(Q(date=today) | Q(date__isnull=True))
     markets = (
         qs.values('route')
         .annotate(open_count=Count('id'))

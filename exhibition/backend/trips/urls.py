@@ -6,11 +6,10 @@ from .views import (
     UserProfileAPIView,
     PostUpdateAPIView,
     PostDetailAPIView,
-    market_list,
     init_content2,
     ar_scan_view
 )
-from .views_market_questions import market_questions
+from .views_market_questions import market_questions, market_list as filtered_market_list
 
 urlpatterns = [
     path('api/user/', UserProfileAPIView.as_view(), name='user-create'),
@@ -29,7 +28,7 @@ urlpatterns = [
         PostDetailAPIView.as_view(),
         name='post-detail'
     ),
-    path('api/markets/', market_list, name='market-list'),
+    path('api/markets/', filtered_market_list, name='market-list'),
     path(
         'api/market-questions/',
         market_questions,

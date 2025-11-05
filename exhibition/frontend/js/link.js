@@ -30,4 +30,4 @@ var questionUrl   = apiBaseUrl + 'question/';    // 問題資料讀取(arScan.js
 var postUrl       = apiBaseUrl + 'post/';        // 通關狀況資料表更新(arScan.js)
 var userUrl       = apiBaseUrl + 'user/';        // 使用者資料表新增(userProfile.js)
 var marketQuestionsUrl = apiBaseUrl + 'market-questions/'; // 市集隨機題目
-var marketListUrl = apiBaseUrl + 'market_list/'; // 市集清單
+var marketListUrl = apiBaseUrl + 'markets/'; // 市集清單
