@@ -122,7 +122,7 @@
             left: 10px;
             width: 100px;
             height: 100px;
-            background-image: url('https://github.com/tdance555/tdance2024/blob/main/media/vendor_icons/%E5%B0%8D%E9%8C%AF%E8%BF%94%E5%9B%9E_%E5%B7%A5%E4%BD%9C%E5%8D%80%E5%9F%9F%201%20%E8%A4%87%E6%9C%AC%204.png?raw=true');
+            background-image: url('img/back.png');
             background-size: cover;
             background-color: transparent;
             border: none;
@@ -245,8 +245,8 @@
     </style>
 </head>
 <body>
-    <!-- 權限請求遮罩，只在 iOS 13+ 首次授權時顯示 -->
-    <div id="permission-overlay" style="display:none;">
+    <!-- 權限請求遮罩 -->
+    <div id="permission-overlay">
         <div class="permission-content">
             <h2>🎯 AR 體驗</h2>
             <p>此體驗需要使用您的裝置感應器來提供沉浸式 AR 功能。</p>
@@ -349,40 +349,44 @@
     </style>
 
     <script>
-
-        // 只在 iOS 13+ 首次授權時顯示彈窗，PC/Android 直接進入 AR 場景
+        // iOS 權限請求處理
         let permissionGranted = false;
-        function isIOS13Plus() {
-            const ua = window.navigator.userAgent;
-            const isIOS = /iP(hone|od|ad)/.test(ua);
-            if (!isIOS) return false;
-            const v = window.navigator.userAgent.match(/OS (\d+)_/);
-            return v && parseInt(v[1], 10) >= 13;
-        }
 
         async function requestDevicePermission() {
             const startBtn = document.getElementById('start-ar-btn');
             const errorMsg = document.getElementById('error-message');
             const overlay = document.getElementById('permission-overlay');
+            
             // 顯示載入狀態
             startBtn.innerHTML = '請求權限中...<span class="spinner"></span>';
             startBtn.disabled = true;
             errorMsg.classList.remove('show');
+
             try {
-                // iOS 13+ 需要明確請求權限
-                const motionPermission = await DeviceMotionEvent.requestPermission();
-                const orientationPermission = typeof DeviceOrientationEvent.requestPermission === 'function' 
-                    ? await DeviceOrientationEvent.requestPermission()
-                    : 'granted';
-                if (motionPermission === 'granted' && orientationPermission === 'granted') {
-                    permissionGranted = true;
-                    localStorage.setItem('ar_permission_granted', '1');
-                    startARExperience();
+                // 檢查是否為 iOS 13+ 需要權限
+                if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+                    // iOS 13+ 需要明確請求權限
+                    const motionPermission = await DeviceMotionEvent.requestPermission();
+                    const orientationPermission = typeof DeviceOrientationEvent.requestPermission === 'function' 
+                        ? await DeviceOrientationEvent.requestPermission()
+                        : 'granted';
+
+                    if (motionPermission === 'granted' && orientationPermission === 'granted') {
+                        permissionGranted = true;
+                        console.log('✅ 裝置感應器權限已獲得');
+                        startARExperience();
+                    } else {
+                        throw new Error('權限被拒絕');
+                    }
                 } else {
-                    throw new Error('權限被拒絕');
+                    // 非 iOS 或舊版本，直接啟動
+                    permissionGranted = true;
+                    console.log('✅ 不需要權限請求，直接啟動');
+                    startARExperience();
                 }
             } catch (error) {
                 console.error('❌ 權限請求失敗:', error);
+                // 顯示錯誤訊息和重試按鈕
                 startBtn.innerHTML = '重試';
                 startBtn.disabled = false;
                 errorMsg.classList.add('show');
@@ -392,31 +396,17 @@
         function startARExperience() {
             const overlay = document.getElementById('permission-overlay');
             const scene = document.querySelector('a-scene');
-            overlay.style.display = 'none';
+            
+            // 隱藏權限遮罩
+            overlay.classList.add('hidden');
+            
+            // 顯示 AR 場景
             if (scene) {
                 scene.classList.add('ready');
             }
+            
             console.log('🎯 AR 體驗已啟動');
         }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const overlay = document.getElementById('permission-overlay');
-            const scene = document.querySelector('a-scene');
-            // 只在 iOS 13+ 且未授權時顯示彈窗
-            if (isIOS13Plus() && typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                if (localStorage.getItem('ar_permission_granted') === '1') {
-                    // 已授權過，直接進入 AR
-                    if (scene) scene.classList.add('ready');
-                    overlay.style.display = 'none';
-                } else {
-                    overlay.style.display = 'flex';
-                }
-            } else {
-                // PC/Android 或舊版 iOS 直接進入 AR
-                if (scene) scene.classList.add('ready');
-                overlay.style.display = 'none';
-            }
-        });
 
         // 全域變數
         let scanningHintTimeout;
