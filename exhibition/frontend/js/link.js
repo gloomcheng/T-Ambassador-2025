@@ -19,8 +19,8 @@ if (location.hostname.endsWith('github.io')) {
 	location.hostname === '127.0.0.1' ||
 	location.hostname.endsWith('trycloudflare.com')
 	) {
-	// 本地或 Cloudflare Tunnel 皆走本地 API
-	apiBaseUrl = window.location.origin + '/api/';
+	// 本地或 Cloudflare Tunnel 也走遠端 API
+	apiBaseUrl = 'https://tdance.fansee.studio/api/';
 } else {
 	apiBaseUrl = 'https://tdance.fansee.studio/api/';
 }

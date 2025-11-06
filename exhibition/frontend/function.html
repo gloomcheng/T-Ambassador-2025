@@ -395,6 +395,34 @@ function getCookie(name) {
     </div>
 
     <script>
+    // 跨裝置同步進度：進入 function.html 時自動查詢遠端進度，寫入 localStorage
+    document.addEventListener('DOMContentLoaded', function() {
+        var phone = getCookie('phone');
+        var market = localStorage.getItem('route1_market');
+        if (phone && market) {
+            // 查詢該 phone、market 的進度
+            fetch(apiBaseUrl + 'get-progress/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: phone, market: market })
+            })
+            .then(res => res.json())
+            .then(result => {
+                // 預期 result.content2.data 為題目進度
+                if (result && result.content2 && result.content2.data) {
+                    var questionsArr = [];
+                    Object.keys(result.content2.data).sort((a, b) => parseInt(a) - parseInt(b)).forEach(function(key) {
+                        questionsArr.push({ number: key });
+                    });
+                    localStorage.setItem('route1_questions_' + market, JSON.stringify(questionsArr));
+                }
+            })
+            .catch(err => {
+                console.warn('[跨裝置同步] 查詢進度失敗', err);
+            });
+        }
+    });
+
     function openTreasureGame() {
         // 取得市集選擇值
         var marketSelect = document.getElementById('marketSelect');
