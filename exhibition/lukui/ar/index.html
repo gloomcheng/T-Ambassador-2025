@@ -41,6 +41,13 @@
     inset: 0;            /* top:0; right:0; bottom:0; left:0 的速寫 */
     z-index: 1;          /* 低於 UI 層 */
     pointer-events: none;/* 不要攔截點擊，讓上面的 HTML 收到事件 */
+    opacity: 0;          /* 預設隱藏直到權限獲得 */
+    transition: opacity 0.5s;
+  }
+
+  /* 權限通過後顯示 AR 場景 */
+  a-scene.ready, a-scene.ready canvas, a-scene.ready video {
+    opacity: 1;
   }
   /* UI 覆蓋層：承載所有可點擊卡片/按鈕 */
   #ui-layer {
@@ -82,6 +89,114 @@
     .hidden {
       display: none;
     }
+
+    /* 🔐 iOS 權限請求遮罩樣式 */
+    #permission-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    #permission-overlay.hidden {
+      display: none;
+    }
+
+    .permission-content {
+      text-align: center;
+      color: white;
+      max-width: 400px;
+    }
+
+    .permission-content h2 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    .permission-content p {
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 30px;
+      opacity: 0.9;
+    }
+
+    .start-ar-btn {
+      background: white;
+      color: #667eea;
+      border: none;
+      padding: 16px 48px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .start-ar-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .start-ar-btn:active {
+      transform: translateY(0);
+    }
+
+    .start-ar-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .error-message {
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .error-message h3 {
+      margin: 0 0 10px 0;
+      font-size: 20px;
+    }
+
+    .error-message p {
+      margin: 0;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    /* 載入動畫 */
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+      margin-left: 10px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     .selection{
       display: flex;
       flex-direction: row;
@@ -513,7 +628,65 @@
      
     </style>
     <script>
-      
+      // 🔐 iOS 權限請求處理
+      let permissionGranted = false;
+
+      async function requestDevicePermission() {
+        const startBtn = document.getElementById('start-ar-btn');
+        const errorMsg = document.getElementById('error-message');
+        const overlay = document.getElementById('permission-overlay');
+        
+        // 顯示載入狀態
+        startBtn.innerHTML = '請求權限中...<span class="spinner"></span>';
+        startBtn.disabled = true;
+        errorMsg.classList.remove('show');
+
+        try {
+          // 檢查是否為 iOS 13+ 需要權限
+          if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+            // iOS 13+ 需要明確請求權限
+            const motionPermission = await DeviceMotionEvent.requestPermission();
+            const orientationPermission = typeof DeviceOrientationEvent.requestPermission === 'function' 
+              ? await DeviceOrientationEvent.requestPermission()
+              : 'granted';
+
+            if (motionPermission === 'granted' && orientationPermission === 'granted') {
+              permissionGranted = true;
+              console.log('✅ 裝置感應器權限已獲得');
+              startARExperience();
+            } else {
+              throw new Error('權限被拒絕');
+            }
+          } else {
+            // 非 iOS 或舊版本，直接啟動
+            permissionGranted = true;
+            console.log('✅ 不需要權限請求，直接啟動');
+            startARExperience();
+          }
+        } catch (error) {
+          console.error('❌ 權限請求失敗:', error);
+          // 顯示錯誤訊息和重試按鈕
+          startBtn.innerHTML = '重試';
+          startBtn.disabled = false;
+          errorMsg.classList.add('show');
+        }
+      }
+
+      function startARExperience() {
+        const overlay = document.getElementById('permission-overlay');
+        const scene = document.querySelector('a-scene');
+        
+        // 隱藏權限遮罩
+        overlay.classList.add('hidden');
+        
+        // 顯示 AR 場景
+        if (scene) {
+          scene.classList.add('ready');
+        }
+        
+        console.log('🎯 AR 體驗已啟動');
+      }
+
       let audioContext;
       let sourceNode;
 
@@ -799,12 +972,29 @@
   </script>
   </head>
   <body>
+  <!-- 🔐 iOS 權限請求遮罩 -->
+  <div id="permission-overlay">
+    <div class="permission-content">
+      <h2>🎯 崙港茶鄉 AR 導覽</h2>
+      <p>此體驗需要使用您的裝置感應器和相機來提供沉浸式 AR 功能。</p>
+      <button class="start-ar-btn" id="start-ar-btn" onclick="requestDevicePermission()">
+        啟動 AR 相機
+      </button>
+      <div class="error-message" id="error-message">
+        <h3>⚠️ 權限被拒絕</h3>
+        <p>請在「設定 > Safari > 動作與方向」中允許存取，然後點擊下方按鈕重試。</p>
+      </div>
+    </div>
+  </div>
+
   <!-- 導覽員貼圖（可留在 body 頂層） -->
   <div id="hua" class="hidden"></div>
   <div id="mrju" class="hidden"></div>
 
   <!--<a-scene mindar-image="imageTargetSrc: assets/imagetargets/六龜山茶館圖片/targets_tea.mind; filterMinCF:0.0001; filterBeta:0.001">-->
-  <a-scene mindar-image="imageTargetSrc: assets/imagetargets/崙港鴨饗吧圖片/targets_duck.mind">
+  <a-scene mindar-image="imageTargetSrc: assets/imagetargets/崙港鴨饗吧圖片/targets_duck.mind" 
+           vr-mode-ui="enabled: false" 
+           device-orientation-permission-ui="enabled: false">
 
       <a-camera position="0 0 0" look-controls="enabled:false" cursor="fuse: false; rayOrigin: mouse;"
       raycaster="near: 10; far: 30000; objects: .clickable"></a-camera>
