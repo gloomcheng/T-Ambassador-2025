@@ -68,6 +68,7 @@ jobs:
           export LANG=en_US.UTF-8
           
           # 部署 exhibition 目錄（支援中文檔名）
+          echo "📦 部署 exhibition 目錄..."
           rsync -avzh --delete --partial --progress \
             -e "ssh -i ~/.ssh/deploy_key" \
             --exclude='.git' \
@@ -86,7 +87,28 @@ jobs:
               exit 0
             }
           
-          echo "✅ 文件同步完成"
+          echo "✅ exhibition 同步完成"
+          
+          # 部署 rag-ai-assistant 目錄（包含知識庫檔案）
+          echo "📦 部署 rag-ai-assistant 目錄..."
+          rsync -avzh --delete --partial --progress \
+            -e "ssh -i ~/.ssh/deploy_key" \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='package-lock.json' \
+            --exclude='.env' \
+            --exclude='*.log' \
+            --exclude='.DS_Store' \
+            --exclude='.cortex' \
+            --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r \
+            rag-ai-assistant/ deploy-server:$SSH_PATH/rag-ai-assistant/ || {
+              echo "⚠️ rag-ai-assistant 部分文件傳輸失敗，但繼續部署..."
+              exit 0
+            }
+          
+          echo "✅ rag-ai-assistant 同步完成"
+          echo "✅ 所有文件同步完成"
 
       - name: 🔧 Restart services on server
         run: |
@@ -130,7 +152,47 @@ jobs:
             # 重啟 Apache/Django 服務
             sudo systemctl restart apache2 || true
             
-            echo "✅ 服務重啟完成"
+            echo "✅ Django 服務重啟完成"
+            
+            # 進入 rag-ai-assistant 目錄
+            echo "🔄 重啟 LINE Bot RAG 服務..."
+            cd /var/www/sites/T-Ambassador-2025/rag-ai-assistant
+            
+            # 安裝/更新 npm 依賴（如果 package.json 有更新）
+            if [ -f "package.json" ]; then
+              echo "📦 檢查 npm 依賴..."
+              npm install --production || echo "⚠️ npm install 失敗，繼續重啟..."
+            fi
+            
+            # 重啟 PM2 服務
+            echo "🔄 重啟 PM2 line-bot 服務..."
+            pm2 restart line-bot || {
+              echo "⚠️ PM2 重啟失敗，嘗試啟動..."
+              pm2 start ecosystem.config.cjs || echo "❌ PM2 啟動失敗"
+            }
+            
+            # 保存 PM2 配置
+            pm2 save || true
+            
+            echo "✅ LINE Bot 服務重啟完成"
+            
+            # 等待服務啟動
+            echo "⏳ 等待 RAG 系統初始化（5秒）..."
+            sleep 5
+            
+            # 驗證 RAG 系統載入
+            echo "🔍 檢查 RAG 系統載入狀態..."
+            pm2 logs line-bot --lines 100 --nostream | grep -E "RAG system initialized|Loading document|Generating embeddings" || {
+              echo "⚠️ 未在日誌中找到 RAG 初始化訊息"
+              echo "📋 顯示最近的日誌："
+              pm2 logs line-bot --lines 20 --nostream
+            }
+            
+            # 顯示 PM2 狀態
+            echo "📊 PM2 服務狀態："
+            pm2 list
+            
+            echo "✅ 所有服務重啟完成"
           EOF
 
       - name: 📊 Deployment summary
