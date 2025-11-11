@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>崙港茶鄉 AR 導覽</title>
+    <title>對話框遊戲</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
@@ -53,7 +53,7 @@
             position: relative;
             width: 100%;
             height: 100vh;
-            background-image: url("/lukui/img/呱呱的家.jpg");
+            background-image: url("img/呱呱的家.jpg");
             background-size: cover;
             background-position: center;
         }
@@ -84,7 +84,7 @@
             font-size: 1.2rem;
         }
         .namecard{
-            background-image: url("/lukui/assets/namecard.png");
+            background-image: url("assets/namecard.png");
             background-repeat: no-repeat;
             background-size: contain;
             height: 40px;
@@ -109,7 +109,7 @@
             position: relative;
             display: flex;
             justify-content: flex-end;
-            background-image: url("/lukui/assets/namecard.png");
+            background-image: url("assets/namecard.png");
             background-size: contain;
             background-repeat: no-repeat;
             background-position: right;
@@ -290,7 +290,6 @@
             }
         }
 
-
         /* samsung galaxy a51/a71 */
         @media (max-width: 440px) {
             .dialogue-box {
@@ -320,7 +319,7 @@
             #card_1, #card_2, #card_3, #card_4, #dialogue-1{
                 top:65%;
             }
-        }		
+        }       
     </style>
 </head>
 
@@ -328,31 +327,31 @@
     <div id="game-container">
         <div class="backgroundimg"></div>
         <div class="dialogue-box" id="dialogue-1">
-            <img src="/lukui/assets/dialogbox.png" alt="dialogbox background">
-            <h3>歡迎使用本AR導覽系統！本園區共有五個作品景點，透過掃描崙港鴨饗吧的圖片，您將能夠在手機畫面中即時呈現相關歷史、藝術及文化資訊，讓您更深入了解崙港的精髓。希望您能享受這次的導覽之旅。</h3>
+            <img src="assets/dialogbox.png" alt="dialogbox background">
+            <h3>歡迎使用本AR導覽系統！本園區共有五個作品景點，透過掃描崙港的圖片，您將能夠在手機畫面中即時呈現相關歷史、藝術及文化資訊，讓您更深入了解崙港的精髓。希望您能享受這次的導覽之旅。</h3>
             <div class="options">
                 <button id="continue-btn">請點選按鈕繼續</button>
             </div>
         </div>
         <div id="card_1" class="hidden dialogue-box clickable">
-            <img src="/lukui/assets/dialogbox.png" alt="dialogbox background">
+            <img src="assets/dialogbox.png" alt="dialogbox background">
             <div id="scene1">
-                <img id="character" src="/lukui/assets/崙港頂呱呱_去背.gif" alt="">
+                <img id="character" src="assets/啵啵鴨_去背.png" alt="">
                 <div class="namecard">
-                    <h3 class="cname">導覽員-頂呱呱</h3>
+                    <h3 class="cname">導覽員-啵啵鴨</h3>
                 </div>
-                <h3 class="dialog">你好呀！我是導覽員頂呱呱~歡迎來到崙港社區！</h3>
+                <h3 class="dialog">你好呀！我是導覽員啵啵鴨~歡迎來到崙港社區！</h3>
                 <div class="options">
                     <button class="next-btn" data-next="card_2">請點選按鈕繼續</button>
                 </div>
             </div>
         </div>
         <div id="card_2" class="hidden dialogue-box">
-            <img src="/lukui/assets/dialogbox.png" alt="dialogbox background">
+            <img src="assets/dialogbox.png" alt="dialogbox background">
             <div id="scene2">
-                <img id="character" src="/lukui/assets/崙港頂呱呱_去背.gif" alt="">
+                <img id="character" src="assets/啵啵鴨_去背.png" alt="">
                 <div class="namecard">
-                    <h3 class="cname">導覽員-頂呱呱</h3>
+                    <h3 class="cname">導覽員-啵啵鴨</h3>
                 </div>
                 <h3 class="dialog">你對崙港的第一印象是什麼？</h3>
                 <div class="selection">
@@ -363,11 +362,11 @@
             </div>
         </div>
         <div id="card_3" class="hidden dialogue-box">
-            <img src="/lukui/assets/dialogbox.png" alt="dialogbox background">
+            <img src="assets/dialogbox.png" alt="dialogbox background">
             <div id="scene2">
-                <img id="character" src="/lukui/assets/崙港頂呱呱_去背.gif" alt="">
+                <img id="character" src="assets/啵啵鴨_去背.png" alt="">
                 <div class="namecard">
-                    <h3 class="cname">導覽員-頂呱呱</h3>
+                    <h3 class="cname">導覽員-啵啵鴨</h3>
                 </div>
                 <h3 class="dialog" id="message"></h3>
                 <div class="options">
@@ -376,15 +375,15 @@
             </div>
         </div>
         <div id="card_4" class="hidden dialogue-box">
-            <img src="/lukui/assets/dialogbox.png" alt="dialogbox background">
+            <img src="assets/dialogbox.png" alt="dialogbox background">
             <div id="scene4">
-                <img src="/lukui/assets/崙港頂呱呱_去背.gif" alt="">
+                <img src="assets/啵啵鴨_去背.png" alt="">
                 <div class="namecard">
-                    <h3 class="cname">導覽員-頂呱呱</h3>
+                    <h3 class="cname">導覽員-啵啵鴨</h3>
                 </div>
                 <h3 class="dialog">親愛的大玩家和小玩家們，你們終於來啦！這裡是充滿陽光和笑聲的崙港，也是小鴨我最喜歡的地方，讓我們一起來探索呱呱的家園吧!</h3>
                 <div class="options">
-                    <button class="next-btn"><a href="/lukui/ar/">請點選按鈕繼續</a></button>
+                    <button class="next-btn"><a href="arGuide.html">請點選按鈕繼續</a></button>
                 </div>
             </div>
         </div>
@@ -399,7 +398,7 @@
         document.getElementById('continue-btn').addEventListener('click', function () {
             document.getElementById('dialogue-1').classList.add('hidden');
             document.getElementById('card_1').classList.remove('hidden');
-            playAudio('/lukui/assets/duck_introduce.wav'); // Play the audio for card 1
+            playAudio('assets/崙港相關音檔/introduce導覽員介紹.mp3'); // Play the audio for card 1
         });
 
         document.querySelectorAll('.next-btn').forEach(button => {
@@ -410,7 +409,7 @@
 
                 // Play the corresponding audio for each card
                 if (nextCard === 'card_4') {
-                    playAudio('/lukui/assets/1-2.wav'); // Play the audio for card 4
+                    playAudio('assets/崙港相關音檔/go前往導覽.mp3'); // Play the audio for card 4
                 }
             });
         });
@@ -432,3 +431,5 @@
 </body>
 
 </html>
+
+
