@@ -53,7 +53,7 @@
             position: relative;
             width: 100%;
             height: 100vh;
-            background-image: url("img/呱呱的家.jpg");
+            background-image: url("img/Duck_Home.jpg");
             background-size: cover;
             background-position: center;
         }
@@ -290,6 +290,7 @@
             }
         }
 
+
         /* samsung galaxy a51/a71 */
         @media (max-width: 440px) {
             .dialogue-box {
@@ -319,7 +320,7 @@
             #card_1, #card_2, #card_3, #card_4, #dialogue-1{
                 top:65%;
             }
-        }       
+        }		
     </style>
 </head>
 
@@ -336,11 +337,11 @@
         <div id="card_1" class="hidden dialogue-box clickable">
             <img src="assets/dialogbox.png" alt="dialogbox background">
             <div id="scene1">
-                <img id="character" src="assets/啵啵鴨_去背.png" alt="">
+                <img id="character" src="assets/duck_NoBackground.png" alt="">
                 <div class="namecard">
                     <h3 class="cname">導覽員-啵啵鴨</h3>
                 </div>
-                <h3 class="dialog">你好呀！我是導覽員啵啵鴨~歡迎來到崙港社區！</h3>
+                <h3 class="dialog">你好呀！我是導覽員啵啵鴨~歡迎你來到崙港社區！</h3>
                 <div class="options">
                     <button class="next-btn" data-next="card_2">請點選按鈕繼續</button>
                 </div>
@@ -349,7 +350,7 @@
         <div id="card_2" class="hidden dialogue-box">
             <img src="assets/dialogbox.png" alt="dialogbox background">
             <div id="scene2">
-                <img id="character" src="assets/啵啵鴨_去背.png" alt="">
+                <img id="character" src="assets/duck_NoBackground.png" alt="">
                 <div class="namecard">
                     <h3 class="cname">導覽員-啵啵鴨</h3>
                 </div>
@@ -364,7 +365,7 @@
         <div id="card_3" class="hidden dialogue-box">
             <img src="assets/dialogbox.png" alt="dialogbox background">
             <div id="scene2">
-                <img id="character" src="assets/啵啵鴨_去背.png" alt="">
+                <img id="character" src="assets/duck_NoBackground.png" alt="">
                 <div class="namecard">
                     <h3 class="cname">導覽員-啵啵鴨</h3>
                 </div>
@@ -377,7 +378,7 @@
         <div id="card_4" class="hidden dialogue-box">
             <img src="assets/dialogbox.png" alt="dialogbox background">
             <div id="scene4">
-                <img src="assets/啵啵鴨_去背.png" alt="">
+                <img src="assets/duck_NoBackground.png" alt="">
                 <div class="namecard">
                     <h3 class="cname">導覽員-啵啵鴨</h3>
                 </div>
@@ -398,7 +399,7 @@
         document.getElementById('continue-btn').addEventListener('click', function () {
             document.getElementById('dialogue-1').classList.add('hidden');
             document.getElementById('card_1').classList.remove('hidden');
-            playAudio('assets/崙港相關音檔/introduce導覽員介紹.mp3'); // Play the audio for card 1
+            playAudio('assets/duck/introduce.mp3'); // Play the audio for card 1
         });
 
         document.querySelectorAll('.next-btn').forEach(button => {
@@ -409,7 +410,7 @@
 
                 // Play the corresponding audio for each card
                 if (nextCard === 'card_4') {
-                    playAudio('assets/崙港相關音檔/go前往導覽.mp3'); // Play the audio for card 4
+                    playAudio('assets/duck_audio/go_toAR.mp3'); // Play the audio for card 4
                 }
             });
         });
@@ -431,5 +432,3 @@
 </body>
 
 </html>
-
-

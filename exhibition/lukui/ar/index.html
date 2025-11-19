@@ -169,7 +169,7 @@
       width: 50%;
     }
     #hua, #mrju {
-      background-image: url("assets/崙港頂呱呱.png"); /* ← 你的新圖片路徑 */
+      background-image: url("assets/duck_NoBackground.png"); /* ← 你的新圖片路徑 */
       background-repeat: no-repeat;
       background-size: contain;
       background-position: center;
@@ -471,6 +471,7 @@
       }
     }
 
+
     @media screen and (max-width:400px) { 
       h3{
         font-size: 14px;
@@ -515,6 +516,7 @@
         margin: 4%;
       }
     }
+
 
   
      
@@ -566,23 +568,24 @@
           console.log('AR scene loaded');
           arSystem = sceneEl.systems["mindar-image-system"];
 
+
           const targets = [
-
-            // { id: 'targetTea1', sceneId: 'sceneTea1', cardId: 'card_tea1', music: null },
-            // { id: 'targetTea2', sceneId: 'sceneTea2', cardId: 'card_tea2', music: null },
-            // { id: 'targetTea3', sceneId: 'sceneTea3', cardId: 'card_tea3', music: null },
-            // { id: 'targetTea4', sceneId: 'sceneTea4', cardId: 'card_tea4', music: null },
-            // { id: 'targetTea5', sceneId: 'sceneTea5', cardId: 'card_tea5', music: null },
-            // { id: 'targetTea6', sceneId: 'sceneTea6', cardId: 'card_tea6', music: null },
-
+            // 1️⃣ 光德寺 duck01（targetIndex:1）
             { id: 'targetDuck1', sceneId: 'sceneDuck1', cardId: 'card_duck1', music: null },
-            { id: 'targetDuck2', sceneId: 'sceneDuck2', cardId: 'card_duck2', music: null },
-            { id: 'targetDuck3', sceneId: 'sceneDuck3', cardId: 'card_duck3', music: null },
-            { id: 'targetDuck4', sceneId: 'sceneDuck4', cardId: 'card_duck4', music: null },
-            { id: 'targetDuck5', sceneId: 'sceneDuck5', cardId: 'card_duck5', music: null },
-            { id: 'targetDuck6', sceneId: 'sceneDuck6', cardId: 'card_duck6', music: null },
 
+            // 2️⃣ 紅陶鴨村 duck02（targetIndex:2）
+            { id: 'targetDuckVillage', sceneId: 'sceneDuck2', cardId: 'card_duck2', music: null },
+
+            // 3️⃣ 綠色庭院／璞園古厝 duck03（targetIndex:3）
+            { id: 'targetGreenYard', sceneId: 'sceneDuck3', cardId: 'card_duck3', music: null },
+
+            // 4️⃣ 彩繪牆／鴨村瓦房 duck04（targetIndex:4）
+            { id: 'targetColorWall', sceneId: 'sceneDuck4', cardId: 'card_duck4', music: null },
+
+            // 5️⃣ 室內六角木作／木百貨 duck05（targetIndex:0）
+            { id: 'targetWoodDisplay', sceneId: 'sceneDuck5', cardId: 'card_duck5', music: null },
           ];
+
 
           targets.forEach(target => {
             const { id, sceneId, cardId, music } = target;
@@ -611,6 +614,7 @@
             });
           });         
         });
+
 
 
 
@@ -682,71 +686,28 @@
           });
         });
 
+
         // ===============================
         // 🧩 題目控制系統（含除錯訊息）
         // ===============================
-        const questions = [
-          {
-            cardId: 'card_duck1',
-            correctAnswer: 'B. 民國十六年',
-            resultId: 'resultDuck1',
-            nextCardId: 'card_duck1_result'
-          },
-          {
-              cardId: 'card_tea1',
-              correctAnswer: '(B) 喬木型',
-              resultId: 'resultTea1',
-              nextCardId: 'card_tea1_result'
-          },
-          {
-              cardId: 'card_2',
-              correctAnswer: 'B.10×20公分',
-              resultId: 'result3',
-              nextCardId: 'card_3'
-          },
-          {
-              cardId: 'card_8',
-              correctAnswer: 'A.將不同陶土根據特性，釉燒後完成',
-              resultId: 'result9',
-              nextCardId: 'card_9'
-          },
-          {
-              cardId: 'card_12',
-              correctAnswer: 'C.成大文學院修齊大樓',
-              resultId: 'result13',
-              nextCardId: 'card_13'
-          },
-          {
-              cardId: 'card_15',
-              correctAnswer: 'B.陽刻',
-              resultId: 'result16',
-              nextCardId: 'card_16'
-          },
-          {
-              cardId: 'card_19',
-              correctAnswer: 'B.高雄餐旅學校',
-              resultId: 'result20',
-              nextCardId: 'card_20'
-          },
-          {
-              cardId: 'card_22',
-              correctAnswer: 'C.有所建樹，發揮所長之祝福',
-              resultId: 'result23',
-              nextCardId: 'card_23'
-          },
-          {
-              cardId: 'card_26',
-              correctAnswer: 'A.澄清湖棒球場',
-              resultId: 'result27',
-              nextCardId: 'card_27'
-          },
-          {
-              cardId: 'card_29',
-              correctAnswer: 'B.魔球進壘',
-              resultId: 'result30',
-              nextCardId: 'card_30'
-          },
+        const targets = 
+        [
+            // 1️⃣ 光德寺 duck01（targetIndex:1）
+            { id: 'targetDuck1', sceneId: 'sceneDuck1', cardId: 'card_duck1', music: null },
+
+            // 2️⃣ 紅陶鴨村 duck02（targetIndex:2）
+            { id: 'targetDuckVillage', sceneId: 'sceneDuck2', cardId: 'card_duck2', music: null },
+            
+            // 3️⃣ 綠色庭院 duck03（targetIndex:3）
+            { id: 'targetGreenYard', sceneId: 'sceneDuck3', cardId: 'card_duck3', music: null },
+          
+            // 4️⃣ 彩繪牆 duck04（targetIndex:4）
+            { id: 'targetColorWall', sceneId: 'sceneDuck4', cardId: 'card_duck4', music: null },
+          
+            // 5️⃣ 室內六角木作 duck05（targetIndex:0）
+            { id: 'targetWoodDisplay', sceneId: 'sceneDuck5', cardId: 'card_duck5', music: null },
         ];
+
 
         console.log("🧩 題目系統已載入，共", questions.length, "題");
 
@@ -791,6 +752,7 @@
           });
         });
 
+
         // Array of options
         const options = [
           'optionA','optionB','optionC','optionD', 'optionE', 'optionF',
@@ -819,26 +781,44 @@
   <div id="mrju" class="hidden"></div>
 
   <!--<a-scene mindar-image="imageTargetSrc: assets/imagetargets/六龜山茶館圖片/targets_tea.mind; filterMinCF:0.0001; filterBeta:0.001">-->
-  <a-scene mindar-image="imageTargetSrc: assets/imagetargets/崙港鴨饗吧圖片/duck_mind/targets01.mind">
+  <!-- <a-scene mindar-image="imageTargetSrc: assets/imagetargets/崙港鴨饗吧圖片/duck_mind/targets01.mind"> -->
+  <a-scene
+    mindar-image="imageTargetSrc: assets/imagetargets/duck_targets.mind"
+    color-space="sRGB"
+    renderer="colorManagement: true, physicallyCorrectLights"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+    embedded
+  >
+    
+    <!-- Camera 必須放在 a-scene 內 -->
+    <a-camera 
+      position="0 0 0" 
+      look-controls="enabled:false"
+      cursor="fuse: false; rayOrigin: mouse;"
+      raycaster="near: 10; far: 30000; objects: .clickable">
+    </a-camera>
 
-      <a-camera position="0 0 0" look-controls="enabled:false" cursor="fuse: false; rayOrigin: mouse;"
-      raycaster="near: 10; far: 30000; objects: .clickable"></a-camera>
+    <!-- MindAR target entities（必須放在 a-scene 裡） -->
+    
+    <!-- 0 = duck05.jpg = 室內六角木作 -->
+    <a-entity id="targetWoodDisplay" mindar-image-target="targetIndex: 0" rotation="75 0 0"></a-entity>
 
-      <!--<a-entity target id="targetTea1" mindar-image-target="targetIndex: 0" rotation="75 0 0"></a-entity>
-      <a-entity target id="targetTea2" mindar-image-target="targetIndex: 1" rotation="75 0 0"></a-entity>
-      <a-entity target id="targetTea3" mindar-image-target="targetIndex: 2" rotation="75 0 0"></a-entity>
-      <a-entity target id="targetTea4" mindar-image-target="targetIndex: 3" rotation="75 0 0"></a-entity>
-      <a-entity target id="targetTea5" mindar-image-target="targetIndex: 4" rotation="75 0 0"></a-entity>
-      <a-entity target id="targetTea6" mindar-image-target="targetIndex: 5" rotation="75 0 0"></a-entity>-->
+    <!-- 1 = duck01.jpg = 光德寺 -->
+    <a-entity id="targetDuck1" mindar-image-target="targetIndex: 1" rotation="75 0 0"></a-entity>
 
-      <a-entity target id="targetDuck1" mindar-image-target="targetIndex: 0" rotation="75 0 0"></a-entity>
-      <a-entity target id="targetDuck2" mindar-image-target="targetIndex: 1" rotation="75 0 0"></a-entity>
-      <a-entity target id="targetDuck3" mindar-image-target="targetIndex: 2" rotation="75 0 0"></a-entity>
-      <a-entity target id="targetDuck4" mindar-image-target="targetIndex: 3" rotation="75 0 0"></a-entity>
-      <a-entity target id="targetDuck5" mindar-image-target="targetIndex: 4" rotation="75 0 0"></a-entity>
-      <a-entity target id="targetDuck6" mindar-image-target="targetIndex: 5" rotation="75 0 0"></a-entity>
+    <!-- 2 = duck02.jpg = 紅陶鴨村 農機具 -->
+    <a-entity id="targetDuckVillage" mindar-image-target="targetIndex: 2" rotation="75 0 0"></a-entity>
+
+    <!-- 3 = duck03.jpg = 綠色庭院 -->
+    <a-entity id="targetGreenYard" mindar-image-target="targetIndex: 3" rotation="75 0 0"></a-entity>
+
+    <!-- 4 = duck04.jpg = 彩繪牆 -->
+    <a-entity id="targetColorWall" mindar-image-target="targetIndex: 4" rotation="75 0 0"></a-entity>
+
 
   </a-scene>
+
 
     <div id="ui-layer">
       <!-- 🏯 光德寺：導覽解說 1 -->
@@ -947,31 +927,70 @@
         </div>
       </div>
 
+      <!-- ✅ 接著在這裡貼上你的新卡片段落 -->
+      <!-- 🏯 新景點導覽解說 -->
+      <div id="card_duck2" class="hidden">
+        <div id="sceneDuck2">
+          <h3 class="namecard">導覽員－啵啵鴨</h3>
+          <h3 class="dialog">「紅陶鴨村」是透過活化社區內閒置空間，打造出具有手作體驗活動與懷舊氛圍的農機具展示場域。這些機具成為社區景觀的一部分，讓到訪的旅客了解早期農耕的辛勞與變遷。且結合了周圍「觀」公園、「鴨鄉漫遊」古厝花園，讓遊客更能親身體驗昔日「鴨庄」的生活與文化。</h3>
+          <div class="options">
+            <button class="next-btn" data-next="card_duck2_2">請點選按鈕繼續</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🏯 第二段解說 -->
+      <div id="card_duck2_2" class="hidden">
+        <div id="sceneDuck2_2">
+          <h3 class="dialog">它主要展示崙港地區的歷史與民俗藝術…</h3>
+          <div class="options">
+            <button class="next-btn" data-next="card_duck2_question">請點選按鈕繼續</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ❓ 題目 -->
+      <div id="card_duck2_question" class="hidden">
+        <div id="sceneDuck2Q">
+          <h3 class="dialog">Q：「紅陶鴨村」是透過活化社區閒置空間所打造，其場域主要提供哪兩類活動和展示？</h3>
+          <div class="selection">
+            <button>(A) 專門銷售特色農產與結合趕鴨元素的文創商品</button>
+            <button>(B) 具有手作體驗活動與懷舊氛圍的農機具展示</button>
+            <button>(C) 供在地青年文創商品及社區協會開發商品展示與銷售</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ 答案結果 -->
+      <div id="card_duck2_result" class="hidden">
+        <div id="sceneDuck2R">
+          <h3 class="dialog" id="resultDuck2"></h3>
+          <h3 class="dialog">💡 解說：「紅陶鴨村」是透過活化社區內閒置空間，打造出具有手作體驗活動與懷舊氛圍的農機具展示場域。</h3>
+          <div class="options">
+            <button class="next-btn" data-next="#">請移動鏡頭至下一個導覽點</button>
+          </div>
+        </div>
+      </div>
+
+
       <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const duckQuestion = {
-        cardId: 'card_duck1_question',
-        correctAnswer: '(B) 民國十六年',
-        resultId: 'resultDuck1',
-        nextCardId: 'card_duck1_result'
-      };
 
-      const card = document.getElementById(duckQuestion.cardId);
-      const buttons = card.querySelectorAll('.selection button');
-      const result = document.getElementById(duckQuestion.resultId);
-      const nextCard = document.getElementById(duckQuestion.nextCardId);
+        const card = document.getElementById(duckQuestion.cardId);
+        const buttons = card.querySelectorAll('.selection button');
+        const result = document.getElementById(duckQuestion.resultId);
+        const nextCard = document.getElementById(duckQuestion.nextCardId);
 
-      buttons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          if (btn.innerText.trim() === duckQuestion.correctAnswer.trim()) {
-            result.innerText = '✅ 恭喜你，答對了！';
-          } else {
-            result.innerText = `❌ 答錯了～正確答案是 ${duckQuestion.correctAnswer}`;
-          }
-          card.classList.add('hidden');
-          nextCard.classList.remove('hidden');
+        buttons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            if (btn.innerText.trim() === duckQuestion.correctAnswer.trim()) {
+              result.innerText = '✅ 恭喜你，答對了！';
+            } else {
+              result.innerText = `❌ 答錯了～正確答案是 ${duckQuestion.correctAnswer}`;
+            }
+            card.classList.add('hidden');
+            nextCard.classList.remove('hidden');
+          });
         });
-      });
 
         // ✅ 下一個導覽點按鈕控制（立刻註冊）
         document.querySelectorAll(".next-btn").forEach(btn => {
@@ -989,31 +1008,58 @@
             document.querySelectorAll('[id^="result"]').forEach(r => r.innerText = '');
           });
         });
-      });
       </script>
 
 
 
-      <!-- 🫖 六龜山茶故事館 題目一 -->
-      <div id="card_tea1" class="hidden">
-        <div id="sceneTea1">
-          <h3 class="namecard">導覽員-小花</h3>
-          <h3 class="dialog">Q1：六龜山茶故事館推廣的主角「山茶」，屬於下列哪一類茶樹？</h3>
-          <div class="selection">
-            <button id="optionTea1A">(A) 灌木型</button>
-            <button id="optionTea1B">(B) 喬木型</button>
-            <button id="optionTea1C">(C) 藤蔓型</button>
-            <button id="optionTea1D">(D) 地被型</button>
+
+            <!-- ⛺ 綠色庭院：導覽解說 -->
+      <div id="card_duck3" class="hidden">
+        <div id="sceneDuck3">
+          <h3 class="namecard">導覽員－啵啵鴨</h3>
+          <h3 class="dialog">
+          「璞園古厝」文物館是由一間傳統土埆厝修復而成的，我們希望回復土角厝原貌，但又不能完全失真，把堪用的保留下來，
+          將璞園古厝作為社區的文物歷史文創展覽館，展示原有留下早期農家生活民生器具與務農器具。
+          且「璞園古厝」在社區景觀營造上更獲得了2020年高市社區文化景觀營造類建築園冶獎。
+          </h3>
+          <div class="options">
+            <button class="next-btn" data-next="card_duck3_2">請點選按鈕繼續</button>
           </div>
         </div>
       </div>
 
-      <div id="card_tea1_result" class="hidden">
-        <div id="sceneTea1Result">
-          <h3 class="namecard">導覽員-小朱</h3>
-          <h3 class="dialog" id="resultTea1"></h3>
+      <!-- ⛺ 綠色庭院：導覽解說 2 -->
+      <div id="card_duck3_2" class="hidden">
+        <div id="sceneDuck3_2">
+          <h3 class="namecard">導覽員－啵啵鴨</h3>
           <h3 class="dialog">
-            💡 解說：六龜原生山茶為喬木型茶樹，生長高度較高，有別於一般常見的灌木型茶園。
+            而我們會進行老屋翻修，除了做為文物展示，也將部分空間作為文創工作空間，
+            藉由修復找回古厝原貌，增加創意想法進而提升藝術氣息，使居民更能感受到變化與進步。
+          </h3>
+          <div class="options">
+            <button class="next-btn" data-next="card_duck3_question">請點選按鈕繼續</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ❓ 綠色庭院：題目 -->
+      <div id="card_duck3_question" class="hidden">
+        <div id="sceneDuck3Q">
+          <h3 class="dialog">Q：下列哪一處地點位於崙港社區，曾修復超過90年歷史的陳家土埆厝並轉型為文物館？</h3>
+          <div class="selection">
+            <button>(A) 光德寺</button>
+            <button>(B) 鴨村瓦房直賣所</button>
+            <button>(C) 璞園古厝</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ 綠色庭院：答案結果 -->
+      <div id="card_duck3_result" class="hidden">
+        <div id="sceneDuck3R">
+          <h3 class="dialog" id="resultDuck3"></h3>
+          <h3 class="dialog">
+          💡 解說：「璞園古厝」文物館是由一間傳統土埆厝修復而成的，在社區景觀營造上更獲得了2020年高市社區文化景觀營造類建築園冶獎。
           </h3>
           <div class="options">
             <button class="next-btn" data-next="#">請移動鏡頭至下一個導覽點</button>
@@ -1021,387 +1067,98 @@
         </div>
       </div>
 
-      <div id="card_tea1_result" class="hidden">
-        <div id="sceneTea1Result">
-          <h3 class="dialog" id="resultTea1"></h3>
+      <!-- 🏳️‍🌈 彩繪牆：導覽解說 -->
+      <div id="card_duck4" class="hidden">
+        <div id="sceneDuck4">
+          <h3 class="namecard">導覽員－啵啵鴨</h3>
+          <h3 class="dialog">
+          「鴨村瓦房」是一個以空間設計概念「老屋與新元素的融合」為主的文創休憩公園。
+          除保留舊瓦厝的茅房與浴室外，建築外觀透過Q版手繪，生動地描繪了農村養鴨文化，讓遊客能盡情拍照打卡，
+          在瓦房內，遊客可以選購特色農產和農村文創品，這些文創品巧妙地融入了趕鴨特色，讓農村行銷更有趣味。
+          </h3>
           <div class="options">
-            <button class="next-btn" data-next="#">請點選按鈕繼續</button>
+            <button class="next-btn" data-next="card_duck4_question">請點選按鈕繼續</button>
           </div>
         </div>
       </div>
 
-      <div id="card_1" class="hidden clickable">
-        <div id="mrju" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene1" class="hidden">
-          <h3 class="namecard">導覽員-小朱</h3>
-          <h3 class="dialog">你好，我是小朱，接下來讓我為你解說門口這些美麗的陶片吧</h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_2">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_2" class="hidden"> 
-        <div id="scene2">
-          <h3 class="dialog">你來猜猜看牆面上的陶片尺寸是多少吧？</h3>
+      <!-- ❓ 彩繪牆：題目 -->
+      <div id="card_duck4_question" class="hidden">
+        <div id="sceneDuck4Q">
+          <h3 class="dialog">Q：「鴨村瓦房」作為一個文創休憩公園，其空間設計概念的核心是什麼？</h3>
           <div class="selection">
-              <button id="optionA">A.冰掌(兵長)一米六</button>
-              <button id="optionB">B.10×20公分</button>
-              <button id="optionC">C.18×6公分</button>
+            <button>(A) 以「老屋與新元素的融合」為主要概念</button>
+            <button>(B) 致力於回復傳統瓦厝的原貌，不添加任何現代元素</button>
+            <button>(C) 專門作為展示早期農家生活器具的文物展覽館</button>
           </div>
         </div>
       </div>
-      
-      <div id="card_3" class="hidden">
-        <div id="mrju" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene3">
-          <h3 class="namecard">導覽員-小朱</h3>
-          <h3 class="dialog" id="result3"></h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_4">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_4" class="hidden">
-        <div id="mrju" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene4">
-          <h3 class="namecard">導覽員-小朱</h3>
-          <h3 class="dialog">這些陶片的尺寸為10×20公分，剛上釉料時是無法看到色彩的，要等燒製完成後，顏色才會顯現出來，所以製作陶藝，就是一場藝術冒險哦。</h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_5">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_5" class="hidden">
-        <div id="mrju" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene5">
-          <h3 class="namecard">導覽員-小朱</h3>
-          <h3 class="dialog">而且每塊陶片都是由三到五位師傅共同創造出來的，他們在創作過程中互相合作，是非常有默契的藝術家團隊。等到陶片都燒製完成後，再固定在牆上，這些陶片的尺寸雖小，但背後蘊含著師傅們的心血和努力。</h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_6">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_6" class="hidden">
-        <div id="hua" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene6">
-          <h3 class="namecard">導覽員-小花</h3>
-          <h3 class="dialog">讓我們一起進入這個神奇的展覽室吧，讓我們用眼睛和心靈一同仔細觀察這些作品！這個空間裡，充滿了繽紛絢麗的色彩，那話不多說，我們聽小朱為大家講解背後的小故事吧～</h3>
-          <div class="options">
-            <button class="next-btn" data-next="#">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <a-entity target id="targetB" mindar-image-target="targetIndex: 1" rotation="75 0 0"></a-entity>
-      <div id="card_7" class="hidden clickable">
-        <div id="mrju" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene7" class="hidden">
-          <h3 class="namecard">導覽員-小朱</h3>
-          <h3 class="dialog">這裡的作品色彩繽紛絢麗，其實是一場化學實驗的奇妙結果唷！</h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_8">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_8" class="hidden">
-        <div id="scene8" class="hidden">
-          <h3 class="dialog">你知道面前這些作品是怎麼完成的嗎?</h3>
-          <div class="selection">
-            <button id="optionD">A.將不同陶土根據特性，釉燒後完成</button>
-            <button id="optionE">B.朱邦雄博士的火之呼吸</button>
-            <button id="optionF">C.朱式鍊陶術</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_9" class="hidden">
-        <div id="mrju" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene9">
-          <h3 class="namecard">導覽員-小朱</h3>
-          <h3 class="dialog" id="result9"></h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_10">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_10" class="hidden">
-        <div id="mrju" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene10">
-          <h3 class="namecard">導覽員-小朱</h3>
-          <h3 class="dialog">這些釉色是透過不同化學釉料之間的相互作用，才產生了這麼多變化，不管是顏色、粗糙或光滑的觸感，都是釉料在高溫作用下的神奇魔法！還有～根據作品性質，會選用不同特性的陶土來施作。不過你只能用眼睛欣賞，請勿觸摸!</h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_11">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_11" class="hidden">
-        <div class="character">
-          <div id="hua" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        </div>
-        <div id="scene11" class="hidden">
-          <h3 class="namecard">導覽員-小花</h3>
-          <h3 class="dialog">讓我們一起前往餐廳吧。餐廳附近，有不少公共藝術的殘件，這些不僅僅是藝術品，更是我們美濃窯的實力象徵。跟隨我的腳步，一起去探索這些藝術殘件背後的故事吧！</h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_#">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <a-entity target id="targetC" mindar-image-target="targetIndex: 2" rotation="75 0 0">
-        
-      </a-entity> 
-      <div id="card_12" class="hidden clickable">
-        <div id="scene12" class="hidden">
-          <h3 class="dialog">你知道面前這件作品的原件在哪裡嗎?</h3>
-          <div class="selection">
-            <button id="optionG">A.美濃窯的心裡</button>
-            <button id="optionH">B.某個藍色機器貓的百寶袋</button>
-            <button id="optionI">C.成大文學院修齊大樓
-            </button>
-          </div>
-        </div>
-      </div>
-      <div id="card_13" class="hidden">
-        <div id="scene13" class="hidden">
-          <h3 class="dialog" id="result13"></h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_14">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_14" class="hidden">
-        <div id="mrju" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene14">
-          <h3 class="namecard">導覽員-小朱</h3>
-          <h3 class="dialog">你快看看，這些殘件是成大文學院修齊大樓裡的作品，作品名稱就叫《修身齊家》，當初校方請美濃窯幫忙製作塑像與陶壁，以表達對吳修齊董事長捐建大樓的感謝，同時蘊含吳董事長重視教育、回饋社會的美德，以及勉勵學生修養自身的涵義。</h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_15">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_15" class="hidden">
-        <div id="mrju" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene15">
-          <h3 class="namecard">導覽員-小朱</h3>
-          <h3 class="dialog">你知道面前這件作品使用什麼樣的技法嗎?</h3>
-          <div class="selection">
-            <button id="optionJ">A.陰刻</button>
-            <button id="optionK">B.陽刻</button>
-            <button id="optionL">C.一時半刻</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_16" class="hidden">
-        <div id="scene16" class="hidden">
-          <h3 class="dialog" id="result16"></h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_17">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_17" class="hidden">
-        <div id="mrju" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene17">
-          <h3 class="namecard">導覽員-小朱</h3>
-          <h3 class="dialog">另外，你有沒有發現每個中文字都是凸起的，這是屬於「陽刻」的方式，如果是陰刻的話，字體則會凹進去。</h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_18">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_18" class="hidden">
-        <div class="character">
-          <div id="hua" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        </div>
-        <div id="scene18">
-          <h3 class="namecard">導覽員-小花</h3>
-          <h3 class="dialog">再往後面走的話，我們將會看到更多的公共藝術作品殘件，Follow me～讓我來帶你了解美濃窯的成長歷史吧！
-          </h3>
-          <div class="options">
-            <button class="next-btn" data-next="#">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <a-entity target id="targetD" mindar-image-target="targetIndex: 3" rotation="75 0 0">
-        
-      </a-entity>
 
-      <div id="card_19" class="hidden clickable">
-        <div id="scene19" class="hidden">
-          <h3 class="dialog">你知道面前這件作品的原件在哪裡嗎?</h3>
+      <!-- ✅ 彩繪牆：答案結果 -->
+      <div id="card_duck4_result" class="hidden">
+        <div id="sceneDuck4R">
+          <h3 class="dialog" id="resultDuck4"></h3>
+          <h3 class="dialog">
+          💡 解說：「鴨村瓦房」是一個以空間設計概念「老屋與新元素的融合」為主的文創休憩公園。
+          </h3>
+          <div class="options">
+            <button class="next-btn" data-next="#">請移動鏡頭至下一個導覽點</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🪵 室內六角木作：導覽解說 -->
+      <div id="card_duck5" class="hidden">
+        <div id="sceneDuck5">
+          <h3 class="namecard">導覽員－啵啵鴨</h3>
+          <h3 class="dialog">
+          木百貨文創公司是崙港社區重要的合作夥伴，為社區的農村再生計畫與文創轉型提供關鍵的木藝資源與技術支援。
+          木百貨不僅是木材供應商，更為社區開發多樣化的文創商品，
+          與在地養鴨文化或農村意象結合，透過木藝創作，為社區帶來獨特的伴手禮或紀念品。
+          </h3>
+          <div class="options">
+            <button class="next-btn" data-next="card_duck5_2">請點選按鈕繼續</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🪵 室內六角木作：導覽解說 2 -->
+      <div id="card_duck5_2" class="hidden">
+        <div id="sceneDuck5_2">
+          <h3 class="namecard">導覽員－啵啵鴨</h3>
+          <h3 class="dialog">
+            於社區內亦騰出一間室內空間，成為「崙港文創平台」，供在地青年文創商品及社區協會開發商品展示與銷售。
+            這個平台採用再生環保木料打造，青年雷射切割的主要設計概念，四處壁面設計描繪著在地故事情節，
+            讓參訪遊客欣賞每一處匠師、學生和藝術創作者的作品，以及志工們巧思的佈置。
+          </h3>
+          <div class="options">
+            <button class="next-btn" data-next="card_duck5_question">請點選按鈕繼續</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ❓室內六角木作：題目 -->
+      <div id="card_duck5_question" class="hidden">
+        <div id="sceneDuck5Q">
+          <h3 class="dialog">Q：「木百貨文創公司」在崙港社區的農村再生計畫中，提供了哪項關鍵資源與支援？</h3>
           <div class="selection">
-            <button id="optionM">A.樹德科技大學</button>
-            <button id="optionN">B.高雄餐旅學校</button>
-            <button id="optionO">C.高雄科技大學</button>
+            <button>(A) 將舊瓦厝的外觀透過 Q版手繪，描繪農村養鴨文化</button>
+            <button>(B) 擔任淨覺育幼院的行政管理與慈善服務支援</button>
+            <button>(C) 提供木藝資源與技術支援，並結合在地文化開發文創商品</button>
           </div>
         </div>
       </div>
-      <div id="card_20" class="hidden">
-        <div id="scene20" class="hidden">
-          <h3 class="dialog" id="result20"></h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_21">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_21" class="hidden">
-        <div id="mrju" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene21">
-          <h3 class="namecard">導覽員-小朱</h3>
-          <h3 class="dialog">這是朱邦雄博士為高雄餐旅學校製作的第二件作品，利用陶壁作品設置在洗石子的牆面，突顯出雕塑的粗獷質感，像是牆上掛著一個大型的浮雕作品。</h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_22">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_22" class="hidden">
-        <div id="scene22">
-          <h3 class="dialog">你知道面前這件作品蘊含著怎樣的期望嗎?</h3>
-          <div class="selection">
-            <button id="optionP">A.多多種樹</button>
-            <button id="optionQ">B.人名</button>
-            <button id="optionR">C.有所建樹，發揮所長之祝福</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_23" class="hidden">
-        <div id="mrju" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene23" class="hidden">
-          <h3 class="namecard">導覽員-小朱</h3>
-          <h3 class="dialog" id="result23"></h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_24">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_24" class="hidden">
-        <div id="mrju" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene24">
-          <h3 class="namecard">導覽員-小朱</h3>
-          <h3 class="dialog">《建樹》的命名，更是期望學生發揮所長，在工作崗位上有所建樹，至於「樹木」則延伸具有獨立自主、成就非凡的祝福。看到這個作品的你，也希望你可以飛黃騰達哦！有機會的話，到高雄餐旅學校看看陶壁原件吧～</h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_25">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_25" class="hidden">
-        <div id="scene25">
-          <h3 class="dialog">也掃掃看隔壁的作品吧~</h3>
-          <div class="options">
-            <button class="next-btn" data-next="#">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <a-entity target id="targetE" mindar-image-target="targetIndex: 4" rotation="75 0 0">
-        
-      </a-entity>
-      <div id="card_26" class="hidden">
-        <div id="scene26" class="hidden">
-          <h3 class="dialog">你猜猜看這幅作品的地點為何?</h3>
-          <div class="selection">
-            <button id="optionS">A.澄清湖棒球場</button>
-            <button id="optionT">B.臺南市立棒球場</button>
-            <button id="optionU">C.臺中洲際棒球場</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_27" class="hidden">
-        <div id="scene27" class="hidden">
-          <h3 class="dialog" id="result27"></h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_28">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_28" class="hidden">
-        <div id="mrju" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene28">
-          <h3 class="namecard">導覽員-小朱</h3>
-          <h3 class="dialog">終於來到我們要解說的最後一片陶壁啦！這個公共藝術的殘件叫做《九命球體》，在澄清湖棒球場的樣子極為壯觀。</h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_29">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_29" class="hidden">
-        <div id="scene29" class="hidden">
-          <h3 class="dialog">你猜猜看這幅作品的創作理念與下列何者有關?</h3>
-          <div class="selection">
-            <button id="optionV">A.影分身之術</button>
-            <button id="optionW">B.魔球進壘</button>
-            <button id="optionX">C.九命怪貓</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_30" class="hidden">
-        <div id="scene30" class="hidden">
-          <h3 class="dialog" id="result30"></h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_31">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_31" class="hidden">
-        <div id="mrju" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene31">
-          <h3 class="namecard">導覽員-小朱</h3>
-          <h3 class="dialog">雖然是陶壁藝術作品，但作品裡的這些球，事實上只有一顆，創作理念是模擬漫畫中「魔球進壘」的畫面，打擊者就像是看到球的影分身一樣，運用數顆球的圖像，來呈現棒球打擊者的第一視角。</h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_32">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_32" class="hidden">
-        <div class="character">
-          <div id="hua" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        </div>
-        <div id="scene32">
-          <h3 class="namecard">導覽員-小花</h3>
-          <h3 class="dialog">在這趟探險結束之後，我們將帶著收穫和啟發重新回到現實生活中。
+
+      <!-- ✅ 室內六角木作：答案結果 -->
+      <div id="card_duck5_result" class="hidden">
+        <div id="sceneDuck5R">
+          <h3 class="dialog" id="resultDuck5"></h3>
+          <h3 class="dialog">
+          💡 解說：木百貨文創公司是崙港社區重要的合作夥伴，
+          為社區的農村再生計畫與文創轉型提供關鍵的木藝資源與技術支援，更為社區開發多樣化的文創商品。
           </h3>
           <div class="options">
-            <button class="next-btn" data-next="card_33">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_33" class="hidden">
-        <div id="mrju" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene33">
-          <h3 class="namecard">導覽員-小朱</h3>
-          <h3 class="dialog">藝術不僅存在於畫廊和博物館中，它也隱藏在我們日常生活的某些角落。
-          </h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_34">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_34" class="hidden">
-        <div id="hua" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene34">
-          <h3 class="namecard">導覽員-小花</h3>
-          <h3 class="dialog">這趟旅程不僅是一次對藝術的探索，更是一次對美濃窯的深度走訪。
-          </h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_35">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_35" class="hidden">
-        <div id="mrju" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene35">
-          <h3 class="namecard">導覽員-小朱</h3>
-          <h3 class="dialog">讓我們將這份感動和體驗帶回去與親朋好友分享，並在日常生活中尋找更多藝術之美。
-          </h3>
-          <div class="options">
-            <button class="next-btn" data-next="card_36">請點選按鈕繼續</button>
-          </div>
-        </div>
-      </div>
-      <div id="card_36" class="hidden">
-        <div id="hua" alpha-test="0.5" position="0 0 0" height="0.552" width="1"></div>
-        <div id="scene36">
-          <h3 class="namecard">導覽員-小花</h3>
-          <h3 class="dialog">這就是美濃窯藝術之旅的真正意義！
-          </h3>
-          <div class="options">
-            <button class="next-btn" data-next="#">請點選按鈕繼續</button>
+            <button class="next-btn" data-next="#">請移動鏡頭至下一個導覽點</button>
           </div>
         </div>
       </div>
@@ -1498,4 +1255,3 @@
 
   </body>
 </html>
-
