@@ -53,7 +53,7 @@
             position: relative;
             width: 100%;
             height: 100vh;
-            background-image: url("img/Duck_Home.jpg");
+            background-image: url("img/呱呱的家.jpg");
             background-size: cover;
             background-position: center;
         }
@@ -399,7 +399,7 @@
         document.getElementById('continue-btn').addEventListener('click', function () {
             document.getElementById('dialogue-1').classList.add('hidden');
             document.getElementById('card_1').classList.remove('hidden');
-            playAudio('assets/duck/introduce.mp3'); // Play the audio for card 1
+            playAudio('assets/introduce.mp3'); // Play the audio for card 1
         });
 
         document.querySelectorAll('.next-btn').forEach(button => {
@@ -410,7 +410,7 @@
 
                 // Play the corresponding audio for each card
                 if (nextCard === 'card_4') {
-                    playAudio('assets/duck_audio/go_toAR.mp3'); // Play the audio for card 4
+                    playAudio('assets/go_toAR.mp3'); // Play the audio for card 4
                 }
             });
         });

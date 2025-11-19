@@ -15,7 +15,7 @@ const initializeGemini = () => {
     genAI = new GoogleGenerativeAI(config.GEMINI_API_KEY);
   }
   return genAI;
-};
+};                                                                                                                                                                                                                                                                                                                                            
 
 const convertMessagesToGeminiFormat = (messages) => {
   const history = [];
