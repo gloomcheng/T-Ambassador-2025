@@ -1,825 +1,301 @@
-
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v7.0.0/dist/aframe-extras.min.js"></script>
+    <!-- MindAR for A-Frame（如果你原本有別的 CDN，可換成原本那個） -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  </head>
 
-  <style>
-  /* 🧱 統一設定所有文字框的白底樣式 */
-  .dialog, .selection, .options, .namecard {
-    background-color: rgba(255, 255, 255, 0.9); /* 白色底 + 透明一點 */
-    border-radius: 15px;  /* 圓角邊框 */
-    padding: 10px 15px;   /* 內距，讓文字不貼邊 */
-    margin: 5px 0;        /* 分開上下距離 */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* 陰影讓文字浮出背景 */
-    display: inline-block; /* 讓底色只包住文字 */
-  }
-  /* 🧩 讓選項按鈕也更明顯（在白底上看起來一致） */
-  .selection > button, .options > button {
-    background-color: rgba(255, 255, 255, 1);
-    border: 2px solid rgba(0, 0, 0, 0.1);
-    color: #333;
-    font-weight: bold;
-    border-radius: 25px;
-    padding: 10px 20px;
-    margin: 5px;
-    transition: all 0.3s ease;
-  }
-  .selection > button:hover, .options > button:hover {
-    background-color: #87cefa; /* 淺藍色 hover 效果 */
-    color: white;
-    transform: scale(1.05);
-  }
-  /* AR 畫面放底層，不攔截滑鼠/觸控 */
-  a-scene, a-scene canvas, a-scene video {
-    position: fixed;
-    inset: 0;            /* top:0; right:0; bottom:0; left:0 的速寫 */
-    z-index: 1;          /* 低於 UI 層 */
-    pointer-events: none;/* 不要攔截點擊，讓上面的 HTML 收到事件 */
-  }
-  /* UI 覆蓋層：承載所有可點擊卡片/按鈕 */
-  #ui-layer {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;       /* 高於 a-scene */
-    pointer-events: none;/* 預設不吃事件，讓下面元素決定 */
-  }
-  /* 每一張卡片可以吃事件 */
-  [id^="card_"], [id^="card_duck"] {
-    pointer-events: auto;
-  }
-  /* 你的按鈕排版，並確保可點擊 */
-  .selection,
-  .options {
-    position: relative;
-    z-index: 10000;
-    pointer-events: auto;
-  }
-  .selection > button,
-  .options > button {
-    position: relative;
-    z-index: 10001;
-    pointer-events: auto;
-  }
-  /* 導覽員貼圖一樣放在 UI 層上方、可見即可 */
-  #hua, #mrju {
-    background-image: url("assets/崙港頂呱呱.png");
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center;
-    height: 420px;
-    width: 420px;
-    position: absolute;
-    top: -480px;
-    left: 10%;
-    z-index: 9000;  /* 比 a-scene 高、比 UI 卡片低或高都可以 */
-  }
-    .hidden {
-      display: none;
-    }
-    /* 讓三個選項直向排、保持間距 */
-    .selection{
-      display:flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;                 /* 按鈕間距 */
-    }
+    <style>
+      /* 🧱 統一設定所有文字框的白底樣式 */
+      .dialog,
+      .selection,
+      .options,
+      .namecard {
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 15px;
+        padding: 10px 15px;
+        margin: 5px 0;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        display: inline-block;
+      }
 
-    /* 調整選項按鈕排版與換行規則 */
-    .selection button{
-      display:block;
-      width: min(90%, 420px);    /* 手機不超出畫面、桌機不會太寬 */
-      padding: 12px 16px;
-      background:#fff;           /* 白底，字清楚 */
-      border:1px solid #ddd;
-      border-radius: 12px;
-      box-sizing: border-box;
-      text-align: left;          /* 文字靠左比較好讀 */
-      line-height: 1.4;
-      white-space: normal;       /* 允許換行 */
-      overflow-wrap: break-word; /* 長字分行 */
-      word-break: break-word;    /* 中英文都能斷行 */
-      font-size: 1rem;
-    }
-
-    .options>button{
-      background-color:rgba(120, 196, 240, 0.849);
-      padding: 1% 3%;
-      margin-top: 10px;
-      border-color: transparent;
-    }
-    #card_1,
-    #card_2,
-    #card_3,
-    #card_4,
-    #card_5,
-    #card_6,
-    #card_7,
-    #card_8,
-    #card_9,
-    #card_10,
-    #card_11,
-    #card_12,
-    #card_13,
-    #card_14,
-    #card_15,
-    #card_16,
-    #card_17,
-    #card_18,
-    #card_19,
-    #card_20,
-    #card_21,
-    #card_22,
-    #card_23,
-    #card_24,
-    #card_25,
-    #card_26,
-    #card_27,
-    #card_28,
-    #card_29,
-    #card_30,
-    #card_31,
-    #card_32,
-    #card_33,
-    #card_34,
-    #card_35,
-    #card_36
-     {
-      position: fixed;
-      bottom: 5%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80%;
-      height: 22%;
-      background-color: aliceblue;
-      padding: 20px;
-      align-items: center;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      cursor: pointer;
-      z-index: 10;
-    }
-
-    .dialog span.hidden {
-      visibility: hidden;
-    }
-    .character{
-      width: 50%;
-    }
-    #hua, #mrju {
-      background-image: url("assets/duck_NoBackground.png"); /* ← 你的新圖片路徑 */
-      background-repeat: no-repeat;
-      background-size: contain;
-      background-position: center;
-      height: 420px;
-      width: 420px;
-      position: absolute;
-      top: -480px;
-      left: 10%;
-      z-index: 5;
-    }
-
-    #scene1{
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-position: center;
-    }
-    .namecard{
-      color: rgb(129, 179, 223);
-    }
-    .options{
-      display: flex;
-      justify-content: flex-end;
-    }
-    /* nest hub max */
-    @media (max-width: 1280px) {
-      
-      #card_1,
-      #card_2,
-      #card_3,
-      #card_4,
-      #card_5,
-      #card_6,
-      #card_7,
-      #card_8,
-      #card_9,
-      #card_10,
-      #card_11,
-      #card_12,
-      #card_13,
-      #card_14,
-      #card_15,
-      #card_16,
-      #card_17,
-      #card_18,
-      #card_19,
-      #card_20,
-      #card_21,
-      #card_22,
-      #card_23,
-      #card_24,
-      #card_25,
-      #card_26,
-      #card_27,
-      #card_28,
-      #card_29,
-      #card_30,
-      #card_31,
-      #card_32,
-      #card_33,
-      #card_34,
-      #card_35,
-      #card_36{
-        height: 21%;
-      }
-      .selection button{
-        font-size: .95rem;
-        padding: 10px 14px;
-      }
-      .options>button{
-        margin: 0;
-      }
-    }
-    /* nest hub */
-    @media (max-width: 1024px) {
-      #mrju{
-        height: 390px;
-        width: 470px;
-        top: -389px;
-        left: -10%;
-      }
-      #hua{
-        height: 390px;
-        width: 470px;
-        top: -389px;
-        left: -10%;
-      }
-      h3{
-        font-size: 16px;
-      }
-      #card_1,
-      #card_2,
-      #card_3,
-      #card_4,
-      #card_5,
-      #card_6,
-      #card_7,
-      #card_8,
-      #card_9,
-      #card_10,
-      #card_11,
-      #card_12,
-      #card_13,
-      #card_14,
-      #card_15,
-      #card_16,
-      #card_17,
-      #card_18,
-      #card_19,
-      #card_20,
-      #card_21,
-      #card_22,
-      #card_23,
-      #card_24,
-      #card_25,
-      #card_26,
-      #card_27,
-      #card_28,
-      #card_29,
-      #card_30,
-      #card_31,
-      #card_32,
-      #card_33,
-      #card_34,
-      #card_35,
-      #card_36
-      {
-        height: 25%;
-      }
-    }
-    @media (max-width: 924px) {
-      #card_1,
-      #card_2,
-      #card_3,
-      #card_4,
-      #card_5,
-      #card_6,
-      #card_7,
-      #card_8,
-      #card_9,
-      #card_10,
-      #card_11,
-      #card_12,
-      #card_13,
-      #card_14,
-      #card_15,
-      #card_16,
-      #card_17,
-      #card_18,
-      #card_19,
-      #card_20,
-      #card_21,
-      #card_22,
-      #card_23,
-      #card_24,
-      #card_25,
-      #card_26,
-      #card_27,
-      #card_28,
-      #card_29,
-      #card_30,
-      #card_31,
-      #card_32,
-      #card_33,
-      #card_34,
-      #card_35,
-      #card_36{
-        height:17%;
-      }
-      .selection{
-        margin-top:4%;
-      }
-      .selection>button{
-        padding: 2% 3%;
-      }
-    }
-    @media (max-width: 768px) {
-      .selection>button{
-        padding: 2%;
-      }
-    }
-
-    @media screen and (max-width:576px) { 
-      h3{
-        font-size: 16px;
-      }
-      #character, #scene4>img{
-        top: -85%;
-        width:150px;
-      }
-      #card_1,
-      #card_2,
-      #card_3,
-      #card_4,
-      #card_5,
-      #card_6,
-      #card_7,
-      #card_8,
-      #card_9,
-      #card_10,
-      #card_11,
-      #card_12,
-      #card_13,
-      #card_14,
-      #card_15,
-      #card_16,
-      #card_17,
-      #card_18,
-      #card_19,
-      #card_20,
-      #card_21,
-      #card_22,
-      #card_23,
-      #card_24,
-      #card_25,
-      #card_26,
-      #card_27,
-      #card_28,
-      #card_29,
-      #card_30,
-      #card_31,
-      #card_32,
-      #card_33,
-      #card_34,
-      #card_35,
-      #card_36{
-        height:28%;
-      }
-      .selection{
-        flex-direction: column;
-      }
-    }
-
-    @media screen and (max-width:480px) {
-      .dialogue-box {
-        left: 50%;
-      }
-    } /* ← 這個大括號一定要補上！ */
-
-    /* samsung galaxy a51/a71 */
-    @media (max-width: 440px) {
-      .selection {
-        flex-direction: column;
-      }
-      .selection > button {
-        margin: 2%;
-      }
+      /* 🧩 讓選項按鈕也更明顯（在白底上看起來一致） */
+      .selection > button,
       .options > button {
-        padding: 5%;
+        background-color: rgba(255, 255, 255, 1);
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        color: #333;
+        font-weight: bold;
+        border-radius: 25px;
+        padding: 10px 20px;
+        margin: 5px;
+        transition: all 0.3s ease;
       }
+      .selection > button:hover,
+      .options > button:hover {
+        background-color: #87cefa;
+        color: white;
+        transform: scale(1.05);
+      }
+
+      /* AR 畫面放底層，不攔截滑鼠/觸控 */
+      a-scene,
+      a-scene canvas,
+      a-scene video {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      /* UI 覆蓋層：承載所有可點擊卡片/按鈕 */
+      #ui-layer {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        pointer-events: none;
+      }
+
+      /* 每一張卡片可以吃事件 */
+      [id^="card_"],
+      [id^="card_duck"] {
+        pointer-events: auto;
+      }
+
+      .selection,
+      .options {
+        position: relative;
+        z-index: 10000;
+        pointer-events: auto;
+      }
+
+      .selection > button,
+      .options > button {
+        position: relative;
+        z-index: 10001;
+        pointer-events: auto;
+      }
+
+      /* 導覽員貼圖 */
+      #hua,
       #mrju {
-        height: 289px;
-        width: 350px;
-        top: -288px;
-        left: -23%;
+        background-image: url("assets/duck_NoBackground.png");
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: center;
+        height: 420px;
+        width: 420px;
+        position: absolute;
+        top: -480px;
+        left: 10%;
+        z-index: 5;
       }
-      #hua {
-        height: 289px;
-        width: 350px;
-        top: -288px;
-        left: -17%;
-      }
-      #card_1,
-      #card_2,
-      #card_3,
-      #card_4,
-      #card_5,
-      #card_6,
-      #card_7,
-      #card_8,
-      #card_9,
-      #card_10,
-      #card_11,
-      #card_12,
-      #card_13,
-      #card_14,
-      #card_15,
-      #card_16,
-      #card_17,
-      #card_18,
-      #card_19,
-      #card_20,
-      #card_21,
-      #card_22,
-      #card_23,
-      #card_24,
-      #card_25,
-      #card_26,
-      #card_27,
-      #card_28,
-      #card_29,
-      #card_30,
-      #card_31,
-      #card_32,
-      #card_33,
-      #card_34,
-      #card_35,
-      #card_36 {
-        height: 26%;
-      }
-    }
 
+      .hidden {
+        display: none;
+      }
 
-    @media screen and (max-width:400px) { 
-      h3{
-        font-size: 14px;
+      .selection {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
       }
-      #card_1,
-      #card_2,
-      #card_3,
-      #card_4,
-      #card_5,
-      #card_6,
-      #card_7,
-      #card_8,
-      #card_9,
-      #card_10,
-      #card_11,
-      #card_12,
-      #card_13,
-      #card_14,
-      #card_15,
-      #card_16,
-      #card_17,
-      #card_18,
-      #card_19,
-      #card_20,
-      #card_21,
-      #card_22,
-      #card_23,
-      #card_24,
-      #card_25,
-      #card_26,
-      #card_27
-      {
-        height:30%;
-      }
-      .selection{
-        margin-top: 0;
-      }
-      .options>button{
-        padding: 3%;
-      }
-      .selection>button{
-        margin: 4%;
-      }
-    }
 
+      .selection button {
+        display: block;
+        width: min(90%, 420px);
+        padding: 12px 16px;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        box-sizing: border-box;
+        text-align: left;
+        line-height: 1.4;
+        white-space: normal;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        font-size: 1rem;
+      }
 
-  
-     
+      .options > button {
+        background-color: rgba(120, 196, 240, 0.849);
+        padding: 1% 3%;
+        margin-top: 10px;
+        border-color: transparent;
+      }
+
+      .dialog span.hidden {
+        visibility: hidden;
+      }
+
+      .character {
+        width: 50%;
+      }
+
+      #scene1 {
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+
+      .namecard {
+        color: rgb(129, 179, 223);
+      }
+
+      .options {
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      /* 以下是你原本各裝置的 RWD，保留 */
+
+      /* nest hub max */
+      @media (max-width: 1280px) {
+        .selection button {
+          font-size: 0.95rem;
+          padding: 10px 14px;
+        }
+        .options > button {
+          margin: 0;
+        }
+      }
+
+      /* nest hub */
+      @media (max-width: 1024px) {
+        #mrju {
+          height: 390px;
+          width: 470px;
+          top: -389px;
+          left: -10%;
+        }
+        #hua {
+          height: 390px;
+          width: 470px;
+          top: -389px;
+          left: -10%;
+        }
+        h3 {
+          font-size: 16px;
+        }
+      }
+
+      @media (max-width: 924px) {
+        .selection {
+          margin-top: 4%;
+        }
+        .selection > button {
+          padding: 2% 3%;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .selection > button {
+          padding: 2%;
+        }
+      }
+
+      @media screen and (max-width: 576px) {
+        h3 {
+          font-size: 16px;
+        }
+        #character,
+        #scene4 > img {
+          top: -85%;
+          width: 150px;
+        }
+        .selection {
+          flex-direction: column;
+        }
+      }
+
+      @media screen and (max-width: 480px) {
+        .dialogue-box {
+          left: 50%;
+        }
+      }
+
+      /* samsung galaxy a51/a71 */
+      @media (max-width: 440px) {
+        .selection {
+          flex-direction: column;
+        }
+        .selection > button {
+          margin: 2%;
+        }
+        .options > button {
+          padding: 5%;
+        }
+        #mrju {
+          height: 289px;
+          width: 350px;
+          top: -288px;
+          left: -23%;
+        }
+        #hua {
+          height: 289px;
+          width: 350px;
+          top: -288px;
+          left: -17%;
+        }
+      }
+
+      @media screen and (max-width: 400px) {
+        h3 {
+          font-size: 14px;
+        }
+        .selection {
+          margin-top: 0;
+        }
+        .options > button {
+          padding: 3%;
+        }
+        .selection > button {
+          margin: 4%;
+        }
+      }
     </style>
-    <script>
-      
-      let audioContext;
-      let sourceNode;
-
-      const resumeAudioContext = async () => {
-        console.log('Resuming AudioContext');
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        await audioContext.resume();
-        console.log('AudioContext resumed');
-      };
-  
-      const getAudio = async (url) => {
-        console.log(`Fetching audio from ${url}`);
-        const response = await fetch(url);
-        const buffer = await response.arrayBuffer();
-        return buffer;
-      };
-  
-      const playMusic = async (url) => {
-        if (!audioContext) {
-          await resumeAudioContext();
-        }
-        const audioBuffer = await getAudio(url);
-        const decodedData = await audioContext.decodeAudioData(audioBuffer);
-        sourceNode = audioContext.createBufferSource();
-        sourceNode.buffer = decodedData;
-        sourceNode.connect(audioContext.destination);
-        sourceNode.start();
-        console.log('Music started');
-      };
-  
-      const pauseMusic = () => {
-        if (sourceNode) {
-          sourceNode.stop();
-          console.log('Music stopped');
-        }
-      };
-  
-      document.addEventListener("DOMContentLoaded", function () {
-        const sceneEl = document.querySelector('a-scene');
-        let arSystem;
-
-        sceneEl.addEventListener('loaded', function () {
-          console.log('AR scene loaded');
-          arSystem = sceneEl.systems["mindar-image-system"];
-
-
-          const targets = [
-            // 1️⃣ 光德寺 duck01（targetIndex:1）
-            { id: 'targetDuck1', sceneId: 'sceneDuck1', cardId: 'card_duck1', music: null },
-
-            // 2️⃣ 紅陶鴨村 duck02（targetIndex:2）
-            { id: 'targetDuckVillage', sceneId: 'sceneDuck2', cardId: 'card_duck2', music: null },
-
-            // 3️⃣ 綠色庭院／璞園古厝 duck03（targetIndex:3）
-            { id: 'targetGreenYard', sceneId: 'sceneDuck3', cardId: 'card_duck3', music: null },
-
-            // 4️⃣ 彩繪牆／鴨村瓦房 duck04（targetIndex:4）
-            { id: 'targetColorWall', sceneId: 'sceneDuck4', cardId: 'card_duck4', music: null },
-
-            // 5️⃣ 室內六角木作／木百貨 duck05（targetIndex:0）
-            { id: 'targetWoodDisplay', sceneId: 'sceneDuck5', cardId: 'card_duck5', music: null },
-          ];
-
-
-          targets.forEach(target => {
-            const { id, sceneId, cardId, music } = target;
-            const targetElement = document.querySelector(`#${id}`);
-            console.log(targetElement);
-            console.log(`#${id}`);
-            const sceneElement = document.getElementById(sceneId);
-            const cardElement = document.getElementById(cardId);
-
-            targetElement.addEventListener("targetFound", async event => {
-              console.log('target found');
-              // 🔹 1️⃣ 先隱藏所有其他卡片，避免舊的殘留
-              document.querySelectorAll('[id^="card_"]').forEach(card => {
-                card.classList.add('hidden');
-              });
-              // 🔹 2️⃣ 再顯示目前對應的題目卡
-              sceneElement.classList.remove('hidden');
-              cardElement.classList.remove('hidden');
-            });
-
-            targetElement.addEventListener("targetLost", event => {
-              console.log('target lost');
-              //cardElement.classList.add('hidden');
-              //sceneElement.classList.add('hidden');
-              if (music) pauseMusic();
-            });
-          });         
-        });
-
-
-
-
-        // General function to handle card clicks
-        const handleCardClick = (currentCard, currentScene, nextCard, nextScene, music) => {
-          console.log(`${currentCard.id} clicked`);
-          currentCard.classList.add('hidden');
-          currentScene.classList.add('hidden');
-          pauseMusic();
-          if (nextCard && nextScene) {
-            nextCard.classList.remove('hidden');
-            nextScene.classList.remove('hidden');
-            if (music) playMusic(music);
-          }
-        };
-
-        // Array of card sequences
-        const cards = [
-          { currentCard: 'card_1', currentScene: 'scene1', nextCard: 'card_2', nextScene: 'scene2', music: null },
-          { currentCard: 'card_2', currentScene: 'scene2', nextCard: 'card_3', nextScene: 'scene3', music: null },
-          { currentCard: 'card_3', currentScene: 'scene3', nextCard:'card_4', nextScene: 'scene4', music: 'assets/1-4.wav' },
-          { currentCard: 'card_4', currentScene: 'scene4', nextCard:'card_5', nextScene: 'scene5', music: 'assets/1-5.wav' },
-          { currentCard: 'card_5', currentScene: 'scene5', nextCard: 'card_6', nextScene: 'card_6', music: 'assets/2.wav' },
-          { currentCard: 'card_6', currentScene: 'scene6', nextCard: null, nextScene: null, music: null },
-          // targerb
-          { currentCard: 'card_7', currentScene: 'scene7', nextCard: 'card_8', nextScene: 'scene8', music: null },
-          { currentCard: 'card_8', currentScene: 'scene8', nextCard: 'card_9', nextScene: 'scene9', music: null  },
-          { currentCard: 'card_9', currentScene: 'scene9', nextCard: 'card_10', nextScene: 'scene10', music: 'assets/2-3.wav'},
-          { currentCard: 'card_10', currentScene: 'scene10', nextCard: 'card_11', nextScene: 'scene11', music:'assets/3.wav' },
-          { currentCard: 'card_11', currentScene: 'scene11', nextCard: null, nextScene: null, music: null },
-          // targetc
-          { currentCard: 'card_12', currentScene: 'scene12', nextCard: 'card_13', nextScene: 'scene13', music: null },
-          { currentCard: 'card_13', currentScene: 'scene13', nextCard: 'card_14', nextScene: 'card_14', music: 'assets/3-2.wav' },
-          { currentCard: 'card_14', currentScene: 'scene14', nextCard: 'card_15', nextScene: 'scene15', music: null },
-          { currentCard: 'card_15', currentScene: 'scene15', nextCard: 'card_16', nextScene: 'scene16', music: null },
-          { currentCard: 'card_16', currentScene: 'scene16', nextCard: 'card_17', nextScene: 'scene17', music: 'assets/3-3.wav' },
-          { currentCard: 'card_17', currentScene: 'scene17', nextCard: 'card_18', nextScene: 'scene18', music: 'assets/4.wav' },
-          { currentCard: 'card_18', currentScene: 'scene18', nextCard: null, nextScene: null, music: null },
-          // targetd
-          { currentCard: 'card_19', currentScene: 'scene19', nextCard: 'card_20', nextScene: 'scene20', music: null },
-          { currentCard: 'card_20', currentScene: 'scene20', nextCard: 'card_21', nextScene: 'scene21', music: 'assets/4-2.wav' },
-          { currentCard: 'card_21', currentScene: 'scene21', nextCard: 'card_22', nextScene: 'scene22', music: null },
-          { currentCard: 'card_22', currentScene: 'scene22', nextCard: 'card_23', nextScene: 'scene23', music: null },
-          { currentCard: 'card_23', currentScene: 'scene23', nextCard: 'card_24', nextScene: 'scene24', music: 'assets/4-3.wav' },
-          { currentCard: 'card_24', currentScene: 'scene24', nextCard: 'card_25', nextScene: 'scene25', music: null },
-          { currentCard: 'card_25', currentScene: 'scene25', nextCard: null, nextScene: null, music: null },
-          // targete
-          { currentCard: 'card_26', currentScene: 'scene26', nextCard: 'card_27', nextScene: 'scene27', music: null },
-          { currentCard: 'card_27', currentScene: 'scene27', nextCard: 'card_28', nextScene: 'scene28', music: 'assets/5.wav' },
-          { currentCard: 'card_28', currentScene: 'scene28', nextCard: 'card_29', nextScene: 'scene29', music: null },
-          { currentCard: 'card_29', currentScene: 'scene29', nextCard: 'card_30', nextScene: 'scene30', music: null },
-          { currentCard: 'card_30', currentScene: 'scene30', nextCard: 'card_31', nextScene: 'scene31', music: 'assets/5-2.wav' },
-          { currentCard: 'card_31', currentScene: 'scene31', nextCard: 'card_32', nextScene: 'scene32', music: 'assets/5-3.mp3' },
-          { currentCard: 'card_32', currentScene: 'scene32', nextCard: 'card_33', nextScene: 'scene33', music: 'assets/5-4.mp3' },
-          { currentCard: 'card_33', currentScene: 'scene33', nextCard: 'card_34', nextScene: 'scene34', music: 'assets/5-5.mp3' },
-          { currentCard: 'card_34', currentScene: 'scene34', nextCard: 'card_35', nextScene: 'scene35', music: 'assets/5-6.mp3' },
-          { currentCard: 'card_35', currentScene: 'scene35', nextCard: 'card_36', nextScene: 'scene36', music: 'assets/5-7.mp3' },
-          { currentCard: 'card_36', currentScene: 'scene36', nextCard: null, nextScene: null, music: null },
-        ];
-
-        cards.forEach(({ currentCard, currentScene, nextCard, nextScene, music }) => {
-          const currentCardElement = document.getElementById(currentCard);
-          const currentSceneElement = document.getElementById(currentScene);
-          const nextCardElement = nextCard ? document.getElementById(nextCard) : null;
-          const nextSceneElement = nextScene ? document.getElementById(nextScene) : null;
-
-          currentCardElement.addEventListener("click", event => {
-            handleCardClick(currentCardElement, currentSceneElement, nextCardElement, nextSceneElement, music);
-          });
-        });
-
-
-        // ===============================
-        // 🧩 題目控制系統（含除錯訊息）
-        // ===============================
-        const targets = 
-        [
-            // 1️⃣ 光德寺 duck01（targetIndex:1）
-            { id: 'targetDuck1', sceneId: 'sceneDuck1', cardId: 'card_duck1', music: null },
-
-            // 2️⃣ 紅陶鴨村 duck02（targetIndex:2）
-            { id: 'targetDuckVillage', sceneId: 'sceneDuck2', cardId: 'card_duck2', music: null },
-            
-            // 3️⃣ 綠色庭院 duck03（targetIndex:3）
-            { id: 'targetGreenYard', sceneId: 'sceneDuck3', cardId: 'card_duck3', music: null },
-          
-            // 4️⃣ 彩繪牆 duck04（targetIndex:4）
-            { id: 'targetColorWall', sceneId: 'sceneDuck4', cardId: 'card_duck4', music: null },
-          
-            // 5️⃣ 室內六角木作 duck05（targetIndex:0）
-            { id: 'targetWoodDisplay', sceneId: 'sceneDuck5', cardId: 'card_duck5', music: null },
-        ];
-
-
-        console.log("🧩 題目系統已載入，共", questions.length, "題");
-
-        // 🔍 問題監聽與除錯
-        questions.forEach(question => {
-          const { cardId, correctAnswer, resultId, nextCardId } = question;
-
-          const card = document.getElementById(cardId);
-          const buttons = card ? card.querySelectorAll(".selection button") : [];
-          const result = document.getElementById(resultId);
-          const nextCard = document.getElementById(nextCardId);
-
-          if (!card) {
-            console.warn("⚠️ 找不到卡片元素：", cardId);
-            return;
-          }
-          if (buttons.length === 0) {
-            console.warn("⚠️ 找不到選項按鈕於：", cardId);
-          }
-
-          console.log(`✅ 問題載入成功：${cardId} → 正確答案為 ${correctAnswer}`);
-
-          // 🖱️ 監聽按鈕事件
-          buttons.forEach(button => {
-              button.addEventListener("click", function() {
-                console.log(`🟢 玩家在 ${cardId} 點選了：${button.innerText}`);
-
-                // 答案比對
-                if (button.innerText.trim() === correctAnswer.trim()) {
-                    console.log("🎯 答對了！");
-                    result.innerText = "✅ 恭喜你，答對了！";
-                } else {
-                    console.log("❌ 答錯了！正確答案是：", correctAnswer);
-                    result.innerText = `❌ 正確答案是 ${correctAnswer}`;
-                }
-
-                // 切換畫面
-                console.log(`🔄 顯示結果畫面：${nextCardId}`);
-                card.classList.add("hidden");
-                nextCard.classList.remove("hidden");
-              });
-          });
-        });
-
-
-        // Array of options
-        const options = [
-          'optionA','optionB','optionC','optionD', 'optionE', 'optionF',
-          'optionG', 'optionH', 'optionI', 'optionJ', 'optionK', 'optionL',
-          'optionM', 'optionN', 'optionO', 'optionP', 'optionQ', 'optionR',
-          'optionS', 'optionT', 'optionU', 'optionV', 'optionW', 'optionX'
-        ];
-
-        document.querySelectorAll(".next-btn").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const next = btn.getAttribute("data-next");
-            const current = btn.closest("[id^='card_']");
-            if (current) current.classList.add("hidden");
-            if (next && document.getElementById(next)) {
-              document.getElementById(next).classList.remove("hidden");
-            }
-          });
-        });
-
-      });
-  </script>
   </head>
+
   <body>
-  <!-- 導覽員貼圖（可留在 body 頂層） -->
-  <div id="hua" class="hidden"></div>
-  <div id="mrju" class="hidden"></div>
+    <!-- 導覽員貼圖 -->
+    <div id="hua" class="hidden"></div>
+    <div id="mrju" class="hidden"></div>
 
-  <!--<a-scene mindar-image="imageTargetSrc: assets/imagetargets/六龜山茶館圖片/targets_tea.mind; filterMinCF:0.0001; filterBeta:0.001">-->
-  <!-- <a-scene mindar-image="imageTargetSrc: assets/imagetargets/崙港鴨饗吧圖片/duck_mind/targets01.mind"> -->
-  <a-scene
-    mindar-image="imageTargetSrc: assets/imagetargets/duck_targets.mind"
-    color-space="sRGB"
-    renderer="colorManagement: true, physicallyCorrectLights"
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false"
-    embedded
-  >
-    
-    <!-- Camera 必須放在 a-scene 內 -->
-    <a-camera 
-      position="0 0 0" 
-      look-controls="enabled:false"
-      cursor="fuse: false; rayOrigin: mouse;"
-      raycaster="near: 10; far: 30000; objects: .clickable">
-    </a-camera>
+    <!-- 🔍 AR Scene -->
+    <a-scene
+      mindar-image="imageTargetSrc: assets/targets.mind"
+      color-space="sRGB"
+      renderer="colorManagement: true, physicallyCorrectLights"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false"
+      embedded
+    >
+      <a-camera
+        position="0 0 0"
+        look-controls="enabled:false"
+        cursor="fuse: false; rayOrigin: mouse;"
+        raycaster="near: 10; far: 30000; objects: .clickable"
+      ></a-camera>
 
-    <!-- MindAR target entities（必須放在 a-scene 裡） -->
-    
-    <!-- 0 = duck05.jpg = 室內六角木作 -->
-    <a-entity id="targetWoodDisplay" mindar-image-target="targetIndex: 0" rotation="75 0 0"></a-entity>
+      <!-- 0 = duck05.jpg = 室內六角木作 -->
+      <a-entity id="targetWoodDisplay" mindar-image-target="targetIndex: 0" rotation="75 0 0"></a-entity>
 
-    <!-- 1 = duck01.jpg = 光德寺 -->
-    <a-entity id="targetDuck1" mindar-image-target="targetIndex: 1" rotation="75 0 0"></a-entity>
+      <!-- 1 = duck01.jpg = 光德寺 -->
+      <a-entity id="targetDuck1" mindar-image-target="targetIndex: 1" rotation="75 0 0"></a-entity>
 
-    <!-- 2 = duck02.jpg = 紅陶鴨村 農機具 -->
-    <a-entity id="targetDuckVillage" mindar-image-target="targetIndex: 2" rotation="75 0 0"></a-entity>
+      <!-- 2 = duck02.jpg = 紅陶鴨村 農機具 -->
+      <a-entity id="targetDuckVillage" mindar-image-target="targetIndex: 2" rotation="75 0 0"></a-entity>
 
-    <!-- 3 = duck03.jpg = 綠色庭院 -->
-    <a-entity id="targetGreenYard" mindar-image-target="targetIndex: 3" rotation="75 0 0"></a-entity>
+      <!-- 3 = duck03.jpg = 綠色庭院 -->
+      <a-entity id="targetGreenYard" mindar-image-target="targetIndex: 3" rotation="75 0 0"></a-entity>
 
-    <!-- 4 = duck04.jpg = 彩繪牆 -->
-    <a-entity id="targetColorWall" mindar-image-target="targetIndex: 4" rotation="75 0 0"></a-entity>
+      <!-- 4 = duck04.jpg = 彩繪牆 -->
+      <a-entity id="targetColorWall" mindar-image-target="targetIndex: 4" rotation="75 0 0"></a-entity>
+    </a-scene>
 
-
-  </a-scene>
-
-
+    <!-- 🌈 UI Layer：所有卡片都放這裡 -->
     <div id="ui-layer">
       <!-- 🏯 光德寺：導覽解說 1 -->
       <div id="card_duck1" class="hidden">
@@ -927,19 +403,22 @@
         </div>
       </div>
 
-      <!-- ✅ 接著在這裡貼上你的新卡片段落 -->
-      <!-- 🏯 新景點導覽解說 -->
+      <!-- 🏯 紅陶鴨村：導覽解說 1 -->
       <div id="card_duck2" class="hidden">
         <div id="sceneDuck2">
           <h3 class="namecard">導覽員－啵啵鴨</h3>
-          <h3 class="dialog">「紅陶鴨村」是透過活化社區內閒置空間，打造出具有手作體驗活動與懷舊氛圍的農機具展示場域。這些機具成為社區景觀的一部分，讓到訪的旅客了解早期農耕的辛勞與變遷。且結合了周圍「觀」公園、「鴨鄉漫遊」古厝花園，讓遊客更能親身體驗昔日「鴨庄」的生活與文化。</h3>
+          <h3 class="dialog">
+            「紅陶鴨村」是透過活化社區內閒置空間，打造出具有手作體驗活動與懷舊氛圍的農機具展示場域。
+            這些機具成為社區景觀的一部分，讓到訪的旅客了解早期農耕的辛勞與變遷。且結合了周圍「觀」公園、
+            「鴨鄉漫遊」古厝花園，讓遊客更能親身體驗昔日「鴨庄」的生活與文化。
+          </h3>
           <div class="options">
             <button class="next-btn" data-next="card_duck2_2">請點選按鈕繼續</button>
           </div>
         </div>
       </div>
 
-      <!-- 🏯 第二段解說 -->
+      <!-- 🏯 紅陶鴨村：導覽解說 2 -->
       <div id="card_duck2_2" class="hidden">
         <div id="sceneDuck2_2">
           <h3 class="dialog">它主要展示崙港地區的歷史與民俗藝術…</h3>
@@ -949,10 +428,12 @@
         </div>
       </div>
 
-      <!-- ❓ 題目 -->
+      <!-- ❓ 紅陶鴨村：題目 -->
       <div id="card_duck2_question" class="hidden">
         <div id="sceneDuck2Q">
-          <h3 class="dialog">Q：「紅陶鴨村」是透過活化社區閒置空間所打造，其場域主要提供哪兩類活動和展示？</h3>
+          <h3 class="dialog">
+            Q：「紅陶鴨村」是透過活化社區閒置空間所打造，其場域主要提供哪兩類活動和展示？
+          </h3>
           <div class="selection">
             <button>(A) 專門銷售特色農產與結合趕鴨元素的文創商品</button>
             <button>(B) 具有手作體驗活動與懷舊氛圍的農機具展示</button>
@@ -961,66 +442,28 @@
         </div>
       </div>
 
-      <!-- ✅ 答案結果 -->
+      <!-- ✅ 紅陶鴨村：答案結果 -->
       <div id="card_duck2_result" class="hidden">
         <div id="sceneDuck2R">
           <h3 class="dialog" id="resultDuck2"></h3>
-          <h3 class="dialog">💡 解說：「紅陶鴨村」是透過活化社區內閒置空間，打造出具有手作體驗活動與懷舊氛圍的農機具展示場域。</h3>
+          <h3 class="dialog">
+            💡 解說：「紅陶鴨村」是透過活化社區內閒置空間，打造出具有手作體驗活動與懷舊氛圍的農機具展示場域。
+          </h3>
           <div class="options">
             <button class="next-btn" data-next="#">請移動鏡頭至下一個導覽點</button>
           </div>
         </div>
       </div>
 
-
-      <script>
-
-        const card = document.getElementById(duckQuestion.cardId);
-        const buttons = card.querySelectorAll('.selection button');
-        const result = document.getElementById(duckQuestion.resultId);
-        const nextCard = document.getElementById(duckQuestion.nextCardId);
-
-        buttons.forEach(btn => {
-          btn.addEventListener('click', () => {
-            if (btn.innerText.trim() === duckQuestion.correctAnswer.trim()) {
-              result.innerText = '✅ 恭喜你，答對了！';
-            } else {
-              result.innerText = `❌ 答錯了～正確答案是 ${duckQuestion.correctAnswer}`;
-            }
-            card.classList.add('hidden');
-            nextCard.classList.remove('hidden');
-          });
-        });
-
-        // ✅ 下一個導覽點按鈕控制（立刻註冊）
-        document.querySelectorAll(".next-btn").forEach(btn => {
-          btn.addEventListener("click", () => {
-            console.log("🧭 玩家選擇前往下一個導覽點");
-            // 隱藏當前卡片
-            const current = btn.closest("[id^='card_']");
-            if (current) current.classList.add('hidden');
-            // 顯示下一個
-            const next = btn.getAttribute("data-next");
-            if (next && document.getElementById(next)) {
-              document.getElementById(next).classList.remove("hidden");
-            }
-            // 清空結果
-            document.querySelectorAll('[id^="result"]').forEach(r => r.innerText = '');
-          });
-        });
-      </script>
-
-
-
-
-            <!-- ⛺ 綠色庭院：導覽解說 -->
+      <!-- ⛺ 綠色庭院／璞園古厝：導覽解說 1 -->
       <div id="card_duck3" class="hidden">
         <div id="sceneDuck3">
           <h3 class="namecard">導覽員－啵啵鴨</h3>
           <h3 class="dialog">
-          「璞園古厝」文物館是由一間傳統土埆厝修復而成的，我們希望回復土角厝原貌，但又不能完全失真，把堪用的保留下來，
-          將璞園古厝作為社區的文物歷史文創展覽館，展示原有留下早期農家生活民生器具與務農器具。
-          且「璞園古厝」在社區景觀營造上更獲得了2020年高市社區文化景觀營造類建築園冶獎。
+            「璞園古厝」文物館是由一間傳統土埆厝修復而成的，我們希望回復土角厝原貌，
+            但又不能完全失真，把堪用的保留下來，將璞園古厝作為社區的文物歷史文創展覽館，
+            展示原有留下早期農家生活民生器具與務農器具。且「璞園古厝」在社區景觀營造上更獲得了
+            2020年高市社區文化景觀營造類建築園冶獎。
           </h3>
           <div class="options">
             <button class="next-btn" data-next="card_duck3_2">請點選按鈕繼續</button>
@@ -1045,7 +488,9 @@
       <!-- ❓ 綠色庭院：題目 -->
       <div id="card_duck3_question" class="hidden">
         <div id="sceneDuck3Q">
-          <h3 class="dialog">Q：下列哪一處地點位於崙港社區，曾修復超過90年歷史的陳家土埆厝並轉型為文物館？</h3>
+          <h3 class="dialog">
+            Q：下列哪一處地點位於崙港社區，曾修復超過90年歷史的陳家土埆厝並轉型為文物館？
+          </h3>
           <div class="selection">
             <button>(A) 光德寺</button>
             <button>(B) 鴨村瓦房直賣所</button>
@@ -1059,7 +504,8 @@
         <div id="sceneDuck3R">
           <h3 class="dialog" id="resultDuck3"></h3>
           <h3 class="dialog">
-          💡 解說：「璞園古厝」文物館是由一間傳統土埆厝修復而成的，在社區景觀營造上更獲得了2020年高市社區文化景觀營造類建築園冶獎。
+            💡 解說：「璞園古厝」文物館是由一間傳統土埆厝修復而成的，在社區景觀營造上更獲得了
+            2020年高市社區文化景觀營造類建築園冶獎。
           </h3>
           <div class="options">
             <button class="next-btn" data-next="#">請移動鏡頭至下一個導覽點</button>
@@ -1067,14 +513,14 @@
         </div>
       </div>
 
-      <!-- 🏳️‍🌈 彩繪牆：導覽解說 -->
+      <!-- 🏳️‍🌈 彩繪牆／鴨村瓦房：導覽解說 -->
       <div id="card_duck4" class="hidden">
         <div id="sceneDuck4">
           <h3 class="namecard">導覽員－啵啵鴨</h3>
           <h3 class="dialog">
-          「鴨村瓦房」是一個以空間設計概念「老屋與新元素的融合」為主的文創休憩公園。
-          除保留舊瓦厝的茅房與浴室外，建築外觀透過Q版手繪，生動地描繪了農村養鴨文化，讓遊客能盡情拍照打卡，
-          在瓦房內，遊客可以選購特色農產和農村文創品，這些文創品巧妙地融入了趕鴨特色，讓農村行銷更有趣味。
+            「鴨村瓦房」是一個以空間設計概念「老屋與新元素的融合」為主的文創休憩公園。
+            除保留舊瓦厝的茅房與浴室外，建築外觀透過Q版手繪，生動地描繪了農村養鴨文化，讓遊客能盡情拍照打卡，
+            在瓦房內，遊客可以選購特色農產和農村文創品，這些文創品巧妙地融入了趕鴨特色，讓農村行銷更有趣味。
           </h3>
           <div class="options">
             <button class="next-btn" data-next="card_duck4_question">請點選按鈕繼續</button>
@@ -1085,7 +531,9 @@
       <!-- ❓ 彩繪牆：題目 -->
       <div id="card_duck4_question" class="hidden">
         <div id="sceneDuck4Q">
-          <h3 class="dialog">Q：「鴨村瓦房」作為一個文創休憩公園，其空間設計概念的核心是什麼？</h3>
+          <h3 class="dialog">
+            Q：「鴨村瓦房」作為一個文創休憩公園，其空間設計概念的核心是什麼？
+          </h3>
           <div class="selection">
             <button>(A) 以「老屋與新元素的融合」為主要概念</button>
             <button>(B) 致力於回復傳統瓦厝的原貌，不添加任何現代元素</button>
@@ -1099,7 +547,7 @@
         <div id="sceneDuck4R">
           <h3 class="dialog" id="resultDuck4"></h3>
           <h3 class="dialog">
-          💡 解說：「鴨村瓦房」是一個以空間設計概念「老屋與新元素的融合」為主的文創休憩公園。
+            💡 解說：「鴨村瓦房」是一個以空間設計概念「老屋與新元素的融合」為主的文創休憩公園。
           </h3>
           <div class="options">
             <button class="next-btn" data-next="#">請移動鏡頭至下一個導覽點</button>
@@ -1107,14 +555,14 @@
         </div>
       </div>
 
-      <!-- 🪵 室內六角木作：導覽解說 -->
+      <!-- 🪵 木百貨／室內六角木作：導覽解說 1 -->
       <div id="card_duck5" class="hidden">
         <div id="sceneDuck5">
           <h3 class="namecard">導覽員－啵啵鴨</h3>
           <h3 class="dialog">
-          木百貨文創公司是崙港社區重要的合作夥伴，為社區的農村再生計畫與文創轉型提供關鍵的木藝資源與技術支援。
-          木百貨不僅是木材供應商，更為社區開發多樣化的文創商品，
-          與在地養鴨文化或農村意象結合，透過木藝創作，為社區帶來獨特的伴手禮或紀念品。
+            木百貨文創公司是崙港社區重要的合作夥伴，為社區的農村再生計畫與文創轉型提供關鍵的木藝資源與技術支援。
+            木百貨不僅是木材供應商，更為社區開發多樣化的文創商品，
+            與在地養鴨文化或農村意象結合，透過木藝創作，為社區帶來獨特的伴手禮或紀念品。
           </h3>
           <div class="options">
             <button class="next-btn" data-next="card_duck5_2">請點選按鈕繼續</button>
@@ -1122,7 +570,7 @@
         </div>
       </div>
 
-      <!-- 🪵 室內六角木作：導覽解說 2 -->
+      <!-- 🪵 木百貨：導覽解說 2 -->
       <div id="card_duck5_2" class="hidden">
         <div id="sceneDuck5_2">
           <h3 class="namecard">導覽員－啵啵鴨</h3>
@@ -1137,10 +585,12 @@
         </div>
       </div>
 
-      <!-- ❓室內六角木作：題目 -->
+      <!-- ❓ 木百貨：題目 -->
       <div id="card_duck5_question" class="hidden">
         <div id="sceneDuck5Q">
-          <h3 class="dialog">Q：「木百貨文創公司」在崙港社區的農村再生計畫中，提供了哪項關鍵資源與支援？</h3>
+          <h3 class="dialog">
+            Q：「木百貨文創公司」在崙港社區的農村再生計畫中，提供了哪項關鍵資源與支援？
+          </h3>
           <div class="selection">
             <button>(A) 將舊瓦厝的外觀透過 Q版手繪，描繪農村養鴨文化</button>
             <button>(B) 擔任淨覺育幼院的行政管理與慈善服務支援</button>
@@ -1149,21 +599,189 @@
         </div>
       </div>
 
-      <!-- ✅ 室內六角木作：答案結果 -->
+      <!-- ✅ 木百貨：答案結果 -->
       <div id="card_duck5_result" class="hidden">
         <div id="sceneDuck5R">
           <h3 class="dialog" id="resultDuck5"></h3>
           <h3 class="dialog">
-          💡 解說：木百貨文創公司是崙港社區重要的合作夥伴，
-          為社區的農村再生計畫與文創轉型提供關鍵的木藝資源與技術支援，更為社區開發多樣化的文創商品。
+            💡 解說：木百貨文創公司是崙港社區重要的合作夥伴，
+            為社區的農村再生計畫與文創轉型提供關鍵的木藝資源與技術支援，更為社區開發多樣化的文創商品。
           </h3>
           <div class="options">
             <button class="next-btn" data-next="#">請移動鏡頭至下一個導覽點</button>
           </div>
         </div>
       </div>
-    </a-scene>
+    </div>
 
+    <!-- 🎧 BGM 用：暫時保留，之後你要加音樂可以直接給 URL -->
+    <script>
+      let audioContext;
+      let sourceNode;
+
+      const resumeAudioContext = async () => {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        await audioContext.resume();
+      };
+
+      const getAudio = async (url) => {
+        const response = await fetch(url);
+        const buffer = await response.arrayBuffer();
+        return buffer;
+      };
+
+      const playMusic = async (url) => {
+        if (!audioContext) {
+          await resumeAudioContext();
+        }
+        const audioBuffer = await getAudio(url);
+        const decodedData = await audioContext.decodeAudioData(audioBuffer);
+        sourceNode = audioContext.createBufferSource();
+        sourceNode.buffer = decodedData;
+        sourceNode.connect(audioContext.destination);
+        sourceNode.start();
+      };
+
+      const pauseMusic = () => {
+        if (sourceNode) {
+          sourceNode.stop();
+        }
+      };
+    </script>
+
+    <!-- 🧠 主控制邏輯：AR target + 解說卡片 + 問答 -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const hua = document.getElementById("hua");
+        const uiLayer = document.getElementById("ui-layer");
+
+        // 🔹 工具：隱藏所有卡片
+        function hideAllCards() {
+          uiLayer.querySelectorAll('[id^="card_"], [id^="card_duck"]').forEach((card) => {
+            card.classList.add("hidden");
+          });
+        }
+
+        // ===============================
+        // 1️⃣ MindAR target => 對應景點第一張卡片
+        // ===============================
+        const duckTargets = [
+          { id: "targetDuck1", firstCardId: "card_duck1" },
+          { id: "targetDuckVillage", firstCardId: "card_duck2" },
+          { id: "targetGreenYard", firstCardId: "card_duck3" },
+          { id: "targetColorWall", firstCardId: "card_duck4" },
+          { id: "targetWoodDisplay", firstCardId: "card_duck5" },
+        ];
+
+        const sceneEl = document.querySelector("a-scene");
+
+        sceneEl.addEventListener("loaded", () => {
+          console.log("AR scene loaded");
+
+          duckTargets.forEach(({ id, firstCardId }) => {
+            const targetEl = document.getElementById(id);
+            const firstCard = document.getElementById(firstCardId);
+
+            if (!targetEl) {
+              console.warn("找不到 target 元素：", id);
+              return;
+            }
+
+            targetEl.addEventListener("targetFound", () => {
+              console.log(id, "📌 targetFound");
+              hideAllCards();
+              if (firstCard) firstCard.classList.remove("hidden");
+              if (hua) hua.classList.remove("hidden");
+            });
+
+            targetEl.addEventListener("targetLost", () => {
+              console.log(id, "📴 targetLost");
+              // 這裡你可以選擇「不隱藏」，讓遊客看完卡片；
+              // 如果你希望一離開就關掉卡片，可以在這裡加上 hideAllCards()
+              // hideAllCards();
+            });
+          });
+        });
+
+        // ===============================
+        // 2️⃣ 解說文字卡 ➜ 下一張卡片（next-btn）
+        // ===============================
+        document.querySelectorAll(".next-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const nextId = btn.getAttribute("data-next");
+            const currentCard = btn.closest("[id^='card_'], [id^='card_duck']");
+            if (currentCard) currentCard.classList.add("hidden");
+            if (nextId && document.getElementById(nextId)) {
+              document.getElementById(nextId).classList.remove("hidden");
+            }
+          });
+        });
+
+        // ===============================
+        // 3️⃣ 問答系統：每個景點一題
+        // ===============================
+        const questions = [
+          {
+            cardId: "card_duck1_question",
+            correctAnswer: "(B) 民國十六年",
+            resultId: "resultDuck1",
+            nextCardId: "card_duck1_result",
+          },
+          {
+            cardId: "card_duck2_question",
+            correctAnswer: "(B) 具有手作體驗活動與懷舊氛圍的農機具展示",
+            resultId: "resultDuck2",
+            nextCardId: "card_duck2_result",
+          },
+          {
+            cardId: "card_duck3_question",
+            correctAnswer: "(C) 璞園古厝",
+            resultId: "resultDuck3",
+            nextCardId: "card_duck3_result",
+          },
+          {
+            cardId: "card_duck4_question",
+            correctAnswer: "(A) 以「老屋與新元素的融合」為主要概念",
+            resultId: "resultDuck4",
+            nextCardId: "card_duck4_result",
+          },
+          {
+            cardId: "card_duck5_question",
+            correctAnswer:
+              "(C) 提供木藝資源與技術支援，並結合在地文化開發文創商品",
+            resultId: "resultDuck5",
+            nextCardId: "card_duck5_result",
+          },
+        ];
+
+        questions.forEach(({ cardId, correctAnswer, resultId, nextCardId }) => {
+          const card = document.getElementById(cardId);
+          const result = document.getElementById(resultId);
+          const nextCard = document.getElementById(nextCardId);
+
+          if (!card) {
+            console.warn("找不到題目卡片：", cardId);
+            return;
+          }
+
+          const buttons = card.querySelectorAll(".selection button");
+          buttons.forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const text = btn.innerText.trim();
+              if (text === correctAnswer.trim()) {
+                result.innerText = "✅ 恭喜你，答對了！";
+              } else {
+                result.innerText = `❌ 答錯了～正確答案是 ${correctAnswer}`;
+              }
+              card.classList.add("hidden");
+              if (nextCard) nextCard.classList.remove("hidden");
+            });
+          });
+        });
+      });
+    </script>
+
+    <!-- 📱 iOS 感測器授權提示 -->
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const debug = document.createElement("div");
@@ -1184,15 +802,13 @@
           debug.innerText = `🧭 ${msg}`;
         }
 
-        // 檢查是否支援 DeviceMotion
         if (typeof DeviceMotionEvent === "undefined") {
-          logDebug("❌ 不支援 DeviceMotionEvent（此裝置或瀏覽器不支援）");
+          logDebug("❌ 不支援 DeviceMotionEvent");
           return;
         } else {
           logDebug("✅ 支援 DeviceMotionEvent");
         }
 
-        // 檢查是否需要 requestPermission
         if (typeof DeviceMotionEvent.requestPermission !== "function") {
           logDebug("📱 不需 requestPermission（非 iOS 13+）");
           return;
@@ -1200,7 +816,6 @@
           logDebug("🕐 需要 requestPermission (iOS 裝置)");
         }
 
-        // 建立黑色提示畫面
         const overlay = document.createElement("div");
         overlay.style.position = "fixed";
         overlay.style.top = "0";
@@ -1226,13 +841,12 @@
         document.body.appendChild(overlay);
         logDebug("📋 顯示授權提示畫面");
 
-        // 綁定按鈕事件
         document.getElementById("grantAccessBtn").addEventListener("click", () => {
           logDebug("🖱️ 使用者按下允許按鈕，請求權限中...");
 
           try {
             DeviceMotionEvent.requestPermission()
-              .then(response => {
+              .then((response) => {
                 if (response === "granted") {
                   overlay.remove();
                   logDebug("✅ 使用者授權感測器成功！");
@@ -1243,7 +857,7 @@
                   logDebug(`⚠️ 不明回應：${response}`);
                 }
               })
-              .catch(err => {
+              .catch((err) => {
                 logDebug(`💥 requestPermission 失敗：${err.message}`);
               });
           } catch (e) {
@@ -1252,6 +866,5 @@
         });
       });
     </script>
-
   </body>
 </html>
