@@ -11,17 +11,32 @@
 
     <style>
       /* 🧱 統一設定所有文字框的白底樣式 */
+      html,
+      body {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+          background-color: transparent;
+          /* 關鍵：把網頁背景變透明，鏡頭才透得出來 */
+          position: fixed;
+          overscroll-behavior: none;
+      }
+
+      /* 🧱 統一設定所有文字框的白底樣式 */
       .dialog,
       .selection,
       .options,
       .namecard {
-        background-color: rgba(255, 255, 255, 0.9);
-        border-radius: 15px;
-        padding: 10px 15px;
-        margin: 5px 0;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-        display: inline-block;
+          background-color: rgba(255, 255, 255, 0.9);
+          border-radius: 15px;
+          padding: 10px 15px;
+          margin: 5px 0;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+          display: inline-block;
       }
+      
 
       /* 🧩 讓選項按鈕也更明顯（在白底上看起來一致） */
       .selection > button,
