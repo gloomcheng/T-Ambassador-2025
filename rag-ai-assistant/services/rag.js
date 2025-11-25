@@ -7,8 +7,10 @@ import xlsx from 'xlsx';
 import config from '../config/index.js';
 import { generateEmbeddings } from './gemini.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+/* eslint-disable no-underscore-dangle */
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+/* eslint-enable no-underscore-dangle */
 
 class RAGSystem {
   constructor() {
@@ -40,7 +42,7 @@ class RAGSystem {
 
   async loadDocuments() {
     const documentsPath = path.resolve(
-      path.dirname(__dirname),
+      path.dirname(dirname),
       config.RAG_DOCUMENTS_PATH,
     );
 
@@ -53,22 +55,28 @@ class RAGSystem {
     const files = fs.readdirSync(documentsPath);
     const supportedExtensions = ['.txt', '.pdf', '.docx', '.xlsx', '.xls'];
 
-    const allQAPairs = [];
-
-    for (const file of files) {
+    // Filter supported files and parse them in parallel
+    const supportedFiles = files.filter((file) => {
       const ext = path.extname(file).toLowerCase();
-      if (!supportedExtensions.includes(ext)) continue;
+      return supportedExtensions.includes(ext);
+    });
 
+    const parsePromises = supportedFiles.map(async (file) => {
+      const ext = path.extname(file).toLowerCase();
       const filePath = path.join(documentsPath, file);
       console.log(`Loading document: ${file}`);
 
       try {
         const qaPairs = await this.parseDocument(filePath, ext);
-        allQAPairs.push(...qaPairs);
+        return qaPairs;
       } catch (error) {
         console.error(`Error parsing ${file}:`, error.message);
+        return [];
       }
-    }
+    });
+
+    const results = await Promise.all(parsePromises);
+    const allQAPairs = results.flat();
 
     if (allQAPairs.length === 0) {
       console.log('No Q&A pairs found in documents');
@@ -114,6 +122,7 @@ class RAGSystem {
     return this.extractQAPairs(result.value);
   }
 
+  // eslint-disable-next-line class-methods-use-this
   parseExcel(filePath) {
     const workbook = xlsx.readFile(filePath);
     const sheetName = workbook.SheetNames[0];
@@ -147,6 +156,7 @@ class RAGSystem {
     return qaPairs;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   extractQAPairs(text) {
     const qaPairs = [];
     const lines = text.split('\n');
@@ -154,8 +164,8 @@ class RAGSystem {
     let currentQuestion = null;
     let currentAnswer = null;
 
-    for (let i = 0; i < lines.length; i += 1) {
-      const line = lines[i].trim();
+    lines.forEach((item) => {
+      const line = item.trim();
 
       if (!line || line === '---') {
         if (currentQuestion && currentAnswer) {
@@ -166,7 +176,7 @@ class RAGSystem {
           currentQuestion = null;
           currentAnswer = null;
         }
-        continue;
+        return;
       }
 
       if (line.match(/^Q[:：]/i)) {
@@ -185,7 +195,7 @@ class RAGSystem {
       } else if (currentAnswer) {
         currentAnswer += ` ${line}`;
       }
-    }
+    });
 
     if (currentQuestion && currentAnswer) {
       qaPairs.push({
@@ -197,6 +207,7 @@ class RAGSystem {
     return qaPairs;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   cosineSimilarity(vecA, vecB) {
     const dotProduct = vecA.reduce((sum, a, i) => sum + a * vecB[i], 0);
     const magnitudeA = Math.sqrt(vecA.reduce((sum, a) => sum + a * a, 0));
@@ -233,6 +244,3 @@ class RAGSystem {
 const ragSystem = new RAGSystem();
 
 export default ragSystem;
-
-
-

@@ -94,7 +94,12 @@ const zh = {
   __COMMAND_TRANSLATE_TO_JA_LABEL: '上一句翻成日文',
   __COMMAND_TRANSLATE_TO_JA_TEXT: '上一句翻成日文',
   __COMMAND_TRANSLATE_TO_JA_PROMPT: '將以下內容翻譯成日文。',
-  __COMPLETION_DEFAULT_SYSTEM_PROMPT: '以下將使用繁體中文進行對話。',
+  __COMPLETION_DEFAULT_SYSTEM_PROMPT: `你是一個專業且誠實的客服助理。請遵守以下原則：
+1. 僅基於已知的資訊和知識庫內容回答問題
+2. 如果不確定答案或知識庫中沒有相關資訊，請誠實地說「我目前沒有這方面的資訊」或「這個問題我需要確認後才能回答」
+3. 不要編造或猜測不確定的資訊
+4. 如果只知道部分資訊，可以分享已知的部分，但要明確說明哪些部分不確定
+5. 使用繁體中文進行對話，語氣友善專業`,
   __COMPLETION_DEFAULT_HUMAN_PROMPT: (name) => (name ? `我是${name}` : '哈囉'),
   __COMPLETION_DEFAULT_AI_PROMPT: (name) => (name ? `我是${name}` : '哈囉'),
   __COMPLETION_DEFAULT_AI_TONE: (tone) => (tone ? `以${tone}的語氣回應我：` : ''),
