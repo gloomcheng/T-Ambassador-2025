@@ -28,15 +28,29 @@ app.get('/', async (req, res) => {
 
 app.post(config.APP_WEBHOOK_PATH, validateLineSignature, async (req, res) => {
   try {
-    await storage.initialize();
-    await handleEvents(req.body.events);
+    const events = req.body.events;
+
+    for (const event of events) {
+      if (event.type === 'message' && event.message.type === 'text') {
+        await handleEvents([
+          {
+            ...event,
+            message: {
+              ...event.message,
+              text: '✅ 機器人已成功連線！'
+            }
+          }
+        ]);
+      }
+    }
+
     res.sendStatus(200);
   } catch (err) {
-    console.error(err.message);
+    console.error(err);
     res.sendStatus(500);
   }
-  if (config.APP_DEBUG) printPrompts();
 });
+
 
 const port = process.env.PORT || config.APP_PORT || 3000;
 
