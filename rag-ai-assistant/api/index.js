@@ -1,59 +1,53 @@
 import express from 'express';
-import { handleEvents, printPrompts } from '../app/index.js';
+import { messagingApi } from '@line/bot-sdk';
 import config from '../config/index.js';
 import { validateLineSignature } from '../middleware/index.js';
-import ragSystem from '../services/rag.js';
-import storage from '../storage/index.js';
-import { fetchVersion, getVersion } from '../utils/index.js';
 
 const app = express();
 
-ragSystem.initialize();
-
-app.use(express.json({
-  verify: (req, res, buf) => {
-    req.rawBody = buf.toString();
-  },
-}));
-
-app.get('/', async (req, res) => {
-  if (config.APP_URL) {
-    res.redirect(config.APP_URL);
-    return;
-  }
-  const currentVersion = getVersion();
-  const latestVersion = await fetchVersion();
-  res.status(200).send({ status: 'OK', currentVersion, latestVersion });
+/* LINE client（一定要在最外層） */
+const client = new messagingApi.MessagingApiClient({
+  channelAccessToken: config.LINE_CHANNEL_ACCESS_TOKEN,
 });
 
-app.post(config.APP_WEBHOOK_PATH, validateLineSignature, async (req, res) => {
-  try {
-    const events = req.body.events;
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf.toString();
+    },
+  })
+);
+
+/* health check */
+app.get('/', (req, res) => {
+  res.status(200).send({ status: 'OK' });
+});
+
+/* webhook */
+app.post(
+  config.APP_WEBHOOK_PATH || '/webhook',
+  async (req, res) => {
+    const events = req.body.events || [];
 
     for (const event of events) {
       if (event.type === 'message' && event.message.type === 'text') {
-        await handleEvents([
-          {
-            ...event,
-            message: {
-              ...event.message,
-              text: '✅ 機器人已成功連線！'
-            }
-          }
-        ]);
+        await client.replyMessage({
+          replyToken: event.replyToken,
+          messages: [
+            {
+              type: 'text',
+              text: '✅ Webhook 已成功連線',
+            },
+          ],
+        });
       }
     }
 
     res.sendStatus(200);
-  } catch (err) {
-    console.error(err);
-    res.sendStatus(500);
   }
-});
-
+);
 
 const port = process.env.PORT || config.APP_PORT || 3000;
-
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
