@@ -5,45 +5,49 @@ import { validateLineSignature } from '../middleware/index.js';
 
 const app = express();
 
-/* LINE client（一定要在最外層） */
+app.use(express.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf.toString();
+  },
+}));
+
+// LINE client
 const client = new messagingApi.MessagingApiClient({
   channelAccessToken: config.LINE_CHANNEL_ACCESS_TOKEN,
 });
 
-app.use(
-  express.json({
-    verify: (req, res, buf) => {
-      req.rawBody = buf.toString();
-    },
-  })
-);
-
-/* health check */
+// health check
 app.get('/', (req, res) => {
   res.status(200).send({ status: 'OK' });
 });
 
-/* webhook */
+// webhook
 app.post(
-  config.APP_WEBHOOK_PATH || '/webhook',
+  config.APP_WEBHOOK_PATH,
+  validateLineSignature,
   async (req, res) => {
-    const events = req.body.events || [];
+    try {
+      const events = req.body.events || [];
 
-    for (const event of events) {
-      if (event.type === 'message' && event.message.type === 'text') {
-        await client.replyMessage({
-          replyToken: event.replyToken,
-          messages: [
-            {
-              type: 'text',
-              text: '✅ Webhook 已成功連線',
-            },
-          ],
-        });
+      for (const event of events) {
+        if (event.type === 'message' && event.message.type === 'text') {
+          await client.replyMessage({
+            replyToken: event.replyToken,
+            messages: [
+              {
+                type: 'text',
+                text: '✅ Webhook 已成功連線',
+              },
+            ],
+          });
+        }
       }
-    }
 
-    res.sendStatus(200);
+      res.sendStatus(200);
+    } catch (err) {
+      console.error(err);
+      res.sendStatus(500);
+    }
   }
 );
 
