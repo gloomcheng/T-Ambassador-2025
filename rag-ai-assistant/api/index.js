@@ -34,7 +34,6 @@ app.get("/", (req, res) => res.status(200).send("OK"));
 
 app.post(
   config.APP_WEBHOOK_PATH || "/webhook",
-  validateLineSignature,
   async (req, res) => {
     try {
       const events = req.body.events || [];
